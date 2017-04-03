@@ -42,6 +42,7 @@
         "indent": [1, 4],
         "react/jsx-no-duplicate-props": 2,
         "react/react-in-jsx-scope": 2,
+        "react/jsx-indent-props": [2, 4],
         "react/jsx-uses-vars": 2,
         "react/jsx-no-undef": 2,
         "no-class-assign": 0
