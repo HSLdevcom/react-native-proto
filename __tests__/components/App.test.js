@@ -3,12 +3,12 @@ import 'react-native';
 import React from 'react';
 // Note: test renderer must be required after react-native.
 import renderer from 'react-test-renderer';
-import Main from '../../components/Main';
+import App from '../../components/App';
 
 // https://github.com/facebook/react-native/issues/12440#issuecomment-282184173
 jest.unmock('ScrollView');
 
 it('renders correctly', () => {
-    const tree = renderer.create(<Main />).toJSON();
+    const tree = renderer.create(<App />).toJSON();
     expect(tree).toMatchSnapshot();
 });

@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<View
+  style={
+    Object {
+      "backgroundColor": "rgb(255, 255, 255)",
+      "width": "100%",
+    }
+  }
+>
+  <Text
+    accessible={true}
+    allowFontScaling={true}
+    ellipsizeMode="tail"
+    onPress={undefined}
+    style={
+      Object {
+        "color": "rgb(17, 17, 17)",
+        "textAlign": "center",
+      }
+    }
+  >
+    Main
+  </Text>
+  <Text
+    accessible={true}
+    allowFontScaling={true}
+    ellipsizeMode="tail"
+    onPress={undefined}
+    style={
+      Object {
+        "color": "rgb(17, 17, 17)",
+        "textAlign": "center",
+      }
+    }
+  >
+    Test
+  </Text>
+</View>
+`;

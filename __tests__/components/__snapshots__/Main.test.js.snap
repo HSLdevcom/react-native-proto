@@ -5,57 +5,93 @@ exports[`renders correctly 1`] = `
   style={
     Object {
       "alignItems": "center",
-      "backgroundColor": "rgb(35, 74, 214)",
+      "backgroundColor": "rgb(0, 122, 201)",
       "flex": 1,
       "justifyContent": "center",
     }
   }
 >
-  <Text
-    accessible={true}
-    allowFontScaling={true}
-    ellipsizeMode="tail"
+  <View
     style={
       Object {
-        "color": "rgb(255, 255, 255)",
-        "fontSize": 20,
-        "margin": 10,
-        "textAlign": "center",
+        "flex": 1,
       }
     }
   >
-    Welcome to React Native!
-  </Text>
-  <Text
-    accessible={true}
-    allowFontScaling={true}
-    ellipsizeMode="tail"
+    <RCTWebView
+      allowsInlineMediaPlayback={undefined}
+      automaticallyAdjustContentInsets={undefined}
+      bounces={undefined}
+      contentInset={undefined}
+      dataDetectorTypes={undefined}
+      decelerationRate={undefined}
+      injectedJavaScript={undefined}
+      mediaPlaybackRequiresUserAction={undefined}
+      messagingEnabled={false}
+      onLoadingError={[Function]}
+      onLoadingFinish={[Function]}
+      onLoadingStart={[Function]}
+      onMessage={[Function]}
+      onShouldStartLoadWithRequest={undefined}
+      scalesPageToFit={true}
+      scrollEnabled={undefined}
+      source={
+        Object {
+          "uri": "https://www.reittiopas.fi/",
+        }
+      }
+      style={
+        Array [
+          Object {
+            "flex": 1,
+          },
+          Object {
+            "backgroundColor": "#ffffff",
+          },
+          Object {
+            "marginTop": 20,
+            "width": "100%",
+          },
+        ]
+      }
+    />
+  </View>
+  <View
     style={
       Object {
-        "color": "rgb(255, 255, 255)",
-        "marginBottom": 5,
-        "textAlign": "center",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "width": "100%",
       }
     }
   >
-    To get started, edit index.js
-  </Text>
-  <Text
-    accessible={true}
-    allowFontScaling={true}
-    ellipsizeMode="tail"
-    style={
-      Object {
-        "color": "rgb(255, 255, 255)",
-        "marginBottom": 5,
-        "textAlign": "center",
+    <Text
+      accessible={true}
+      allowFontScaling={true}
+      ellipsizeMode="tail"
+      onPress={undefined}
+      style={
+        Object {
+          "color": "rgb(17, 17, 17)",
+          "textAlign": "center",
+        }
       }
-    }
-  >
-    Press Cmd+R to reload,
-    
-    
-    Cmd+D or shake for dev menu
-  </Text>
+    >
+      Main
+    </Text>
+    <Text
+      accessible={true}
+      allowFontScaling={true}
+      ellipsizeMode="tail"
+      onPress={undefined}
+      style={
+        Object {
+          "color": "rgb(17, 17, 17)",
+          "textAlign": "center",
+        }
+      }
+    >
+      Test
+    </Text>
+  </View>
 </View>
 `;
