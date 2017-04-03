@@ -5,6 +5,6 @@
  */
 
 import {AppRegistry} from 'react-native';
-import Main from './components/Main';
+import App from './components/App';
 
-AppRegistry.registerComponent('HSLReactNativeProto', () => Main);
+AppRegistry.registerComponent('HSLReactNativeProto', () => App);

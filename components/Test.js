@@ -1,10 +1,10 @@
 /**
- * Main component
+ * Test component
  * @flow
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, View, WebView} from 'react-native';
+import {StyleSheet, View, Text} from 'react-native';
 import Navigation from './Navigation';
 
 const styles = StyleSheet.create({
@@ -16,27 +16,21 @@ const styles = StyleSheet.create({
     },
     text: {
         color: 'rgb(255, 255, 255)',
-        height: 50,
-    },
-    webView: {
-        marginTop: 20,
-        width: '100%',
+        fontSize: 20,
+        textAlign: 'center',
+        margin: 10,
     },
 });
 
-class Main extends Component { // eslint-disable-line react/prefer-stateless-function
+class Test extends Component { // eslint-disable-line react/prefer-stateless-function
     render() {
         return (
             <View style={styles.container}>
-                <WebView
-                    style={styles.webView}
-                    source={{uri: 'https://www.reittiopas.fi/'}}
-                    scalesPageToFit
-                />
+                <Text style={styles.text}>This is Test.js</Text>
                 <Navigation />
             </View>
         );
     }
 }
 
-export default Main;
+export default Test;
