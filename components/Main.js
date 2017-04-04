@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
         height: 50,
     },
     webView: {
-        marginTop: 20,
+        marginTop: 60,
         width: '100%',
     },
 });
