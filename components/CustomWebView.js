@@ -4,7 +4,8 @@
  */
 
 import React, {Component} from 'react';
-import {ActivityIndicator, Platform, StyleSheet, View, WebView} from 'react-native';
+import {ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
+import colors from './colors';
 
 const styles = StyleSheet.create({
     centering: {
@@ -14,9 +15,33 @@ const styles = StyleSheet.create({
     },
     container: {
         alignItems: 'center',
-        backgroundColor: 'rgb(0, 122, 201)',
+        backgroundColor: colors.brandColor,
         flex: 1,
         justifyContent: 'center',
+    },
+    button: {
+        alignItems: 'center',
+        borderColor: 'transparent',
+        borderRadius: 3,
+        bottom: 50,
+        justifyContent: 'center',
+        marginRight: 3,
+        position: 'absolute',
+        padding: 3,
+        width: 40,
+        zIndex: 2,
+    },
+    disabledButton: {
+        left: -10000,
+    },
+    navButton: {
+        backgroundColor: colors.brandColor,
+    },
+    leftButton: {
+        left: 0,
+    },
+    rightButton: {
+        right: 0,
     },
     spinner: {
         marginTop: 100,
@@ -36,20 +61,56 @@ const styles = StyleSheet.create({
 });
 
 class CustomWebView extends Component { // eslint-disable-line react/prefer-stateless-function
-    constructor(props) {
-        super(props);
-        this.onLoadEnd = this.onLoadEnd.bind(this);
-        // Inner state is bad but at this point it easier
-        this.state = {
-            loading: true,
-        };
-    }
-    onLoadEnd() {
+    // Inner state is bad but at this point it easier
+    state = {
+        backButtonEnabled: false,
+        forwardButtonEnabled: false,
+        loading: true,
+    };
+    onLoadEnd = () => {
         this.setState({loading: false});
     }
+    onNavigationStateChange = (navState) => {
+        this.setState({
+            backButtonEnabled: navState.canGoBack,
+            forwardButtonEnabled: navState.canGoForward,
+        });
+    }
+    goBack = () => {
+        this.webview.goBack();
+    }
+
+    goForward = () => {
+        this.webview.goForward();
+    }
+
     render() {
-        const {uri} = this.props;
-        const {loading} = this.state;
+        const {showBackForwardButtons, uri} = this.props;
+        const {backButtonEnabled, forwardButtonEnabled, loading} = this.state;
+        const backButton = showBackForwardButtons ?
+            (
+                <TouchableOpacity
+                    onPress={this.goBack}
+                    style={backButtonEnabled ?
+                        [styles.navButton, styles.button, styles.leftButton] :
+                        [styles.button, styles.leftButton, styles.disabledButton]}
+                >
+                    <Text style={styles.text} >{'<'}</Text>
+                </TouchableOpacity>
+            ) :
+            null;
+        const forwardButton = showBackForwardButtons ?
+            (
+                <TouchableOpacity
+                    onPress={this.goForward}
+                    style={forwardButtonEnabled ?
+                        [styles.navButton, styles.button, styles.rightButton] :
+                        [styles.button, styles.rightButton, styles.disabledButton]}
+                >
+                    <Text style={styles.text} >{'>'}</Text>
+                </TouchableOpacity>
+            ) :
+            null;
         return (
             <View style={styles.container}>
                 <ActivityIndicator
@@ -57,11 +118,15 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                     size="large"
                     style={[styles.centering, styles.spinner]}
                 />
+                {backButton}
+                {forwardButton}
                 <WebView
+                    ref={(c) => { this.webview = c; }}
                     style={styles.webView}
                     source={{uri}}
                     scalesPageToFit
                     onLoadEnd={this.onLoadEnd}
+                    onNavigationStateChange={this.onNavigationStateChange}
                 />
             </View>
         );
@@ -69,7 +134,12 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
 }
 
 CustomWebView.propTypes = {
+    showBackForwardButtons: React.PropTypes.bool,
     uri: React.PropTypes.string.isRequired,
+};
+
+CustomWebView.defaultProps = {
+    showBackForwardButtons: false,
 };
 
 export default CustomWebView;
