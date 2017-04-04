@@ -5,6 +5,7 @@ import {Router, Scene} from 'react-native-router-flux';
 import Main from './Main';
 import News from './News';
 import Test from './Test';
+import TicketsAndFares from './TicketsAndFares';
 
 const TabIcon = ({selected, title}) => <Text style={{color: selected ? 'red' : 'black'}}>{title}</Text>;
 
@@ -41,6 +42,9 @@ class App extends Component { // eslint-disable-line react/prefer-stateless-func
                         </Scene>
                         <Scene key="newsTab" title="Uutiset" icon={TabIcon}>
                             <Scene key="news" component={News} title="Uutiset" />
+                        </Scene>
+                        <Scene key="ticketsFaresTab" title="Liput ja hinnat" icon={TabIcon}>
+                            <Scene key="ticketsAndFares" component={TicketsAndFares} title="Liput ja hinnat" />
                         </Scene>
                         <Scene key="testing" title="Test" icon={TabIcon}>
                             <Scene key="test" component={Test} title="Test" />
