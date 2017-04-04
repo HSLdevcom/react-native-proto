@@ -37,7 +37,7 @@ exports[`renders correctly 1`] = `
       scrollEnabled={undefined}
       source={
         Object {
-          "uri": "https://www.reittiopas.fi/",
+          "uri": "https://reittiopas.fi",
         }
       }
       style={

@@ -50,7 +50,7 @@ exports[`renders correctly 1`] = `
           },
           Object {
             "marginBottom": 50,
-            "marginTop": 55,
+            "marginTop": 65,
             "width": "100%",
           },
         ]
