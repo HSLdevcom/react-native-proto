@@ -207,7 +207,8 @@ exports[`renders correctly 1`] = `
                                   "backgroundColor": "#ffffff",
                                 },
                                 Object {
-                                  "marginTop": 20,
+                                  "marginBottom": 50,
+                                  "marginTop": 55,
                                   "width": "100%",
                                 },
                               ]
@@ -264,7 +265,7 @@ exports[`renders correctly 1`] = `
                           }
                         }
                       >
-                        Main
+                        Reittiopas
                       </Text>
                     </View>
                   </View>
@@ -332,7 +333,7 @@ exports[`renders correctly 1`] = `
                   }
                 }
               >
-                Home
+                Reittiopas
               </Text>
             </View>
             <View
@@ -371,7 +372,46 @@ exports[`renders correctly 1`] = `
                   }
                 }
               >
-                Second
+                Uutiset
+              </Text>
+            </View>
+            <View
+              accessibilityComponentType={undefined}
+              accessibilityLabel={undefined}
+              accessibilityTraits={undefined}
+              accessible={true}
+              hitSlop={undefined}
+              isTVSelectable={true}
+              onLayout={undefined}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                Object {
+                  "alignItems": "center",
+                  "flex": 1,
+                  "height": 50,
+                  "justifyContent": "center",
+                  "opacity": 1,
+                }
+              }
+              testID={undefined}
+              tvParallaxProperties={undefined}
+            >
+              <Text
+                accessible={true}
+                allowFontScaling={true}
+                ellipsizeMode="tail"
+                style={
+                  Object {
+                    "color": "black",
+                  }
+                }
+              >
+                Test
               </Text>
             </View>
           </View>
