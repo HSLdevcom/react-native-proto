@@ -27,7 +27,12 @@ function Test() {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>This is Test.js</Text>
-            <Text style={styles.text}>{`useragent: ${DeviceInfo.getUserAgent()}\n\nsystem name: ${DeviceInfo.getSystemName()}`}</Text>
+            <Text style={styles.text}>
+                {`useragent: ${DeviceInfo.getUserAgent()}\n\n`}
+                {`system name: ${DeviceInfo.getSystemName()}\n\n`}
+                {`system version: ${DeviceInfo.getSystemVersion()}\n\n`}
+                {`device name: ${DeviceInfo.getDeviceName()}`}
+            </Text>
         </View>
     );
 }
