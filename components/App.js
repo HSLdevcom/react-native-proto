@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import {Text, StyleSheet} from 'react-native';
 import {Router, Scene} from 'react-native-router-flux';
-
+import colors from './colors';
 import Main from './Main';
 import News from './News';
 import Test from './Test';
 import TicketsAndFares from './TicketsAndFares';
 
-const TabIcon = ({selected, title}) => <Text style={{color: selected ? 'red' : 'black'}}>{title}</Text>;
+const TabIcon = ({selected, title}) => <Text style={{color: selected ? colors.brandColor : 'black'}}>{title}</Text>;
 
 TabIcon.propTypes = {
     selected: React.PropTypes.bool,
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     tabBarStyle: {
         borderTopWidth: 0.5,
         borderColor: '#b7b7b7',
-        backgroundColor: 'white',
+        backgroundColor: colors.lightGrayBg,
         opacity: 1,
     },
 });
