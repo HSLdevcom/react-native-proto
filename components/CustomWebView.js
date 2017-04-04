@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     },
     webView: {
         marginBottom: 50,
-        marginTop: (Platform.OS === 'ios') ? 65 : 55,
+        marginTop: (Platform.OS === 'ios') ? 63 : 53,
         width: '100%',
     },
 });
