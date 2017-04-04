@@ -71,7 +71,7 @@ exports[`renders correctly 1`] = `
           },
           Object {
             "marginBottom": 50,
-            "marginTop": 65,
+            "marginTop": 63,
             "width": "100%",
           },
         ]
