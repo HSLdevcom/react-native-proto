@@ -310,7 +310,7 @@ exports[`renders correctly 1`] = `
                   "right": 0,
                 },
                 Object {
-                  "backgroundColor": "white",
+                  "backgroundColor": "rgb(239, 242, 244)",
                   "borderColor": "#b7b7b7",
                   "borderTopWidth": 0.5,
                   "opacity": 1,
@@ -350,7 +350,7 @@ exports[`renders correctly 1`] = `
                 ellipsizeMode="tail"
                 style={
                   Object {
-                    "color": "red",
+                    "color": "rgb(0, 122, 201)",
                   }
                 }
               >
