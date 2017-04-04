@@ -5,6 +5,8 @@
 
 import React, {Component} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
+// https://github.com/rebeccahughes/react-native-device-info
+import DeviceInfo from 'react-native-device-info';
 import Navigation from './Navigation';
 
 const styles = StyleSheet.create({
@@ -24,9 +26,11 @@ const styles = StyleSheet.create({
 
 class Test extends Component { // eslint-disable-line react/prefer-stateless-function
     render() {
+        console.log(`useragent: ${DeviceInfo.getUserAgent()}, model: ${DeviceInfo.getModel()}`);
         return (
             <View style={styles.container}>
                 <Text style={styles.text}>This is Test.js</Text>
+                <Text style={styles.text}>{`useragent: ${DeviceInfo.getUserAgent()}, system name: ${DeviceInfo.getSystemName()}`}</Text>
                 <Navigation />
             </View>
         );

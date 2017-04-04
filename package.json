@@ -20,6 +20,7 @@
     "dependencies": {
         "react": "~15.4.1",
         "react-native": "0.42.3",
+        "react-native-device-info": "^0.10.1",
         "react-native-router-flux": "^3.38.0"
     },
     "devDependencies": {
@@ -29,6 +30,7 @@
         "cross-env": "^4.0.0",
         "eslint": "^3.19.0",
         "eslint-config-airbnb": "^14.1.0",
+        "eslint-plugin-compat": "^1.0.2",
         "eslint-plugin-import": "^2.2.0",
         "eslint-plugin-jsx-a11y": "^4.0.0",
         "eslint-plugin-react": "^6.10.3",
@@ -40,7 +42,9 @@
     },
     "jest": {
         "preset": "react-native",
-        "setupFiles": ["./jest/setup.js"],
+        "setupFiles": [
+            "./jest/setup.js"
+        ],
         "collectCoverage": false,
         "collectCoverageFrom": [
             "**/*.{js,jsx}",
