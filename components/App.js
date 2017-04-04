@@ -3,13 +3,16 @@ import {Text, StyleSheet} from 'react-native';
 import {Router, Scene} from 'react-native-router-flux';
 
 import Main from './Main';
+import News from './News';
 import Test from './Test';
 
 const TabIcon = ({selected, title}) => <Text style={{color: selected ? 'red' : 'black'}}>{title}</Text>;
+
 TabIcon.propTypes = {
     selected: React.PropTypes.bool,
     title: React.PropTypes.string.isRequired,
 };
+
 TabIcon.defaultProps = {
     selected: false,
 };
@@ -33,10 +36,13 @@ class App extends Component { // eslint-disable-line react/prefer-stateless-func
                         tabBarStyle={styles.tabBarStyle}
                         hideNavBar
                     >
-                        <Scene key="home" title="Reittiopas" icon={TabIcon}>
-                            <Scene key="main" component={Main} title="Reittiopas" />
+                        <Scene key="homeTab" title="Reittiopas" icon={TabIcon}>
+                            <Scene key="home" component={Main} title="Reittiopas" />
                         </Scene>
-                        <Scene key="second" title="Test" icon={TabIcon}>
+                        <Scene key="newsTab" title="Uutiset" icon={TabIcon}>
+                            <Scene key="news" component={News} title="Uutiset" />
+                        </Scene>
+                        <Scene key="testing" title="Test" icon={TabIcon}>
                             <Scene key="test" component={Test} title="Test" />
                         </Scene>
                     </Scene>
