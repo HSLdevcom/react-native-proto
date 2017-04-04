@@ -5,7 +5,6 @@
 
 import React, {Component} from 'react';
 import {StyleSheet, View, WebView} from 'react-native';
-import Navigation from './Navigation';
 
 const styles = StyleSheet.create({
     container: {
@@ -33,7 +32,6 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
                     source={{uri: 'https://www.reittiopas.fi/'}}
                     scalesPageToFit
                 />
-                <Navigation />
             </View>
         );
     }
