@@ -71,6 +71,8 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         this.setState({loading: false});
     }
     onNavigationStateChange = (navState) => {
+        // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
+        // so we can open the last used page when component is rendered
         this.setState({
             backButtonEnabled: navState.canGoBack,
             forwardButtonEnabled: navState.canGoForward,
