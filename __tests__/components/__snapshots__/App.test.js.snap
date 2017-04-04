@@ -169,6 +169,27 @@ exports[`renders correctly 1`] = `
                           }
                         }
                       >
+                        <ActivityIndicator
+                          animating={true}
+                          color="#999999"
+                          hidesWhenStopped={true}
+                          size="large"
+                          style={
+                            Array [
+                              Object {
+                                "alignItems": "center",
+                                "justifyContent": "center",
+                                "padding": 8,
+                              },
+                              Object {
+                                "height": 80,
+                                "marginTop": 100,
+                                "position": "absolute",
+                                "zIndex": 2,
+                              },
+                            ]
+                          }
+                        />
                         <View
                           style={
                             Object {
