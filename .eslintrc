@@ -11,41 +11,48 @@
         "es6": true
     },
     "rules": {
-        "spaced-comment": 0,
-        "object-curly-spacing": [2, "never", { "arraysInObjects": true }],
+        "block-scoped-var": 2,
+        "camelcase": 1,
+        "comma-dangle": [1, "always-multiline"],
+        'compat/compat': 'error',
+        "curly": [2, "multi-line"],
+        "import/no-named-as-default": 0,
+        "import/default": 0,
+        "import/no-unresolved": [2, {"commonjs": true}],
+        "indent": [1, 4],
+        'jsx-a11y/no-static-element-interactions': 'warn',
+        "keyword-spacing": 1,
         "new-cap": [2, {
             "capIsNewExceptions": ["Map"]
         }],
-        "react/jsx-filename-extension": [1, {
-            "extensions": [".js", ".jsx"]
-        }],
         "no-constant-condition": 0,
         "no-unused-expressions": 2,
-        "semi": [1, "always"],
-        "comma-dangle": [1, "always-multiline"],
-        "no-restricted-globals": 0,
-        "import/no-named-as-default": 0,
-        "import/default": 0,
+        'no-plusplus': ['error', { "allowForLoopAfterthoughts": true }],
         "no-console": 0,
         "no-undef": 2,
-        "camelcase": 1,
-        "block-scoped-var": 2,
         "no-unused-vars": 1,
+        "no-restricted-globals": 0,
         "no-trailing-spaces": 1,
-        "keyword-spacing": 1,
-        "curly": [2, "multi-line"],
-        "import/no-unresolved": [2, {"commonjs": true}],
+        "no-class-assign": 0,
+        "object-curly-spacing": [2, "never", { "arraysInObjects": true }],
         "react/jsx-uses-react": 2,
         "react/jsx-indent": [1, 4],
-        "react/jsx-key": 2,
-        "react/jsx-no-bind": 1,
-        "indent": [1, 4],
         "react/jsx-no-duplicate-props": 2,
         "react/react-in-jsx-scope": 2,
         "react/jsx-indent-props": [2, 4],
         "react/jsx-uses-vars": 2,
         "react/jsx-no-undef": 2,
-        "no-class-assign": 0
+        'react/no-unused-prop-types': ['warn', { skipShapeProps: true }],
+        'react/forbid-prop-types': ['warn', { forbid: ['any', 'array', 'object'] }],
+        'react/require-default-props': 'warn',
+        'react/jsx-filename-extension': ['error', { "extensions": [".js"] }],
+        'react/jsx-no-bind': ['warn', {ignoreRefs: true, allowArrowFunctions: false, allowBind: false}],
+        'react/jsx-key': 'error',
+        "semi": [1, "always"],
+        "spaced-comment": 0,
     },
-    "plugins": ["react"]
+    "plugins": [
+        "react",
+        "compat"
+    ]
 }
