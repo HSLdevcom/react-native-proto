@@ -5,7 +5,7 @@
 
 import React, {Component} from 'react';
 import {ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
-import colors from './colors';
+import colors from '../colors';
 
 const styles = StyleSheet.create({
     centering: {
@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: colors.brandColor,
         flex: 1,
+        height: 600,
         justifyContent: 'center',
     },
     button: {
@@ -54,7 +55,6 @@ const styles = StyleSheet.create({
         height: 50,
     },
     webView: {
-        marginBottom: 50,
         marginTop: (Platform.OS === 'ios') ? 63 : 53,
         width: '100%',
     },
