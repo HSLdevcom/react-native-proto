@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<View
+  style={
+    Object {
+      "alignItems": "center",
+      "justifyContent": "center",
+      "paddingBottom": 10,
+      "paddingTop": 10,
+    }
+  }
+>
+  <Text
+    accessible={true}
+    allowFontScaling={true}
+    ellipsizeMode="tail"
+    style={
+      Object {
+        "color": "rgb(0, 122, 201)",
+      }
+    }
+  >
+    Hello from NewsFeed.js
+  </Text>
+  <Text
+    accessible={true}
+    allowFontScaling={true}
+    ellipsizeMode="tail"
+    style={
+      Object {
+        "color": "rgb(0, 122, 201)",
+      }
+    }
+  >
+    Hello from NewsFeed.js
+  </Text>
+  <Text
+    accessible={true}
+    allowFontScaling={true}
+    ellipsizeMode="tail"
+    style={
+      Object {
+        "color": "rgb(0, 122, 201)",
+      }
+    }
+  >
+    Hello from NewsFeed.js
+  </Text>
+  <Text
+    accessible={true}
+    allowFontScaling={true}
+    ellipsizeMode="tail"
+    style={
+      Object {
+        "color": "rgb(0, 122, 201)",
+      }
+    }
+  >
+    Hello from NewsFeed.js
+  </Text>
+</View>
+`;

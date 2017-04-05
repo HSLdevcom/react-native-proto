@@ -7,6 +7,7 @@ exports[`renders correctly 1`] = `
       "alignItems": "center",
       "backgroundColor": "rgb(0, 122, 201)",
       "flex": 1,
+      "height": 600,
       "justifyContent": "center",
     }
   }
@@ -70,7 +71,6 @@ exports[`renders correctly 1`] = `
             "backgroundColor": "#ffffff",
           },
           Object {
-            "marginBottom": 50,
             "marginTop": 63,
             "width": "100%",
           },
