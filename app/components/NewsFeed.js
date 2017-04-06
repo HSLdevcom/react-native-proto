@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, Text, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, FlatList, Text, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import moment from 'moment';
@@ -8,9 +8,12 @@ import colors from '../colors';
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
+        padding: 15,
+    },
+    childContainer: {
         alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: 15,
     },
     text: {
         color: colors.brandColor,
@@ -19,25 +22,44 @@ const styles = StyleSheet.create({
 });
 
 class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless-function
+
     componentDidMount() {
-        this.props.fetchNewsData();
+        const {news} = this.props;
+        const data = news.get('data');
+        if (!data) {
+            this.props.fetchNewsData();
+        }
     }
+
+    renderItem = ({item}) =>
+        <Text key={item.nid} style={styles.text}>{`${moment.unix(item.created).format('DD.MM.YYYY')}\n${item.title}`}</Text>
+
     render() {
         const {news} = this.props;
         const data = news.get('data');
         if (news.get('fetching')) {
             return <ActivityIndicator size="large" />;
         }
-        let newsItems = null;
+        let newsList = null;
         if (data) {
-            newsItems = data.map(item =>
-                <Text key={item.title} style={styles.text}>
-                    {`${moment.unix(item.created).format('DD.MM.YYYY')}\n${item.title}`}
-                </Text>);
+            newsList = data.map(item =>
+                <TouchableOpacity key={item.nid}>
+                    <Text style={styles.text}>
+                        {`${moment.unix(item.created).format('DD.MM.YYYY')}\n${item.title}`}
+                    </Text>
+                </TouchableOpacity>
+            );
+            // We can use FlatList with react-native 0.43
+            // newsList = (
+            //     <FlatList
+            //         data={data}
+            //         renderItem={this.renderItem}
+            //     />
+            // );
         }
         return (
-            <View style={styles.container}>
-                {newsItems}
+            <View style={styles.container} contentContainerStyle={styles.childContainer} >
+                {newsList}
             </View>
         );
     }
