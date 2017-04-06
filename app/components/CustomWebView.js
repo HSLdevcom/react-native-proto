@@ -4,9 +4,10 @@
  */
 
 import React, {Component} from 'react';
-import {ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
+import {ActivityIndicator, Dimensions, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
 import colors from '../colors';
 
+const screenHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
     centering: {
         alignItems: 'center',
@@ -17,7 +18,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: colors.brandColor,
         flex: 1,
-        height: 600,
+        height: parseInt(screenHeight - 80, 10),
+        minHeight: 400,
         justifyContent: 'center',
     },
     button: {
@@ -45,7 +47,6 @@ const styles = StyleSheet.create({
         right: 0,
     },
     spinner: {
-        marginTop: 100,
         height: 80,
         position: 'absolute',
         zIndex: 2,
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
 });
 
 class CustomWebView extends Component { // eslint-disable-line react/prefer-stateless-function
-    // Inner state is bad but at this point it easier
+    // Inner state is bad but at this point it's easier
     state = {
         backButtonEnabled: false,
         forwardButtonEnabled: false,
