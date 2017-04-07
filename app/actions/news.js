@@ -3,7 +3,7 @@
 * News actions
 *
 */
-import getNews from '../utils/api';
+import {getNewsData} from '../utils/api';
 
 export const FETCHING_NEWS = 'HSLReactNativeProto/app/FETCHING_NEWS';
 export const FETCHING_NEWS_DONE = 'HSLReactNativeProto/app/FETCHING_NEWS_DONE';
@@ -47,16 +47,27 @@ export function fetchNewsError(error) {
 
 /**
 * Load data from API
-*
+* getNewsData() uses just static temporary query at the moment
+* for some reason limit is not working without offset and offset can not be 0...
 */
 export function fetchNewsData() {
     return (dispatch) => {
         dispatch(fetchingNews());
-        getNews()
-        .then((data) => {
-            dispatch(fetchNewsDone(data));
+        getNewsData(`nodeQuery(limit: 10, offset: 1, langcode: "fi", type: "news"){
+            title
+            renderedOutput
+            created
+            nid
+            type {
+                targetId
+            }
+        }`)
+        .then((result) => {
+            // TODO: some error handling maybe?
+            dispatch(fetchNewsDone(result.data.nodeQuery));
         })
         .catch((err) => {
+            // TODO: show error in app
             console.error('err:', err);
             fetchNewsError(err);
         });
