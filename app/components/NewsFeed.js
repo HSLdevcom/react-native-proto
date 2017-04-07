@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, Text, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Animated, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import moment from 'moment';
@@ -22,13 +22,22 @@ const styles = StyleSheet.create({
 });
 
 class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless-function
-
+    state = {
+        fadeAnim: new Animated.Value(0),
+    };
     componentDidMount() {
         const {news} = this.props;
         const data = news.get('data');
         if (!data) {
             this.props.fetchNewsData();
         }
+        // Add some "dummy" animation for testing
+        Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 1500}).start();
+    }
+
+    componentDidUpdate() {
+        // Add some "dummy" animation for testing
+        Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 1500}).start();
     }
 
     renderItem = ({item}) =>
@@ -58,9 +67,12 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
             // );
         }
         return (
-            <View style={styles.container} contentContainerStyle={styles.childContainer} >
+            <Animated.View
+                style={[styles.container, {opacity: this.state.fadeAnim}]}
+                contentContainerStyle={styles.childContainer}
+            >
                 {newsList}
-            </View>
+            </Animated.View>
         );
     }
 }
