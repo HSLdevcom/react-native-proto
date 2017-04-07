@@ -3,6 +3,7 @@
 ## Dev
 * See React Native [getting started#installing-dependencies](https://facebook.github.io/react-native/docs/getting-started.html#installing-dependencies) for prerequisites
 * Clone this repo and install deps `yarn`
+* Copy `config-example.js` -> `config.js` and add configs
 * To run iOS-version `react-native run-ios` or open XCode-project from ios-folder and run build
 * To run Android-version see [Android-tab in getting-started-page](http://facebook.github.io/react-native/docs/getting-started.html)
     * It's probably easier (and smoother) to run the app on real device than on virtual device
