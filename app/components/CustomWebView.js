@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
         backgroundColor: colors.brandColor,
         flex: 1,
         height: parseInt(screenHeight - 80, 10),
-        minHeight: 400,
         justifyContent: 'center',
     },
     button: {
@@ -68,6 +67,10 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         forwardButtonEnabled: false,
         loading: true,
     };
+
+    onMessage = (event) => {
+        console.log(event.nativeEvent.data);
+    }
     onLoadEnd = () => {
         this.setState({loading: false});
     }
@@ -115,7 +118,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             ) :
             null;
         return (
-            <View style={styles.container}>
+            <View
+                style={[styles.container]}
+            >
                 <ActivityIndicator
                     animating={loading}
                     size="large"
@@ -129,6 +134,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                     source={{uri}}
                     scalesPageToFit
                     onLoadEnd={this.onLoadEnd}
+                    //onMessage={this.onMessage} // this seems to break iOS
                     onNavigationStateChange={this.onNavigationStateChange}
                 />
             </View>

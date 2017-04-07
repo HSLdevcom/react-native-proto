@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, FlatList, Text, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Text, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import moment from 'moment';
