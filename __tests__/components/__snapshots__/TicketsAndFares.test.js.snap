@@ -3,13 +3,15 @@
 exports[`renders correctly 1`] = `
 <View
   style={
-    Object {
-      "alignItems": "center",
-      "backgroundColor": "rgb(0, 122, 201)",
-      "flex": 1,
-      "height": 600,
-      "justifyContent": "center",
-    }
+    Array [
+      Object {
+        "alignItems": "center",
+        "backgroundColor": "rgb(0, 122, 201)",
+        "flex": 1,
+        "height": 1254,
+        "justifyContent": "center",
+      },
+    ]
   }
 >
   <ActivityIndicator
@@ -26,7 +28,6 @@ exports[`renders correctly 1`] = `
         },
         Object {
           "height": 80,
-          "marginTop": 100,
           "position": "absolute",
           "zIndex": 2,
         },
