@@ -54,3 +54,6 @@ fastlane/screenshots
 
 # testing
 coverage
+
+# config
+config.js
