@@ -17,9 +17,12 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         backgroundColor: colors.brandColor,
+        borderBottomWidth: 1,
+        borderColor: colors.brandColor,
         flex: 1,
         height: parseInt(screenHeight - 80, 10),
         justifyContent: 'center',
+        marginBottom: 10,
     },
     button: {
         alignItems: 'center',
