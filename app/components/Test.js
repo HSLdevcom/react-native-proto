@@ -4,10 +4,12 @@
  */
 
 import React from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {Animated, StyleSheet, Text} from 'react-native';
 // https://github.com/rebeccahughes/react-native-device-info
 import DeviceInfo from 'react-native-device-info';
 
+const animatedValue = new Animated.Value(0);
+const opacityValue = new Animated.Value(0);
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -24,8 +26,14 @@ const styles = StyleSheet.create({
 });
 
 function Test() {
+    Animated.timing(animatedValue, {toValue: 1, duration: 500}).start();
+    Animated.timing(opacityValue, {toValue: 1, duration: 1000}).start();
+    const marginTop = animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [-1000, 0],
+    });
     return (
-        <View style={styles.container}>
+        <Animated.View style={[styles.container, {marginTop, opacity: opacityValue}]}>
             <Text style={styles.text}>This is Test.js</Text>
             <Text style={styles.text}>
                 {`useragent: ${DeviceInfo.getUserAgent()}\n\n`}
@@ -33,7 +41,7 @@ function Test() {
                 {`system version: ${DeviceInfo.getSystemVersion()}\n\n`}
                 {`device name: ${DeviceInfo.getDeviceName()}`}
             </Text>
-        </View>
+        </Animated.View>
     );
 }
 
