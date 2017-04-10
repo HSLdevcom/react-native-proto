@@ -14,6 +14,10 @@ import News from './app/components/News';
 import Test from './app/components/Test';
 import TicketsAndFares from './app/components/TicketsAndFares';
 
+console.log('Starting');
+console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`__DEV__: ${__DEV__}`);
+
 const RouterWithRedux = connect()(Router);
 
 const TabIcon = ({selected, title}) => <Text style={{color: selected ? colors.brandColor : 'black'}}>{title}</Text>;
