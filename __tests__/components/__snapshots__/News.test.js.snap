@@ -12,7 +12,7 @@ exports[`renders correctly 1`] = `
         "flex": 1,
         "height": 1254,
         "justifyContent": "center",
-        "marginBottom": 10,
+        "marginBottom": 50,
       },
     ]
   }
