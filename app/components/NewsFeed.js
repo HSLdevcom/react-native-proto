@@ -1,19 +1,26 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, Animated, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {ActivityIndicator, Animated, Platform, StyleSheet, View} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
-import moment from 'moment';
-import {fetchNewsData} from '../actions/news';
+import {
+    fetchNewsData,
+    hideSingleNews,
+    showSingleNews,
+} from '../actions/news';
+import NewsFeedItem from './NewsFeedItem';
+import SingleNews from './SingleNews';
 import colors from '../colors';
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        marginTop: (Platform.OS === 'ios') ? 63 : 53,
         padding: 15,
     },
     childContainer: {
         alignItems: 'flex-start',
         justifyContent: 'center',
+        marginBottom: 50,
     },
     text: {
         color: colors.brandColor,
@@ -30,56 +37,53 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         const data = news.get('data');
         if (!data) {
             this.props.fetchNewsData();
+        } else {
+            // Add some "dummy" animation for testing
+            Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 500}).start();
         }
-        // Add some "dummy" animation for testing
-        Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 1500}).start();
     }
 
     componentDidUpdate() {
         // Add some "dummy" animation for testing
-        Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 1500}).start();
+        Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 500}).start();
     }
-
-    renderItem = ({item}) =>
-        <Text key={item.nid} style={styles.text}>{`${moment.unix(item.created).format('DD.MM.YYYY')}\n${item.title}`}</Text>
+    showSingle = (id) => {
+        this.props.showSingleNews(id);
+    }
 
     render() {
         const {news} = this.props;
         const data = news.get('data');
         if (news.get('fetching')) {
-            return <ActivityIndicator size="large" />;
+            console.log('fetching');
+            return <View style={styles.container}><ActivityIndicator size="large" /></View>;
+        }
+        if (news.get('activeSingleNews')) {
+            const singleNews = data.find(item => item.get('nid') === news.get('activeSingleNews'));
+            return <SingleNews hide={this.props.hideSingleNews} singleNews={singleNews} />;
         }
         let newsList = null;
-        if (data) {
+        if (data && data.count() > 0) {
             newsList = data.map(item =>
-                <TouchableOpacity key={item.nid}>
-                    <Text style={styles.text}>
-                        {`${moment.unix(item.created).format('DD.MM.YYYY')}\n${item.title}`}
-                    </Text>
-                </TouchableOpacity>
+                <NewsFeedItem key={item.get('nid')} data={item} showSingle={this.showSingle} />
             );
-            // We can use FlatList with react-native 0.43
-            // newsList = (
-            //     <FlatList
-            //         data={data}
-            //         renderItem={this.renderItem}
-            //     />
-            // );
         }
         return (
-            <Animated.View
+            <Animated.ScrollView
                 style={[styles.container, {opacity: this.state.fadeAnim}]}
                 contentContainerStyle={styles.childContainer}
             >
                 {newsList}
-            </Animated.View>
+            </Animated.ScrollView>
         );
     }
 }
 
 NewsFeed.propTypes = {
     fetchNewsData: React.PropTypes.func.isRequired,
+    hideSingleNews: React.PropTypes.func.isRequired,
     news: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    showSingleNews: React.PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -91,6 +95,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         fetchNewsData: () => dispatch(fetchNewsData()),
+        hideSingleNews: () => dispatch(hideSingleNews()),
+        showSingleNews: nid => dispatch(showSingleNews(nid)),
     };
 }
 
