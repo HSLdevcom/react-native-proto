@@ -8,6 +8,8 @@ import {getNewsData} from '../utils/api';
 export const FETCHING_NEWS = 'HSLReactNativeProto/app/FETCHING_NEWS';
 export const FETCHING_NEWS_DONE = 'HSLReactNativeProto/app/FETCHING_NEWS_DONE';
 export const FETCHING_NEWS_ERROR = 'HSLReactNativeProto/app/FETCHING_NEWS_ERROR';
+export const HIDE_SINGLE_NEWS = 'HSLReactNativeProto/app/HIDE_SINGLE_NEWS';
+export const SHOW_SINGLE_NEWS = 'HSLReactNativeProto/app/SHOW_SINGLE_NEWS';
 
 /**
 * Fetching news
@@ -53,15 +55,33 @@ export function fetchNewsError(error) {
 export function fetchNewsData() {
     return (dispatch) => {
         dispatch(fetchingNews());
-        getNewsData(`nodeQuery(limit: 10, offset: 1, langcode: "fi", type: "news"){
-            title
-            renderedOutput
-            created
-            nid
-            type {
+        getNewsData(`nodeQuery(limit: 10, type: "news", langcode: "fi") {
+            ... on EntityNodeNews {
+              title
+              body{
+                value
+              }
+              ingress{
+                value
+              }
+              created
+              nid
+              uuid
+              vid
+              images {
                 targetId
+                entity {
+                  renderedOutput
+                  fid
+                  uuid
+                  filename
+                  uri
+                  filemime
+                }
+              }
             }
-        }`)
+          }`
+        )
         .then((result) => {
             // TODO: some error handling maybe?
             dispatch(fetchNewsDone(result.data.nodeQuery));
@@ -71,5 +91,31 @@ export function fetchNewsData() {
             console.error('err:', err);
             fetchNewsError(err);
         });
+    };
+}
+
+/**
+* Hide Single News
+*
+* @return {object} An action object with a type of HIDE_SINGLE_NEWS
+*/
+
+export function hideSingleNews() {
+    return {
+        type: HIDE_SINGLE_NEWS,
+    };
+}
+
+/**
+* Show Single News
+* @param  {int} nid
+*
+* @return {object} An action object with a type of SHOW_SINGLE_NEWS
+*/
+
+export function showSingleNews(nid) {
+    return {
+        type: SHOW_SINGLE_NEWS,
+        nid,
     };
 }
