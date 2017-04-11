@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: parseInt(screenHeight - 80, 10),
         justifyContent: 'center',
-        marginBottom: 10,
+        marginBottom: 50,
     },
     button: {
         alignItems: 'center',
