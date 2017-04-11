@@ -33,7 +33,8 @@ const styles = StyleSheet.create({
         paddingTop: (Platform.OS === 'ios') ? 63 : 53,
     },
     title: {
-        fontSize: 28,
+        color: colors.brandColor,
+        fontSize: 24,
     },
     text: {
         color: 'black',
@@ -44,12 +45,15 @@ const styles = StyleSheet.create({
     },
 });
 
+const closeModal = () => console.log('closed');
+
 function SingleNews({hide, singleNews}) {
     return (
         <Modal
             animationType="slide"
             transparent={false}
             visible
+            onRequestClose={closeModal}
         >
             <View style={[styles.container]}>
                 <TouchableOpacity style={styles.button} onPress={hide}>

@@ -55,7 +55,6 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         const {news} = this.props;
         const data = news.get('data');
         if (news.get('fetching')) {
-            console.log('fetching');
             return <View style={styles.container}><ActivityIndicator size="large" /></View>;
         }
         if (news.get('activeSingleNews')) {
