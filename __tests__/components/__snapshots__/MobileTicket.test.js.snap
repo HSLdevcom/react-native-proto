@@ -22,7 +22,9 @@ exports[`renders correctly 1`] = `
           "textAlign": "center",
         },
         Object {
+          "color": "rgb(0, 122, 201)",
           "fontSize": 30,
+          "marginBottom": 15,
         },
       ]
     }
@@ -56,133 +58,316 @@ exports[`renders correctly 1`] = `
     Tunnistautumalla saat lippuja yhtä edulliseen hintaan kuin matkakortilla ostettaessa
   </Text>
   <View
-    accessibilityComponentType={undefined}
-    accessibilityLabel={undefined}
-    accessibilityTraits={undefined}
-    accessible={true}
-    hitSlop={undefined}
-    isTVSelectable={true}
-    onLayout={undefined}
-    onResponderGrant={[Function]}
-    onResponderMove={[Function]}
-    onResponderRelease={[Function]}
-    onResponderTerminate={[Function]}
-    onResponderTerminationRequest={[Function]}
-    onStartShouldSetResponder={[Function]}
     style={
       Object {
-        "backgroundColor": "rgb(0, 122, 201)",
-        "borderColor": "rgb(239, 242, 244)",
-        "borderRadius": 10,
-        "borderWidth": 1,
         "marginTop": 10,
-        "opacity": 1,
-        "padding": 10,
-        "width": "90%",
       }
     }
-    testID={undefined}
-    tvParallaxProperties={undefined}
   >
-    <Text
+    <View
+      accessibilityComponentType={undefined}
+      accessibilityLabel={undefined}
+      accessibilityTraits={undefined}
       accessible={true}
-      allowFontScaling={true}
-      ellipsizeMode="tail"
+      hasTVPreferredFocus={undefined}
+      hitSlop={undefined}
+      isTVSelectable={true}
+      onLayout={undefined}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
       style={
-        Object {
-          "color": "white",
-          "textAlign": "center",
-        }
+        Array [
+          Object {
+            "backgroundColor": "transparent",
+          },
+          Array [
+            Object {
+              "overflow": "hidden",
+            },
+            Object {
+              "backgroundColor": "rgb(0, 122, 201)",
+              "borderRadius": 10,
+            },
+          ],
+        ]
       }
+      testID={undefined}
+      tvParallaxProperties={undefined}
     >
-      Kertalippu
-    </Text>
+      <View
+        style={
+          Array [
+            Object {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "justifyContent": "flex-start",
+              "padding": 8,
+            },
+            Object {
+              "backgroundColor": "rgb(0, 122, 201)",
+              "borderRadius": 10,
+            },
+            Object {
+              "alignItems": "center",
+              "height": 50,
+              "justifyContent": "center",
+              "width": "90%",
+            },
+          ]
+        }
+      >
+        <Text
+          accessible={true}
+          allowFontScaling={false}
+          ellipsizeMode="tail"
+          onPress={[Function]}
+          style={
+            Array [
+              Object {
+                "color": "white",
+                "fontSize": 15,
+              },
+              Object {
+                "marginRight": 10,
+              },
+              Object {
+                "fontFamily": "Entypo",
+                "fontStyle": "normal",
+                "fontWeight": "normal",
+              },
+            ]
+          }
+        >
+          
+        </Text>
+        <Text
+          accessible={true}
+          allowFontScaling={true}
+          ellipsizeMode="tail"
+          style={
+            Object {
+              "color": "white",
+              "fontWeight": "600",
+              "textAlign": "center",
+            }
+          }
+        >
+          Kertalippu
+        </Text>
+      </View>
+    </View>
   </View>
   <View
-    accessibilityComponentType={undefined}
-    accessibilityLabel={undefined}
-    accessibilityTraits={undefined}
-    accessible={true}
-    hitSlop={undefined}
-    isTVSelectable={true}
-    onLayout={undefined}
-    onResponderGrant={[Function]}
-    onResponderMove={[Function]}
-    onResponderRelease={[Function]}
-    onResponderTerminate={[Function]}
-    onResponderTerminationRequest={[Function]}
-    onStartShouldSetResponder={[Function]}
     style={
       Object {
-        "backgroundColor": "rgb(0, 122, 201)",
-        "borderColor": "rgb(239, 242, 244)",
-        "borderRadius": 10,
-        "borderWidth": 1,
         "marginTop": 10,
-        "opacity": 1,
-        "padding": 10,
-        "width": "90%",
       }
     }
-    testID={undefined}
-    tvParallaxProperties={undefined}
   >
-    <Text
+    <View
+      accessibilityComponentType={undefined}
+      accessibilityLabel={undefined}
+      accessibilityTraits={undefined}
       accessible={true}
-      allowFontScaling={true}
-      ellipsizeMode="tail"
+      hasTVPreferredFocus={undefined}
+      hitSlop={undefined}
+      isTVSelectable={true}
+      onLayout={undefined}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
       style={
-        Object {
-          "color": "white",
-          "textAlign": "center",
-        }
+        Array [
+          Object {
+            "backgroundColor": "transparent",
+          },
+          Array [
+            Object {
+              "overflow": "hidden",
+            },
+            Object {
+              "backgroundColor": "rgb(0, 122, 201)",
+              "borderRadius": 10,
+            },
+          ],
+        ]
       }
+      testID={undefined}
+      tvParallaxProperties={undefined}
     >
-      Vuorokausilippu
-    </Text>
+      <View
+        style={
+          Array [
+            Object {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "justifyContent": "flex-start",
+              "padding": 8,
+            },
+            Object {
+              "backgroundColor": "rgb(0, 122, 201)",
+              "borderRadius": 10,
+            },
+            Object {
+              "alignItems": "center",
+              "height": 50,
+              "justifyContent": "center",
+              "width": "90%",
+            },
+          ]
+        }
+      >
+        <Text
+          accessible={true}
+          allowFontScaling={false}
+          ellipsizeMode="tail"
+          onPress={[Function]}
+          style={
+            Array [
+              Object {
+                "color": "white",
+                "fontSize": 15,
+              },
+              Object {
+                "marginRight": 10,
+              },
+              Object {
+                "fontFamily": "Entypo",
+                "fontStyle": "normal",
+                "fontWeight": "normal",
+              },
+            ]
+          }
+        >
+          
+        </Text>
+        <Text
+          accessible={true}
+          allowFontScaling={true}
+          ellipsizeMode="tail"
+          style={
+            Object {
+              "color": "white",
+              "fontWeight": "600",
+              "textAlign": "center",
+            }
+          }
+        >
+          Vuorokausilippu
+        </Text>
+      </View>
+    </View>
   </View>
   <View
-    accessibilityComponentType={undefined}
-    accessibilityLabel={undefined}
-    accessibilityTraits={undefined}
-    accessible={true}
-    hitSlop={undefined}
-    isTVSelectable={true}
-    onLayout={undefined}
-    onResponderGrant={[Function]}
-    onResponderMove={[Function]}
-    onResponderRelease={[Function]}
-    onResponderTerminate={[Function]}
-    onResponderTerminationRequest={[Function]}
-    onStartShouldSetResponder={[Function]}
     style={
       Object {
-        "backgroundColor": "rgb(0, 122, 201)",
-        "borderColor": "rgb(239, 242, 244)",
-        "borderRadius": 10,
-        "borderWidth": 1,
         "marginTop": 10,
-        "opacity": 1,
-        "padding": 10,
-        "width": "90%",
       }
     }
-    testID={undefined}
-    tvParallaxProperties={undefined}
   >
-    <Text
+    <View
+      accessibilityComponentType={undefined}
+      accessibilityLabel={undefined}
+      accessibilityTraits={undefined}
       accessible={true}
-      allowFontScaling={true}
-      ellipsizeMode="tail"
+      hasTVPreferredFocus={undefined}
+      hitSlop={undefined}
+      isTVSelectable={true}
+      onLayout={undefined}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
       style={
-        Object {
-          "color": "white",
-          "textAlign": "center",
-        }
+        Array [
+          Object {
+            "backgroundColor": "transparent",
+          },
+          Array [
+            Object {
+              "overflow": "hidden",
+            },
+            Object {
+              "backgroundColor": "rgb(0, 122, 201)",
+              "borderRadius": 10,
+            },
+          ],
+        ]
       }
+      testID={undefined}
+      tvParallaxProperties={undefined}
     >
-      Kausilippu
-    </Text>
+      <View
+        style={
+          Array [
+            Object {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "justifyContent": "flex-start",
+              "padding": 8,
+            },
+            Object {
+              "backgroundColor": "rgb(0, 122, 201)",
+              "borderRadius": 10,
+            },
+            Object {
+              "alignItems": "center",
+              "height": 50,
+              "justifyContent": "center",
+              "width": "90%",
+            },
+          ]
+        }
+      >
+        <Text
+          accessible={true}
+          allowFontScaling={false}
+          ellipsizeMode="tail"
+          onPress={[Function]}
+          style={
+            Array [
+              Object {
+                "color": "white",
+                "fontSize": 20,
+              },
+              Object {
+                "marginRight": 10,
+              },
+              Object {
+                "fontFamily": "fontcustom",
+                "fontStyle": "normal",
+                "fontWeight": "normal",
+              },
+            ]
+          }
+        >
+          
+        </Text>
+        <Text
+          accessible={true}
+          allowFontScaling={true}
+          ellipsizeMode="tail"
+          style={
+            Object {
+              "color": "white",
+              "fontWeight": "600",
+              "textAlign": "center",
+            }
+          }
+        >
+          Kausilippu
+        </Text>
+      </View>
+    </View>
   </View>
 </View>
 `;

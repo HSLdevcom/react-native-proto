@@ -4,6 +4,7 @@ exports[`renders correctly 1`] = `
 <Modal
   animationType="slide"
   hardwareAccelerated={false}
+  onRequestClose={[Function]}
   transparent={false}
   visible={true}
 >
@@ -76,7 +77,8 @@ exports[`renders correctly 1`] = `
             "color": "black",
           },
           Object {
-            "fontSize": 28,
+            "color": "rgb(0, 122, 201)",
+            "fontSize": 24,
           },
         ]
       }
