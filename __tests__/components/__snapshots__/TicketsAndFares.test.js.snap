@@ -7,9 +7,12 @@ exports[`renders correctly 1`] = `
       Object {
         "alignItems": "center",
         "backgroundColor": "rgb(0, 122, 201)",
+        "borderBottomWidth": 1,
+        "borderColor": "rgb(0, 122, 201)",
         "flex": 1,
         "height": 1254,
         "justifyContent": "center",
+        "marginBottom": 10,
       },
     ]
   }
