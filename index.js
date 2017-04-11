@@ -10,7 +10,7 @@ import {Router, Scene} from 'react-native-router-flux';
 import store from './app/store';
 import colors from './app/colors';
 import Main from './app/components/Main';
-import News from './app/components/News';
+import News from './app/components/NewsFeed';
 import Test from './app/components/Test';
 import TicketsAndFares from './app/components/TicketsAndFares';
 
