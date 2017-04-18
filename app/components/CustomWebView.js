@@ -39,6 +39,10 @@ const styles = StyleSheet.create({
     disabledButton: {
         left: -10000,
     },
+    hidden: {
+        height: 0,
+        zIndex: 0,
+    },
     navButton: {
         backgroundColor: colors.brandColor,
     },
@@ -127,7 +131,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 <ActivityIndicator
                     animating={loading}
                     size="large"
-                    style={[styles.centering, styles.spinner]}
+                    style={[styles.centering, styles.spinner, loading ? null : styles.hidden]}
                 />
                 {backButton}
                 {forwardButton}

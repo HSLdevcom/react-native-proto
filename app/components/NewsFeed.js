@@ -14,6 +14,7 @@ import colors from '../colors';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        marginBottom: 55,
         marginTop: (Platform.OS === 'ios') ? 63 : 53,
         padding: 15,
     },
