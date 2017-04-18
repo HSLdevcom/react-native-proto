@@ -1,8 +1,9 @@
-package com.hslreactnativeproto;
+package com.hslfiproto;
 
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.hslfiproto.BuildConfig;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.facebook.react.ReactNativeHost;
