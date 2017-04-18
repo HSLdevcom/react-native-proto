@@ -23,19 +23,22 @@ const RouterWithRedux = connect()(Router);
 
 const styles = StyleSheet.create({
     tabBarStyle: {
-        borderTopWidth: 0.5,
-        borderColor: '#b7b7b7',
         backgroundColor: colors.brandColor,
         opacity: 1,
     },
     iconText: {
         fontSize: 12,
-        marginTop: 3,
+    },
+    tabView: {
+        alignItems: 'center',
+        flex: 1,
+        justifyContent: 'center',
+        height: 60,
     },
 });
 
 const TabIcon = props =>
-    <View style={{alignItems: 'center', flex: 1, justifyContent: 'center'}}>
+    <View style={styles.tabView}>
         <Icon name={props.iconName} size={15} color={props.selected ? 'white' : 'black'} />
         <Text style={[styles.iconText, {color: props.selected ? 'white' : 'black'}]}>
             {props.title}
@@ -52,7 +55,7 @@ TabIcon.defaultProps = {
     selected: false,
 };
 
-function HSLReactNativeProto() {
+function HSLProto() {
     return (
         <Provider store={store}>
             <RouterWithRedux>
@@ -82,4 +85,4 @@ function HSLReactNativeProto() {
     );
 }
 
-AppRegistry.registerComponent('HSLReactNativeProto', () => HSLReactNativeProto);
+AppRegistry.registerComponent('HSLProto', () => HSLProto);

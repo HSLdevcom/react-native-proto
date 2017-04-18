@@ -5,11 +5,11 @@
 */
 import {getNewsData} from '../utils/api';
 
-export const FETCHING_NEWS = 'HSLReactNativeProto/app/FETCHING_NEWS';
-export const FETCHING_NEWS_DONE = 'HSLReactNativeProto/app/FETCHING_NEWS_DONE';
-export const FETCHING_NEWS_ERROR = 'HSLReactNativeProto/app/FETCHING_NEWS_ERROR';
-export const HIDE_SINGLE_NEWS = 'HSLReactNativeProto/app/HIDE_SINGLE_NEWS';
-export const SHOW_SINGLE_NEWS = 'HSLReactNativeProto/app/SHOW_SINGLE_NEWS';
+export const FETCHING_NEWS = 'HSLProto/app/FETCHING_NEWS';
+export const FETCHING_NEWS_DONE = 'HSLProto/app/FETCHING_NEWS_DONE';
+export const FETCHING_NEWS_ERROR = 'HSLProto/app/FETCHING_NEWS_ERROR';
+export const HIDE_SINGLE_NEWS = 'HSLProto/app/HIDE_SINGLE_NEWS';
+export const SHOW_SINGLE_NEWS = 'HSLProto/app/SHOW_SINGLE_NEWS';
 
 /**
 * Fetching news

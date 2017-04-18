@@ -1,5 +1,5 @@
 {
-    "name": "HSLReactNativeProto",
+    "name": "HSLProto",
     "version": "0.0.1",
     "scripts": {
         "lint": "eslint --ignore-path .gitignore -- .",
