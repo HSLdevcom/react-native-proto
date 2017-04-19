@@ -1152,7 +1152,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.hslfiproto";
+				PRODUCT_BUNDLE_IDENTIFIER = "fi.hsl.hslfi-proto";
 				PRODUCT_NAME = HSLProto;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -1176,7 +1176,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.hslfiproto";
+				PRODUCT_BUNDLE_IDENTIFIER = "fi.hsl.hslfi-proto";
 				PRODUCT_NAME = HSLProto;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
