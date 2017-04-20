@@ -13,7 +13,7 @@ import colors from './app/colors';
 import Main from './app/components/Main';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
-// import Test from './app/components/Test';
+import Test from './app/components/InlineWebView';
 
 console.log('Starting');
 console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
@@ -75,9 +75,9 @@ function HSLProto() {
                         <Scene iconName="ticket" key="mobileTicketTab" title="OSTA LIPPUJA" icon={TabIcon}>
                             <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                         </Scene>
-                        {/* <Scene key="testing" title="TEST" icon={TabIcon}>
+                        <Scene iconName="browser" key="testing" title="TEST" icon={TabIcon}>
                             <Scene key="test" component={Test} title="Test" />
-                        </Scene> */}
+                        </Scene>
                     </Scene>
                 </Scene>
             </RouterWithRedux>
