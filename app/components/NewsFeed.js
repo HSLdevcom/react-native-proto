@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, Animated, Platform, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Animated, Platform, RefreshControl, StyleSheet, View} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import {
@@ -16,12 +16,12 @@ const styles = StyleSheet.create({
         flex: 1,
         marginBottom: 55,
         marginTop: (Platform.OS === 'ios') ? 63 : 53,
-        padding: 15,
     },
     childContainer: {
         alignItems: 'flex-start',
         justifyContent: 'center',
         marginBottom: 50,
+        padding: 15,
     },
     text: {
         color: colors.brandColor,
@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
 class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless-function
     state = {
         fadeAnim: new Animated.Value(0),
+        refreshing: false,
     };
     componentDidMount() {
         const {news} = this.props;
@@ -40,14 +41,19 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
             this.props.fetchNewsData();
         } else {
             // Add some "dummy" animation for testing
-            Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 500}).start();
+            // Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 500}).start();
         }
     }
 
     componentDidUpdate() {
         // Add some "dummy" animation for testing
-        Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 500}).start();
+        // Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 500}).start();
     }
+
+    onRefresh = () => {
+        this.props.fetchNewsData();
+    }
+
     showSingle = (id) => {
         this.props.showSingleNews(id);
     }
@@ -56,7 +62,7 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         const {news} = this.props;
         const data = news.get('data');
         if (news.get('fetching')) {
-            return <View style={styles.container}><ActivityIndicator size="large" /></View>;
+            return <View style={styles.container}><ActivityIndicator style={{marginTop: 30}} size="large" /></View>;
         }
         if (news.get('activeSingleNews')) {
             const singleNews = data.find(item => item.get('nid') === news.get('activeSingleNews'));
@@ -68,10 +74,17 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
                 <NewsFeedItem key={item.get('nid')} data={item} showSingle={this.showSingle} />
             );
         }
+        const refreshControl = (
+            <RefreshControl
+                refreshing={false}
+                onRefresh={this.onRefresh}
+            />
+        );
         return (
             <Animated.ScrollView
-                style={[styles.container, {opacity: this.state.fadeAnim}]}
+                style={[styles.container]}
                 contentContainerStyle={styles.childContainer}
+                refreshControl={refreshControl}
             >
                 {newsList}
             </Animated.ScrollView>
