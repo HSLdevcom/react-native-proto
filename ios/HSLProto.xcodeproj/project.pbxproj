@@ -36,6 +36,7 @@
 		2DCD954D1E0B4F2C00145EB5 /* HSLProtoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* HSLProtoTests.m */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		5F6338ABDC3143A3938774CF /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BB2696EF330243678E552F94 /* FontAwesome.ttf */; };
+		6204D11A1EA8B4C80007483C /* web in Resources */ = {isa = PBXBuildFile; fileRef = 6204D1191EA8B4C80007483C /* web */; };
 		629B5BB11EA60969005FF80E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 629B5BAF1EA60969005FF80E /* LaunchScreen.xib */; };
 		629B5BD21EA60C4B005FF80E /* Icon-App-60x60.png in Resources */ = {isa = PBXBuildFile; fileRef = 629B5BD11EA60C4B005FF80E /* Icon-App-60x60.png */; };
 		6F405084191F40F88616F679 /* libRNVectorIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC768877DFA94147A1E34BD0 /* libRNVectorIcons.a */; };
@@ -283,6 +284,7 @@
 		2D02E47B1E0B4A5D006451C7 /* HSLProto-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "HSLProto-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* HSLProto-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "HSLProto-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
+		6204D1191EA8B4C80007483C /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; path = web; sourceTree = SOURCE_ROOT; };
 		629B5BB01EA60969005FF80E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = HSLProto/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		629B5BD11EA60C4B005FF80E /* Icon-App-60x60.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-App-60x60.png"; path = "HSLProto/Images.xcassets/AppIcon.appiconset/Icon-App-60x60.png"; sourceTree = "<group>"; };
 		65A4DF71C6854C0289E7FEFA /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
@@ -433,6 +435,7 @@
 		13B07FAE1A68108700A75B9A /* HSLProto */ = {
 			isa = PBXGroup;
 			children = (
+				6204D1191EA8B4C80007483C /* web */,
 				629B5BAF1EA60969005FF80E /* LaunchScreen.xib */,
 				629B5BD11EA60C4B005FF80E /* Icon-App-60x60.png */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
@@ -950,6 +953,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				9D08FC0F99E74C798546F147 /* Entypo.ttf in Resources */,
 				28CA8D4C996B490680162696 /* EvilIcons.ttf in Resources */,
+				6204D11A1EA8B4C80007483C /* web in Resources */,
 				5F6338ABDC3143A3938774CF /* FontAwesome.ttf in Resources */,
 				629B5BB11EA60969005FF80E /* LaunchScreen.xib in Resources */,
 				98545137F0BF49929131C2BC /* Foundation.ttf in Resources */,
