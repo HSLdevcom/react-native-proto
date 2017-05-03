@@ -7,6 +7,7 @@ import React from 'react';
 import {Modal, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
 import Immutable from 'immutable';
 import colors from '../colors';
+import {removeMetaFromNewsHtml} from '../utils/helpers';
 
 const styles = StyleSheet.create({
     button: {
@@ -60,7 +61,7 @@ function SingleNews({hide, singleNews}) {
                     <Text style={styles.buttonText}>Sulje</Text>
                 </TouchableOpacity>
                 <Text style={[styles.text, styles.title]}>{singleNews.get('title')}</Text>
-                <WebView style={styles.webView} source={{html: singleNews.get('body').get('value')}} />
+                <WebView style={styles.webView} source={{html: removeMetaFromNewsHtml(singleNews.get('body').get('value'))}} />
             </View>
         </Modal>
     );
