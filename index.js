@@ -13,6 +13,7 @@ import store from './app/store';
 import colors from './app/colors';
 import Main from './app/components/Main';
 import CityBikes from './app/components/CityBikes';
+// import Login from './app/components/Login';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
 // import Test from './app/components/Test';
@@ -88,8 +89,8 @@ function HSLProto() {
                         <Scene iconName="ticket" key="mobileTicketTab" title="OSTA LIPPUJA" icon={TabIcon}>
                             <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                         </Scene>
-                        {/* <Scene key="testing" title="TEST" icon={TabIcon}>
-                            <Scene key="test" component={Test} title="Test" />
+                        {/* <Scene iconName="login" key="testing" title="KIRJAUDU" icon={TabIcon}>
+                            <Scene key="test" component={Login} title="Kirjaudu" />
                         </Scene> */}
                     </Scene>
                 </Scene>
