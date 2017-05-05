@@ -4,7 +4,7 @@
  */
 
 import React, {Component} from 'react';
-import {Linking, Modal, StyleSheet, Text, View} from 'react-native';
+import {Linking, Modal, Platform, StyleSheet, Text, View} from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import FoundationIcon from 'react-native-vector-icons/Foundation';
 import colors from '../colors';
@@ -48,7 +48,13 @@ class MobileTicket extends Component { // eslint-disable-line react/prefer-state
     }
 
     closeModal = () => this.setState({showModal: false});
-
+    openStore = () => {
+        if (Platform.OS === 'ios') {
+            Linking.openURL('https://itunes.apple.com/fi/app/hsl-mobiililippu/id1078566902').catch(e => console.log(e));
+        } else {
+            Linking.openURL('https://play.google.com/store/apps/details?id=com.hsl.mobiililippu').catch(e => console.log(e));
+        }
+    }
     maybeOpenMobileTicket = () => {
         Linking.canOpenURL('com.hsl.mobiililippu:?tt=1111')
         .then((isInstalled) => {
@@ -60,15 +66,30 @@ class MobileTicket extends Component { // eslint-disable-line react/prefer-state
         });
     }
     render() {
+        const installAppIcon = Platform.OS === 'ios' ? 'app-store' : 'google-play';
         const modal = this.state.showModal ?
         (
             <Modal
                 animationType="slide"
                 transparent={false}
                 visible
+                onRequestClose={this.closeModal}
             >
                 <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                    <Text>HSL Mobiililippu ei ole asennettuna puhelimeesi.</Text>
+                    <Text style={{fontSize: 22, textAlign: 'center'}}>
+                        HSL Mobiililippu ei ole asennettuna puhelimeesi.
+                    </Text>
+                    <View style={styles.wrapper}>
+                        <Icon.Button
+                            name={installAppIcon} style={styles.button}
+                            backgroundColor={colors.brandColor}
+                            borderRadius={10} onPress={this.openStore}
+                        >
+                            <Text style={styles.buttonText}>
+                                Asenna sovellus
+                            </Text>
+                        </Icon.Button>
+                    </View>
                     <View style={styles.wrapper}>
                         <Icon.Button name="cross" style={styles.button} backgroundColor={colors.brandColor} borderRadius={10} onPress={this.closeModal}>
                             <Text style={styles.buttonText}>Sulje</Text>

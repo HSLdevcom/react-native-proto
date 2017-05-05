@@ -137,6 +137,8 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 {forwardButton}
                 <WebView
                     ref={(c) => { this.webview = c; }}
+                    domStorageEnabled
+                    javaScriptEnabled
                     style={styles.webView}
                     source={{uri}}
                     scalesPageToFit
