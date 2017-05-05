@@ -70,7 +70,8 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         }
         let newsList = null;
         if (data && data.count() > 0) {
-            newsList = data.map(item =>
+            // TODO: don't use reverse, get the data in desc order (when it's possible)
+            newsList = data.reverse().map(item =>
                 <NewsFeedItem key={item.get('nid')} data={item} showSingle={this.showSingle} />
             );
         }
