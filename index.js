@@ -12,8 +12,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import store from './app/store';
 import colors from './app/colors';
 import Main from './app/components/Main';
-import CityBikes from './app/components/CityBikes';
-// import Login from './app/components/Login';
+import FakeSideMenu from './app/components/FakeSideMenu';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
 // import Test from './app/components/Test';
@@ -42,26 +41,31 @@ const styles = StyleSheet.create({
 
 const TabIcon = (props) => {
     const icon = props.materialIcon ?
-        <MaterialIcon name={props.iconName} size={18} color={props.selected ? 'white' : 'black'} /> :
-        <Icon name={props.iconName} size={18} color={props.selected ? 'white' : 'black'} />;
+        <MaterialIcon name={props.iconName} size={props.iconSize} color={props.selected ? 'white' : 'black'} /> :
+        <Icon name={props.iconName} size={props.iconSize} color={props.selected ? 'white' : 'black'} />;
+    const text = props.title !== '' ?
+        (<Text style={[styles.iconText, {color: props.selected ? 'white' : 'black'}]}>
+            {props.title}
+        </Text>) :
+        null;
     return (
-        <View style={styles.tabView}>
+        <View style={[styles.tabView]}>
             {icon}
-            <Text style={[styles.iconText, {color: props.selected ? 'white' : 'black'}]}>
-                {props.title}
-            </Text>
+            {text}
         </View>
     );
 };
 
 TabIcon.propTypes = {
     iconName: React.PropTypes.string.isRequired,
+    iconSize: React.PropTypes.number,
     materialIcon: React.PropTypes.bool,
     selected: React.PropTypes.bool,
     title: React.PropTypes.string.isRequired,
 };
 
 TabIcon.defaultProps = {
+    iconSize: 18,
     materialIcon: false,
     selected: false,
 };
@@ -70,28 +74,19 @@ function HSLProto() {
     return (
         <Provider store={store}>
             <RouterWithRedux>
-                <Scene key="root">
-                    <Scene
-                        key="tabbar"
-                        tabs
-                        tabBarStyle={styles.tabBarStyle}
-                        hideNavBar
-                    >
-                        <Scene iconName="address" key="homeTab" title="REITTIOPAS" icon={TabIcon}>
-                            <Scene key="home" component={Main} title="Reittiopas" />
-                        </Scene>
-                        <Scene materialIcon iconName="bike" key="cityBikeTab" title="KAUPUNKIPYÖRÄT" icon={TabIcon}>
-                            <Scene key="cityBike" component={CityBikes} title="Kaupunkipyörät" />
-                        </Scene>
-                        <Scene iconName="news" key="newsTab" title="UUTISET" icon={TabIcon}>
-                            <Scene key="news" component={News} title="Uutiset" />
-                        </Scene>
-                        <Scene iconName="ticket" key="mobileTicketTab" title="OSTA LIPPUJA" icon={TabIcon}>
-                            <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
-                        </Scene>
-                        {/* <Scene iconName="login" key="testing" title="KIRJAUDU" icon={TabIcon}>
-                            <Scene key="test" component={Login} title="Kirjaudu" />
-                        </Scene> */}
+                <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
+                    <Scene iconName="address" key="homeTab" title="REITTIOPAS" icon={TabIcon}>
+                        <Scene key="home" component={Main} title="Reittiopas" />
+                    </Scene>
+                    <Scene iconName="news" key="newsTab" title="UUTISET" icon={TabIcon}>
+                        <Scene key="news" component={News} title="Uutiset" />
+                    </Scene>
+                    <Scene iconName="ticket" key="mobileTicketTab" title="OSTA LIPPUJA" icon={TabIcon}>
+                        <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                    </Scene>
+                    <Scene iconName="menu" key="menuTab" title="" icon={TabIcon} iconSize={30} component={FakeSideMenu}>
+                        <Scene key="cityBike" title="Kaupunkipyörät" />
+                        <Scene key="login" title="Kirjaudu" />
                     </Scene>
                 </Scene>
             </RouterWithRedux>
