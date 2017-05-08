@@ -37,7 +37,9 @@ function Main(/*props*/) {
     //         <NewsFeed />
     //     </ScrollView>
     // );
-    return <CustomWebView uri="https://reittiopas.fi/" />;
+
+    // TODO: add options view and define there if user wants to use this with "?mock"?
+    return <CustomWebView uri="https://reittiopas.fi/?mock" />;
 }
 
 // Main.propTypes = {
