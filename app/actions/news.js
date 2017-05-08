@@ -55,7 +55,7 @@ export function fetchNewsError(error) {
 export function fetchNewsData() {
     return (dispatch) => {
         dispatch(fetchingNews());
-        getNewsData(`nodeQuery(limit: 10, type: "news", langcode: "fi") {
+        getNewsData(`nodeQuery(type: "news", langcode: "fi") {
             ... on EntityNodeNews {
               title
               body{
