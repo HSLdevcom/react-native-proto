@@ -39,6 +39,8 @@ const styles = StyleSheet.create({
     title: {
         color: colors.brandColor,
         fontSize: 24,
+        paddingLeft: 5,
+        paddingRight: 5,
         width: '95%',
     },
     text: {
