@@ -57,7 +57,7 @@ const closeModal = () => console.log('closed');
 
 function SingleNews({hide, singleNews}) {
     let img = null;
-    if (singleNews.get('images').count() > 0) {
+    if (singleNews.get('images') && singleNews.get('images').count() > 0) {
         // TODO: can there be more than one image that we want to show?
         // TODO: is this url valid every time?
         const uri = `https://www.hsl.fi/sites/default/files/uploads/${singleNews.getIn(['images', 0, 'entity', 'filename'])}`;

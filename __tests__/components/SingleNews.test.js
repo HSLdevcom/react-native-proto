@@ -11,6 +11,6 @@ jest.unmock('ScrollView');
 
 it('renders correctly', () => {
     const tree = renderer.create(
-        <SingleNews hide={jest.fn()} singleNews={fromJS({body: {}})} />).toJSON();
+        <SingleNews hide={jest.fn()} singleNews={fromJS({body: {value: ''}})} />).toJSON();
     expect(tree).toMatchSnapshot();
 });
