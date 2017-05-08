@@ -16,9 +16,7 @@ exports[`renders correctly 1`] = `
           "backgroundColor": "white",
           "flex": 1,
           "justifyContent": "center",
-          "paddingLeft": 10,
-          "paddingRight": 10,
-          "paddingTop": 63,
+          "paddingTop": 30,
         },
       ]
     }
@@ -75,10 +73,14 @@ exports[`renders correctly 1`] = `
         Array [
           Object {
             "color": "black",
+            "textAlign": "center",
           },
           Object {
             "color": "rgb(0, 122, 201)",
             "fontSize": 24,
+            "paddingLeft": 5,
+            "paddingRight": 5,
+            "width": "95%",
           },
         ]
       }
@@ -109,7 +111,7 @@ exports[`renders correctly 1`] = `
         scrollEnabled={undefined}
         source={
           Object {
-            "html": undefined,
+            "html": "",
           }
         }
         style={

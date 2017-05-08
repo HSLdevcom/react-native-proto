@@ -64,7 +64,7 @@ exports[`renders correctly 1`] = `
       scrollEnabled={undefined}
       source={
         Object {
-          "uri": "https://www.hsl.fi/kaupunkipyorat",
+          "uri": "https://www.hsl.fi/citybike",
         }
       }
       style={
