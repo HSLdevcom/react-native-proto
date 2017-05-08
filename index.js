@@ -45,7 +45,7 @@ const TabIcon = (props) => {
         <Icon name={props.iconName} size={props.iconSize} color={props.selected ? 'white' : 'black'} />;
     const text = props.title !== '' ?
         (<Text style={[styles.iconText, {color: props.selected ? 'white' : 'black'}]}>
-            {props.title}
+            {props.title.toUpperCase()}
         </Text>) :
         null;
     return (
@@ -75,16 +75,16 @@ function HSLProto() {
         <Provider store={store}>
             <RouterWithRedux>
                 <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
-                    <Scene iconName="address" key="homeTab" title="REITTIOPAS" icon={TabIcon}>
+                    <Scene iconName="address" key="homeTab" title="Reittiopas" icon={TabIcon}>
                         <Scene key="home" component={Main} title="Reittiopas" />
                     </Scene>
-                    <Scene iconName="news" key="newsTab" title="UUTISET" icon={TabIcon}>
+                    <Scene iconName="news" key="newsTab" title="Uutiset" icon={TabIcon}>
                         <Scene key="news" component={News} title="Uutiset" />
                     </Scene>
-                    <Scene iconName="ticket" key="mobileTicketTab" title="OSTA LIPPUJA" icon={TabIcon}>
+                    <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
                         <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                     </Scene>
-                    <Scene iconName="menu" key="menuTab" title="" icon={TabIcon} iconSize={30} component={FakeSideMenu}>
+                    <Scene iconName="menu" key="menuTab" title="Valikko" icon={TabIcon} component={FakeSideMenu}>
                         <Scene key="cityBike" title="Kaupunkipyörät" />
                         <Scene key="login" title="Kirjaudu" />
                     </Scene>
