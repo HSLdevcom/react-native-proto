@@ -76,12 +76,14 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     };
 
     onMessage = (event) => {
-        console.log(event.nativeEvent.data);
+        console.log('message: ', event.nativeEvent.data);
     }
     onLoadEnd = () => {
         this.setState({loading: false});
     }
+
     onNavigationStateChange = (navState) => {
+        console.log('navState: ', navState);
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
         this.setState({
@@ -98,6 +100,22 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     }
 
     render() {
+        const inlineJS = `
+            (function() {
+                var originalPostMessage = window.postMessage;
+
+                var patchedPostMessage = function(message, targetOrigin, transfer) {
+                originalPostMessage(message, targetOrigin, transfer);
+                };
+
+                patchedPostMessage.toString = function() {
+                return String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage');
+                };
+
+                window.postMessage = patchedPostMessage;
+                window.postMessage(document.cookie);
+            })();
+        `;
         const {showBackForwardButtons, uri} = this.props;
         const {backButtonEnabled, forwardButtonEnabled, loading} = this.state;
         const backButton = showBackForwardButtons ?
@@ -143,7 +161,11 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                     source={{uri}}
                     scalesPageToFit
                     onLoadEnd={this.onLoadEnd}
-                    //onMessage={this.onMessage} // this seems to break iOS
+                    renderError={this.onMessage}
+                    injectedJavaScript={inlineJS}
+                    onMessage={this.onMessage}
+                    // onMessage seems to break WebView when viewing reittiopas.fi / etc.
+                    // see: https://github.com/HSLdevcom/react-native-proto/issues/23#issuecomment-300134505
                     onNavigationStateChange={this.onNavigationStateChange}
                 />
             </View>
