@@ -78,13 +78,13 @@ function HSLProto() {
                     <Scene iconName="address" key="homeTab" title="Reittiopas" icon={TabIcon}>
                         <Scene key="home" component={Main} title="Reittiopas" />
                     </Scene>
-                    <Scene iconName="news" key="newsTab" title="Uutiset" icon={TabIcon}>
-                        <Scene key="news" component={News} title="Uutiset" />
+                    <Scene iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
+                        <Scene key="news" component={News} title="Ajankohtaista" />
                     </Scene>
                     <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
                         <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                     </Scene>
-                    <Scene iconName="menu" key="menuTab" title="Valikko" icon={TabIcon} component={FakeSideMenu}>
+                    <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                         <Scene key="cityBike" title="Kaupunkipyörät" />
                         <Scene key="login" title="Kirjaudu" />
                     </Scene>

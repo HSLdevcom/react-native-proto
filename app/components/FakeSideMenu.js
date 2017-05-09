@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import {Animated, StyleSheet, Text, View} from 'react-native';
+import {Animated, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {Actions} from 'react-native-router-flux';
 import Icon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -19,21 +19,28 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#F5FCFF',
-    },
-    button: {
-        alignItems: 'center',
-        height: 50,
-        justifyContent: 'center',
-        width: '90%',
+        backgroundColor: colors.brandColor,
     },
     buttonText: {
         color: 'white',
+        fontSize: 20,
         fontWeight: '600',
         textAlign: 'center',
     },
+    icon: {
+        color: 'white',
+        marginRight: 20,
+    },
     wrapper: {
-        marginTop: 10,
+        alignItems: 'center',
+        borderBottomColor: colors.darkGray,
+        borderBottomWidth: 1,
+        flexDirection: 'row',
+        height: 50,
+        justifyContent: 'center',
+        paddingBottom: 20,
+        marginTop: 20,
+        width: '90%',
     },
 });
 
@@ -65,16 +72,14 @@ const FakeSideMenu = (props) => {
                 }),
             }]}
         >
-            <View style={styles.wrapper}>
-                <MaterialIcon.Button size={15} name="bike" style={styles.button} backgroundColor={colors.brandColor} borderRadius={10} onPress={showCityBikes}>
-                    <Text style={styles.buttonText}>Kaupunkipyörät</Text>
-                </MaterialIcon.Button>
-            </View>
-            <View style={styles.wrapper}>
-                <Icon.Button size={15} name="login" style={styles.button} backgroundColor={colors.brandColor} borderRadius={10} onPress={showLogin}>
-                    <Text style={styles.buttonText}>Kirjaudu sisään</Text>
-                </Icon.Button>
-            </View>
+            <TouchableOpacity style={styles.wrapper} onPress={showCityBikes}>
+                <MaterialIcon style={styles.icon} size={26} name="bike" />
+                <Text style={styles.buttonText}>Kaupunkipyörät</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.wrapper} onPress={showLogin}>
+                <Icon style={styles.icon} size={26} name="login" />
+                <Text style={styles.buttonText}>Kirjaudu sisään</Text>
+            </TouchableOpacity>
         </Animated.View>
     );
 };
