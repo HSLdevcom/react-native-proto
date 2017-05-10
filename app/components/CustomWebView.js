@@ -100,6 +100,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     }
 
     render() {
+        // https://github.com/facebook/react-native/issues/10865
         const inlineJS = `
             (function() {
                 var originalPostMessage = window.postMessage;
@@ -161,7 +162,6 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                     source={{uri}}
                     scalesPageToFit
                     onLoadEnd={this.onLoadEnd}
-                    renderError={this.onMessage}
                     injectedJavaScript={inlineJS}
                     onMessage={this.onMessage}
                     // onMessage seems to break WebView when viewing reittiopas.fi / etc.
