@@ -4,7 +4,8 @@
  */
 
 import React from 'react';
-// import {ScrollView, StyleSheet} from 'react-native';
+// import NFC, {NfcDataType, NdefRecordType} from 'react-native-nfc';
+// import {View, StyleSheet, Platform, Text} from 'react-native';
 // import {connect} from 'react-redux';
 // import Immutable from 'immutable';
 import CustomWebView from './CustomWebView';
@@ -23,6 +24,37 @@ import CustomWebView from './CustomWebView';
 //         justifyContent: 'center',
 //     },
 // });
+
+// function test(payload) {
+//     const messages = payload.data;
+//     messages.forEach((message) => {
+//         message.forEach((records) => {
+//             if (records.type === NdefRecordType.TEXT) {
+//                 // do something with the text data
+//                 console.log(`TEXT tag of type ${records.type} with data ${records.data}`);
+//             } else {
+//                 console.log(`Non-TEXT tag of type ${records.type} with data ${records.data}`);
+//             }
+//         });
+//     });
+// }
+// if (Platform.OS === 'android') {
+//     console.log('NFC');
+//     NFC.addListener((payload) => {
+//         console.log('payload.type: ', payload.type);
+//         switch (payload.type) {
+//         case NfcDataType.NDEF:
+//             test(payload);
+//             break;
+//         case NfcDataType.TAG:
+//             console.log(`The TAG is non-NDEF:\n\n${payload.data.description}`);
+//             break;
+//         default:
+//             console.log('default');
+//             break;
+//         }
+//     });
+// }
 function Main(/*props*/) {
     // if (props.news.get('activeSingleNews')) {
     //     const data = props.news.get('data');
@@ -41,7 +73,6 @@ function Main(/*props*/) {
     // TODO: add options view and define there if user wants to use this with "?mock"?
     return <CustomWebView uri="https://reittiopas.fi/?mock" />;
 }
-
 // Main.propTypes = {
 //     hideSingleNews: React.PropTypes.func.isRequired,
 //     news: React.PropTypes.instanceOf(Immutable.Map).isRequired,
