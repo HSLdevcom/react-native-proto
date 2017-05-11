@@ -3753,15 +3753,13 @@ react-deep-force-update@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-deep-force-update/-/react-deep-force-update-1.0.1.tgz#f911b5be1d2a6fe387507dd6e9a767aa2924b4c7"
 
+"react-native-camera@https://github.com/lwansbrough/react-native-camera.git":
+  version "0.8.0"
+  resolved "https://github.com/lwansbrough/react-native-camera.git#8878954e08b6043a079dacc5505889aee44f1312"
+
 react-native-device-info@^0.10.2:
   version "0.10.2"
   resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-0.10.2.tgz#350cd68ed43839022ddea0a3a423439f16fa4fba"
-
-react-native-drawer@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/react-native-drawer/-/react-native-drawer-2.3.0.tgz#a0369ec80ff0b61c9f152dbdea91fe76c843113a"
-  dependencies:
-    tween-functions "^1.0.1"
 
 react-native-experimental-navigation@0.26.x:
   version "0.26.10"
@@ -3773,6 +3771,10 @@ react-native-experimental-navigation@0.26.x:
     clamp "^1.0.1"
     fbjs "^0.8.1"
     react-addons-pure-render-mixin "^15.0.2"
+
+react-native-nfc@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-nfc/-/react-native-nfc-0.3.0.tgz#95cac876bdd914a94bd525146143fc2d69255908"
 
 react-native-router-flux@^3.38.0:
   version "3.38.0"
@@ -4660,10 +4662,6 @@ tunnel-agent@^0.6.0:
   resolved "https://registry.yarnpkg.com/tunnel-agent/-/tunnel-agent-0.6.0.tgz#27a5dea06b36b04a0a9966774b290868f0fc40fd"
   dependencies:
     safe-buffer "^5.0.1"
-
-tween-functions@^1.0.1:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/tween-functions/-/tween-functions-1.2.0.tgz#1ae3a50e7c60bb3def774eac707acbca73bbc3ff"
 
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
