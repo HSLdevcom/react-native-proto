@@ -85,6 +85,7 @@ function HSLProto() {
                         <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                     </Scene>
                     <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
+                        <Scene key="camera" title="Kamera" />
                         <Scene key="cityBike" title="Kaupunkipyörät" />
                         <Scene key="login" title="Kirjaudu" />
                     </Scene>

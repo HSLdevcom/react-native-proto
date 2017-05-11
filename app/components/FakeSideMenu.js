@@ -11,6 +11,7 @@ import {Actions} from 'react-native-router-flux';
 import Icon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CityBikes from './CityBikes';
+import Camera from './Camera';
 import Login from './Login';
 import colors from '../colors';
 
@@ -46,6 +47,7 @@ const styles = StyleSheet.create({
 
 const showCityBikes = () => Actions.cityBike();
 const showLogin = () => Actions.login();
+const showCamera = () => Actions.camera();
 
 const FakeSideMenu = (props) => {
     if (props.name === 'cityBike') {
@@ -58,6 +60,8 @@ const FakeSideMenu = (props) => {
         return (
             <Login />
         );
+    } else if (props.name === 'camera') {
+        return <Camera />;
     }
     // Add some "menu like animation" so this maybe feels more like real menu
     const fadeAnim = new Animated.Value(0);
@@ -79,6 +83,10 @@ const FakeSideMenu = (props) => {
             <TouchableOpacity style={styles.wrapper} onPress={showLogin}>
                 <Icon style={styles.icon} size={26} name="login" />
                 <Text style={styles.buttonText}>Kirjaudu sisään</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.wrapper} onPress={showCamera}>
+                <Icon style={styles.icon} size={26} name="camera" />
+                <Text style={styles.buttonText}>Kamera</Text>
             </TouchableOpacity>
         </Animated.View>
     );
