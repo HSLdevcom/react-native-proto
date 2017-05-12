@@ -3736,6 +3736,13 @@ react-native-experimental-navigation@0.26.x:
     fbjs "^0.8.1"
     react-addons-pure-render-mixin "^15.0.2"
 
+react-native-fs@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.3.2.tgz#49c6fd3413ae863427d91de4272dbf57248bc5dd"
+  dependencies:
+    base-64 "^0.1.0"
+    utf8 "^2.1.1"
+
 react-native-router-flux@^3.38.0:
   version "3.38.0"
   resolved "https://registry.yarnpkg.com/react-native-router-flux/-/react-native-router-flux-3.38.0.tgz#f5f8ec2875b46f96f61006ff502d0d80268e6ce2"
@@ -3743,6 +3750,10 @@ react-native-router-flux@^3.38.0:
     react-native-experimental-navigation "0.26.x"
     react-native-tabs "^1.0.9"
     react-static-container "1.0.1"
+
+react-native-static-server@^0.1.7:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/react-native-static-server/-/react-native-static-server-0.1.7.tgz#385fd901fdb1b074ffe0698df7f581573e7fcd82"
 
 react-native-tabs@^1.0.9:
   version "1.0.9"
@@ -4608,6 +4619,10 @@ user-home@^2.0.0:
   resolved "https://registry.yarnpkg.com/user-home/-/user-home-2.0.0.tgz#9c70bfd8169bc1dcbf48604e0f04b8b49cde9e9f"
   dependencies:
     os-homedir "^1.0.0"
+
+utf8@^2.1.1:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/utf8/-/utf8-2.1.2.tgz#1fa0d9270e9be850d9b05027f63519bf46457d96"
 
 util-deprecate@1.0.2, util-deprecate@~1.0.1:
   version "1.0.2"
