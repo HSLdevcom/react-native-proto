@@ -46,9 +46,7 @@ class InlineWebView extends Component { // eslint-disable-line react/prefer-stat
 
     render() {
         const inlineJS = `
-            setTimeout(function(){
-                document.querySelector('#container').innerText = 'Hello!';
-            }, 1000);
+            document.getElementsByTagName('body')[0].append(location.pathname);
         `;
         return (
             <View
@@ -59,7 +57,7 @@ class InlineWebView extends Component { // eslint-disable-line react/prefer-stat
                     style={styles.webView}
                     source={{uri: (Platform.OS === 'ios') ? 'web/index.html' : 'file:///android_asset/web/index.html'}}
                     scalesPageToFit
-                    // onMessage={this.onMessage} // this seems to break iOS
+                    //onMessage={this.onMessage} // this seems to break iOS
                     onNavigationStateChange={this.onNavigationStateChange}
                     injectedJavaScript={inlineJS}
                 />
