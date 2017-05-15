@@ -21,10 +21,37 @@ console.log('Starting');
 console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
 console.log(`__DEV__: ${__DEV__}`);
 
-const path = Platform.OS === 'ios' ? `${RNFS.MainBundlePath}/web` : `${RNFS.DocumentDirectoryPath}/web`;
+const path = Platform.OS === 'ios' ? `${RNFS.MainBundlePath}/web` : `${RNFS.DocumentDirectoryPath}`;
 console.log('path: ', path);
+console.log(RNFS);
 const server = new StaticServer(8080, path, {localOnly: true});
 
+if (Platform.OS === 'android') {
+    // RNFS.mkdir(`${RNFS.DocumentDirectoryPath}/web`)
+    // .then(() => RNFS.copyFileAssets('web/', `${RNFS.DocumentDirectoryPath}/web`))
+    // .then(() => RNFS.readDir(`${RNFS.DocumentDirectoryPath}/web`))
+    // .then((item) => {
+    //     console.log('item: ', item);
+    // })
+    // .catch(err => console.log(err));
+
+    // RNFS.readDirAssets('web')
+    // .then((items) => {
+    //     items.forEach((item) => {
+    //         console.log(item);
+    //         if (item.isDirectory()) {
+    //             RNFS.readDirAssets(item.path)
+    //             .then((subitems) => {
+    //                 subitems.forEach((subitem) => {
+    //                     console.log(subitem);
+    //                 });
+    //             })
+    //             .catch(err => console.log(err));
+    //         }
+    //     });
+    // })
+    // .catch(err => console.log(err));
+}
 // Start the server
 server.start().then((url) => {
     console.log('Serving at URL', url);
