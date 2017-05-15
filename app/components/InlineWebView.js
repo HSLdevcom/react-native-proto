@@ -45,18 +45,7 @@ class InlineWebView extends Component { // eslint-disable-line react/prefer-stat
     }
 
     render() {
-        const inlineJS = `
-            document.getElementsByTagName('body')[0].append(location.pathname);
-            (function(){
-                var oldLog = console.log;
-                console.log = function (message, other) {
-                    const a = document.createElement('h1');
-                    a.innerText = message + ' – ' + other;
-                    document.getElementsByTagName('body')[0].append(a);
-                    oldLog.apply(console, arguments);
-                };
-            })();
-        `;
+        const inlineJS = '';
         return (
             <View
                 style={[styles.container]}
@@ -64,7 +53,8 @@ class InlineWebView extends Component { // eslint-disable-line react/prefer-stat
                 <WebView
                     ref={(c) => { this.webview = c; }}
                     style={styles.webView}
-                    source={{uri: (Platform.OS === 'ios') ? 'http://127.0.0.1:8080' : 'file:///android_asset/web/index.html'}}
+                    source={{uri: (Platform.OS === 'ios') ? 'http://127.0.0.1:8080' : 'http://127.0.0.1:8080'}}
+                    // file:///android_asset/web/index.html
                     scalesPageToFit
                     // onMessage={this.onMessage} // this seems to break iOS
                     onNavigationStateChange={this.onNavigationStateChange}
