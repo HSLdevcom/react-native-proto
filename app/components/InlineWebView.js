@@ -45,7 +45,16 @@ class InlineWebView extends Component { // eslint-disable-line react/prefer-stat
     }
 
     render() {
-        const inlineJS = '';
+        const inlineJS = `
+            // var originalPostMessage = window.postMessage;
+            // var patchedPostMessage = function(message, targetOrigin, transfer) {
+            // originalPostMessage(message, targetOrigin, transfer);
+            // };
+            // patchedPostMessage.toString = function() {
+            // return String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage');
+            // };
+            // window.postMessage = patchedPostMessage;
+        `;
         return (
             <View
                 style={[styles.container]}

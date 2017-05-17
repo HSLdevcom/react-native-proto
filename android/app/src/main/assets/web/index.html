@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Reittiopas</title>
     <link rel="shortcut icon" href="./icons-hsl-18da13427c6e362f148f4a5b783ee98c/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="https://cloud.typography.com/6364294/6653152/css/fonts.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="https://cloud.typography.com/6364294/6653152/css/fonts.css" /> -->
     <link href="./css/main.e1e15aad8f31250a8bc2d259e3b9e503.css" rel="stylesheet">
     <link href="./css/hsl_theme.06d884a52678ec0df02de74924f1f91c.css" rel="stylesheet">
     <script type="application/json" id="relayData">
@@ -697,20 +697,6 @@
 		};
 	</script>
     <script>
-        setTimeout(function () {
-            fetch('./e08d9d29b0bb6fc425b5b718a04d1671.svg')
-            .then(function(response) {
-    			return response.text();
-    		})
-            .then(function(blob) {
-    			var div = document.createElement('div');
-    			div.innerHTML = blob;
-    			document.body.insertBefore(div, document.body.childNodes[0]);
-    		})
-            .catch(err => console.log('err: ', err));
-        }, 1000);
-	</script>
-    <script>
         /* Disable minification (remove `.min` from URL path) for more info */
 
         (function(undefined) {
@@ -786,7 +772,7 @@
                     function c() {
                         var t = "setImmediate$" + Math.random() + "$",
                             a = function(n) {
-                                n.source === e && "string" == typeof n.data && 0 === n.data.indexOf(t) && o(+n.data.slice(t.length))
+                                n.source === e && "string" == typeof n.data && 0 === n.data.indexOf(t) && o(+n.data.slice(t.length));
                             };
                         e.addEventListener ? e.addEventListener("message", a, !1) : e.attachEvent("onmessage", a), m = function() {
                             var a = n(arguments);
@@ -1582,9 +1568,11 @@
                         })
                     }, t.fetch.polyfill = !0
                 }("undefined" != typeof self ? self : this);
-            }! function(e, r) {
+
+            }
+            ! function(e, r) {
                 "object" == typeof exports && "undefined" != typeof module ? module.exports = r() : "function" == typeof define && define.amd ? define(r) : e.IntlPolyfill = r()
-            }(this, function() {
+                }(this, function() {
                 "use strict";
 
                 function e(e) {
@@ -7424,17 +7412,34 @@
                     return !1
                 };
             }
-        }).call('object' === typeof window && window || 'object' === typeof self && self || 'object' === typeof global && global || {});
-        //# sourceMappingURL=./js/manifest.d41d8cd98f00b204e980.js.map
+        }).call(window);
+
+    </script>
+    <script>
+        // var e = document.createElement('h1');
+        // e.innerText = 'hellofromafter';
+        // document.body.insertBefore(e, document.body.childNodes[0]);
+        // TODO: fetch isn't working
+        // fetch('./e08d9d29b0bb6fc425b5b718a04d1671.svg')
+        // .then(function(response) {
+		// 	return response.text();
+		// })
+        // .then(function(blob) {
+		// 	var div = document.createElement('div');
+		// 	div.innerHTML = blob;
+		// 	document.body.insertBefore(div, document.body.childNodes[0]);
+		// })
+        // .catch((err) => {
+        //     console.log('err: ', err);
+        //     var e = document.createElement('h1');
+        //     e.innerText = err;
+        //     document.body.insertBefore(e, document.body.childNodes[0]);
+        // });
     </script>
     <script type="text/javascript" src="./js/manifest.d41d8cd98f00b204e980.js"></script>
     <script type="text/javascript" src="./js/leaflet.4568104c2fb108f88c7a.js"></script>
     <script type="text/javascript" src="./js/common.8d3aaa04741c0d37ee4e.js"></script>
     <script type="text/javascript" src="./js/main.ff3121f8f274a7c531d3.js"></script>
-    <!-- <script type="text/javascript" src="./js/hsl_sprite.2591d9c993341a36346f.js"></script>
-    <script type="text/javascript" src="./js/default_sprite.02220c449e7747b33b1d.js"></script>
-    <script type="text/javascript" src="./js/hsl_theme.b2328beb0372c051d06d.js"></script>
-    <script type="text/javascript" src="./js/default_theme.b2328beb0372c051d06d.js"></script> -->
 </body>
 
 </html>
