@@ -117,7 +117,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         }
         let webViewMarginTop = (Platform.OS === 'ios') ? 63 : 53;
         if (autoHeightEnabled) webViewMarginTop = 0;
-        const inlineJS = `
+        const inlineJS = onMessageEnabled ? `
             // Workaround to https://github.com/facebook/react-native/issues/10865
             var originalPostMessage = window.postMessage;
             var patchedPostMessage = function(message, targetOrigin, transfer) {
@@ -138,7 +138,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             //     }
             //     postMessage('height;' + height);
             // })();
-        `;
+        ` : '';
         const backButton = showBackForwardButtons ?
             (
                 <TouchableOpacity
