@@ -8,6 +8,7 @@ import {ActivityIndicator, Dimensions, Platform, StyleSheet, Text, TouchableOpac
 import colors from '../colors';
 
 const screenHeight = Dimensions.get('window').height;
+const screenWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
     centering: {
         alignItems: 'center',
@@ -20,7 +21,6 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: colors.brandColor,
         flex: 1,
-        height: parseInt(screenHeight - 80, 10),
         justifyContent: 'center',
         marginBottom: 50,
     },
@@ -76,7 +76,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     };
 
     onMessage = (event) => {
-        console.log(event.nativeEvent.data);
+        console.log('message: ', event.nativeEvent.data);
     }
     onLoadEnd = () => {
         this.setState({loading: false});
@@ -98,8 +98,47 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     }
 
     render() {
-        const {showBackForwardButtons, uri} = this.props;
+        const {
+            autoHeightEnabled,
+            onMessageEnabled,
+            scrollEnabled,
+            showBackForwardButtons,
+            uri,
+        } = this.props;
         const {backButtonEnabled, forwardButtonEnabled, loading} = this.state;
+        let containerHeight = parseInt(screenHeight - 80, 10);
+
+        // TODO: this is not bulletproof "solution" at all...
+        // WebView inside ScrollView sucks...
+        if (autoHeightEnabled) {
+            containerHeight = (screenWidth > 400) ?
+                (1000 + parseInt(screenHeight - 80, 10)) :
+                (1200 + parseInt(screenHeight - 80, 10));
+        }
+        let webViewMarginTop = (Platform.OS === 'ios') ? 63 : 53;
+        if (autoHeightEnabled) webViewMarginTop = 0;
+        const inlineJS = `
+            // Workaround to https://github.com/facebook/react-native/issues/10865
+            var originalPostMessage = window.postMessage;
+            var patchedPostMessage = function(message, targetOrigin, transfer) {
+                originalPostMessage(message, targetOrigin, transfer);
+            };
+            patchedPostMessage.toString = function() {
+                return String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage');
+            };
+            window.postMessage = patchedPostMessage;
+            // One way to try to send page height back to the app (not working with Android...)
+            // https://github.com/scazzy/react-native-webview-autoheight/blob/master/index.js
+            // (function(){
+            //     let height = 0;
+            //     if(document.documentElement.clientHeight>document.body.clientHeight) {
+            //         height = document.documentElement.clientHeight;
+            //     } else {
+            //         height = document.body.clientHeight;
+            //     }
+            //     postMessage('height;' + height);
+            // })();
+        `;
         const backButton = showBackForwardButtons ?
             (
                 <TouchableOpacity
@@ -126,7 +165,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             null;
         return (
             <View
-                style={[styles.container]}
+                style={[styles.container, {height: containerHeight}]}
             >
                 <ActivityIndicator
                     animating={loading}
@@ -139,12 +178,18 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                     ref={(c) => { this.webview = c; }}
                     domStorageEnabled
                     javaScriptEnabled
-                    style={styles.webView}
+                    style={[styles.webView, {marginTop: webViewMarginTop}]}
                     source={{uri}}
                     scalesPageToFit
                     onLoadEnd={this.onLoadEnd}
-                    //onMessage={this.onMessage} // this seems to break iOS
+                    onMessage={
+                        onMessageEnabled ?
+                            this.onMessage :
+                            null
+                    } // there's issuses with onMessage
                     onNavigationStateChange={this.onNavigationStateChange}
+                    scrollEnabled={scrollEnabled}
+                    injectedJavaScript={inlineJS}
                 />
             </View>
         );
@@ -152,11 +197,17 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
 }
 
 CustomWebView.propTypes = {
+    autoHeightEnabled: React.PropTypes.bool,
+    onMessageEnabled: React.PropTypes.bool,
+    scrollEnabled: React.PropTypes.bool,
     showBackForwardButtons: React.PropTypes.bool,
     uri: React.PropTypes.string.isRequired,
 };
 
 CustomWebView.defaultProps = {
+    autoHeightEnabled: false,
+    onMessageEnabled: false,
+    scrollEnabled: true,
     showBackForwardButtons: false,
 };
 
