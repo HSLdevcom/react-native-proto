@@ -6,7 +6,7 @@
 import React, {Component} from 'react';
 import RNFS from 'react-native-fs';
 import {unzip} from 'react-native-zip-archive';
-import {Text, View} from 'react-native';
+import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 // import CustomWebView from './CustomWebView';
@@ -22,52 +22,102 @@ import {
 //     hideSingleNews,
 // } from '../actions/news';
 
-// const styles = StyleSheet.create({
-//     container: {
-//         marginBottom: 50,
-//     },
-//     scrollView: {
-//         alignItems: 'center',
-//         justifyContent: 'center',
-//     },
-// });
+const styles = StyleSheet.create({
+    container: {
+        alignItems: 'center',
+        flex: 1,
+        justifyContent: 'center',
+    },
+    scrollView: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    centering: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 8,
+    },
+    error: {
+        fontSize: 40,
+        color: 'red',
+    },
+    spinner: {
+        height: 80,
+        position: 'absolute',
+        zIndex: 2,
+    },
+});
+
+const pathToReittiopasBundleZip = `${RNFS.DocumentDirectoryPath}/reittiopas.zip`;
 
 class Main extends Component { // eslint-disable-line react/prefer-stateless-function
+
     componentDidMount() {
         const {reittiopas} = this.props;
+        // TODO: logic to check out if there's new version of reittiopas available
         if (!reittiopas.get('timestamp') && !reittiopas.get('fetching') && !reittiopas.get('error')) {
             this.download();
         }
     }
 
     handleUnZip = () => {
-        RNFS.exists(`${RNFS.DocumentDirectoryPath}/reittiopas.zip`)
+        RNFS.exists(pathToReittiopasBundleZip)
         .then((result) => {
             console.log('File copied? ', result);
             if (result) {
-                return unzip(`${RNFS.DocumentDirectoryPath}/reittiopas.zip`, `${RNFS.DocumentDirectoryPath}/reittiopas`);
+                return unzip(pathToReittiopasBundleZip, `${RNFS.DocumentDirectoryPath}/reittiopas`);
             }
             return false;
         })
         .then((result) => {
-            console.log('unzip: ', result);
-            this.props.fetchReittiopasDone(new Date().getTime());
+            if (result) {
+                this.props.fetchReittiopasDone(new Date().getTime());
+            } else {
+                this.props.fetchReittiopasError(new Error('Reittiopas failed to load miserably...'));
+            }
         })
-        .catch(err => console.log(err));
+        .catch(err => this.props.fetchReittiopasError(new Error(err)));
     };
 
     handleProgress = (progress) => {
         const {bytesWritten, contentLength} = progress;
-        if (bytesWritten >= contentLength) {
+        if (bytesWritten === contentLength) {
+            // Unzip the file after it's downloaded
             this.handleUnZip();
         }
     };
 
+    handleBeginDownload = (options) => {
+        /* Add 15 sec timeout and just try to unzip if download isn't completed
+        * There seems to be an issue with handleProgress (at least with Android),
+        * last callback isn't firing every time so the file could be downloaded successfully
+        * even if bytesWritten < contentLength
+        */
+        setTimeout(() => {
+            if (this.props.reittiopas.get('fetching') && !this.props.reittiopas.get('error')) {
+                RNFS.stopDownload(options.jobId);
+                // No luck with download but let's just try out unzip
+                this.handleUnZip();
+            }
+        }, 15000);
+    };
+
+    /* Handle reittiopas.zip download
+    * Check if older zip or reittiopas-folder exists and delete those if needed
+    * Start the file download process and handle unzip inside handleProgress()
+    */
     download = () => {
-        RNFS.exists(`${RNFS.DocumentDirectoryPath}/reittiopas.zip`)
+        RNFS.exists(pathToReittiopasBundleZip)
         .then((result) => {
             if (result) {
-                return RNFS.unlink(`${RNFS.DocumentDirectoryPath}/reittiopas.zip`);
+                return RNFS.unlink(pathToReittiopasBundleZip);
+            }
+            return true;
+        })
+        .then(() => RNFS.exists(`${RNFS.DocumentDirectoryPath}/reittiopas/index.html`))
+        .then((result) => {
+            if (result) {
+                return RNFS.unlink(`${RNFS.DocumentDirectoryPath}/reittiopas`);
             }
             return true;
         })
@@ -75,13 +125,14 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
             console.log('download start!');
             this.props.fetchReittiopas();
             RNFS.downloadFile({
-                fromUrl: 'http://192.168.43.223:12000/hsl/reittiopas.zip',
-                toFile: `${RNFS.DocumentDirectoryPath}/reittiopas.zip`,
+                fromUrl: 'http://192.168.1.118:12000/hsl/reittiopas.zip', // TODO: add "real" URL
+                toFile: pathToReittiopasBundleZip,
+                begin: this.handleBeginDownload,
                 progress: this.handleProgress,
                 progressDivider: 10,
             });
         })
-        .catch(err => console.log(err));
+        .catch(err => this.props.fetchReittiopasError(new Error(err)));
     }
 
     render() {
@@ -99,11 +150,25 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
         //     </ScrollView>
         // );
         const {reittiopas} = this.props;
-        if (reittiopas.get('timestamp')) {
+        if (reittiopas.get('timestamp') && !reittiopas.get('error')) {
             console.log('timestamp: ', reittiopas.get('timestamp'));
             return <InlineWebView />;
         } else if (reittiopas.get('fetching')) {
-            return <Text style={{fontSize: 40, marginTop: 150}}>Loading...</Text>;
+            return (
+                <View style={[styles.container]}>
+                    <ActivityIndicator
+                        animating
+                        size="large"
+                        style={[styles.centering, styles.spinner]}
+                    />
+                </View>
+            );
+        } else if (reittiopas.get('error')) {
+            return (
+                <View style={[styles.container]}>
+                    <Text style={styles.error}>{reittiopas.get('error').message}</Text>
+                </View>
+            );
         }
         return <View />;
     }
@@ -130,7 +195,7 @@ function mapDispatchToProps(dispatch) {
         fetchReittiopas: () => dispatch(fetchingReittiopas()),
         fetchReittiopasDone: (timestamp = new Date().getTime()) =>
             dispatch(fetchReittiopasDone(timestamp)),
-        fetchReittiopasError: () => dispatch(fetchReittiopasError()),
+        fetchReittiopasError: error => dispatch(fetchReittiopasError(error)),
     };
 }
 
