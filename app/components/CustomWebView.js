@@ -4,7 +4,14 @@
  */
 
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
+import Cookie from 'react-native-cookie';
+import Immutable from 'immutable';
 import {ActivityIndicator, Dimensions, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
+import {
+    removeCookie,
+    setCookie,
+} from '../actions/cookies';
 import colors from '../colors';
 
 const screenHeight = Dimensions.get('window').height;
@@ -66,6 +73,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
 });
+const HSLSAMLSessionID = 'HSLSAMLSessionID';
 
 class CustomWebView extends Component { // eslint-disable-line react/prefer-stateless-function
     // Inner state is bad but at this point it's easier
@@ -77,8 +85,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     };
 
     componentDidMount() {
+        const {uri} = this.props;
         // TODO: do we want to get the position on every mount or keep it in state with some logic?
-        if (this.props.uri.startsWith('https://reittiopas')) {
+        if (uri.startsWith('https://reittiopas')) {
             navigator.geolocation.getCurrentPosition((position) => {
                 if (position.coords) {
                     this.setState({
@@ -97,6 +106,15 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         }
     }
 
+    componentDidUpdate() {
+        const {uri} = this.props;
+        Cookie.get(uri).then((cookie) => {
+            if (cookie) {
+                this.handleCookies(cookie);
+            }
+        });
+    }
+
     onMessage = (event) => {
         console.log('message: ', event.nativeEvent.data);
     }
@@ -106,10 +124,55 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     onNavigationStateChange = (navState) => {
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
+        console.log(navState);
+        if (navState.url.startsWith('https://login.hsl.fi/user/logout')) {
+            console.log('REMOVE COOKIE!');
+            // this.props.removeCookie();
+            // setTimeout(() => {
+            //     console.log('REMOVE COOKIE!');
+            //     this.props.removeCookie();
+            // }, 1000);
+        }
         this.setState({
             backButtonEnabled: navState.canGoBack,
             forwardButtonEnabled: navState.canGoForward,
         });
+    }
+    handleCookies = (currentCookie) => {
+        const {cookies, uri} = this.props;
+        if (
+            (
+                !cookies.get('cookie') &&
+                currentCookie.HSLSAMLSessionID
+            )
+            ||
+            (
+                currentCookie.HSLSAMLSessionID &&
+                cookies.get('cookie')[HSLSAMLSessionID] !== currentCookie.HSLSAMLSessionID
+            )
+        ) {
+            console.log('setCookie: ', currentCookie);
+            this.props.setCookie(currentCookie);
+        } else if (
+            (
+                cookies.get('cookie')[HSLSAMLSessionID] &&
+                !currentCookie.HSLSAMLSessionID
+            )
+            ||
+            (
+                cookies.get('cookie')[HSLSAMLSessionID] &&
+                cookies.get('cookie')[HSLSAMLSessionID] !== currentCookie.HSLSAMLSessionID
+            )
+        ) {
+            console.log('set cookies');
+            console.log('currentCookie: ', currentCookie);
+            Object.keys(cookies.get('cookie')).forEach((item) => {
+                console.log(item, cookies.get('cookie')[item]);
+                Cookie.set(uri, item, cookies.get('cookie')[item])
+                .then(() => console.log(`${item} cookie set success`))
+                .catch(err => console.log(err));
+            });
+        }
     }
     goBack = () => {
         this.webview.goBack();
@@ -119,9 +182,12 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         this.webview.goForward();
     }
 
+    // getCookiePart = (key) => {}
+
     render() {
         const {
             autoHeightEnabled,
+            cookies,
             onMessageEnabled,
             scrollEnabled,
             showBackForwardButtons,
@@ -129,7 +195,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         } = this.props;
         const {backButtonEnabled, forwardButtonEnabled, loading, position} = this.state;
         let containerHeight = parseInt(screenHeight - 80, 10);
-
+        // console.log('cookies: ', cookies.get('cookie'));
         // TODO: this is not bulletproof "solution" at all...
         // WebView inside ScrollView sucks...
         if (autoHeightEnabled) {
@@ -149,6 +215,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 return String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage');
             };
             window.postMessage = patchedPostMessage;
+            // window.postMessage(document.cookie);
             // One way to try to send page height back to the app (not working with Android...)
             // https://github.com/scazzy/react-native-webview-autoheight/blob/master/index.js
             // (function(){
@@ -160,7 +227,8 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             //     }
             //     postMessage('height;' + height);
             // })();
-        ` : '';
+        ` : `
+        `;
         if (position.lat && position.long) {
             // If we have lat and long use mock
             inlineJS = `
@@ -193,6 +261,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 </TouchableOpacity>
             ) :
             null;
+
         return (
             <View
                 style={[styles.container, {height: containerHeight}]}
@@ -228,10 +297,13 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
 
 CustomWebView.propTypes = {
     autoHeightEnabled: React.PropTypes.bool,
+    cookies: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     onMessageEnabled: React.PropTypes.bool,
     scrollEnabled: React.PropTypes.bool,
     showBackForwardButtons: React.PropTypes.bool,
     uri: React.PropTypes.string.isRequired,
+    setCookie: React.PropTypes.func.isRequired,
+    removeCookie: React.PropTypes.func.isRequired,
 };
 
 CustomWebView.defaultProps = {
@@ -241,4 +313,22 @@ CustomWebView.defaultProps = {
     showBackForwardButtons: false,
 };
 
-export default CustomWebView;
+function mapStateToProps(state) {
+    return {
+        cookies: state.cookies,
+    };
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        setCookie: cookie => dispatch(setCookie(cookie)),
+        removeCookie: () => dispatch(removeCookie()),
+    };
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(CustomWebView);
+
+// export default CustomWebView;
