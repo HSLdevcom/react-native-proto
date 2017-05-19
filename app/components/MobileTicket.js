@@ -7,7 +7,6 @@ import React, {Component} from 'react';
 import {Linking, Modal, Platform, ScrollView, StyleSheet, Text, View} from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import FoundationIcon from 'react-native-vector-icons/Foundation';
-import TicketsAndFares from './TicketsAndFares';
 import colors from '../colors';
 
 const styles = StyleSheet.create({
@@ -137,10 +136,6 @@ class MobileTicket extends Component { // eslint-disable-line react/prefer-state
                         <Text style={styles.buttonText}>Kausilippu</Text>
                     </FoundationIcon.Button>
                 </View>
-                <Text style={[styles.text, styles.header]}>
-                    Hinnat
-                </Text>
-                <TicketsAndFares />
             </ScrollView>
         );
     }
