@@ -73,7 +73,29 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         backButtonEnabled: false,
         forwardButtonEnabled: false,
         loading: true,
+        position: {},
     };
+
+    componentDidMount() {
+        // TODO: do we want to get the position on every mount or keep it in state with some logic?
+        if (this.props.uri.startsWith('https://reittiopas')) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                if (position.coords) {
+                    this.setState({
+                        position: {
+                            lat: position.coords.latitude,
+                            long: position.coords.longitude,
+                        },
+                    });
+                }
+            }, error => console.log(error), {
+                enableHighAccuracy: true,
+                timeout: 20000,
+                maximumAge: 1000,
+            }
+            );
+        }
+    }
 
     onMessage = (event) => {
         console.log('message: ', event.nativeEvent.data);
@@ -105,7 +127,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             showBackForwardButtons,
             uri,
         } = this.props;
-        const {backButtonEnabled, forwardButtonEnabled, loading} = this.state;
+        const {backButtonEnabled, forwardButtonEnabled, loading, position} = this.state;
         let containerHeight = parseInt(screenHeight - 80, 10);
 
         // TODO: this is not bulletproof "solution" at all...
@@ -117,7 +139,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         }
         let webViewMarginTop = (Platform.OS === 'ios') ? 63 : 53;
         if (autoHeightEnabled) webViewMarginTop = 0;
-        const inlineJS = onMessageEnabled ? `
+        let inlineJS = onMessageEnabled ? `
             // Workaround to https://github.com/facebook/react-native/issues/10865
             var originalPostMessage = window.postMessage;
             var patchedPostMessage = function(message, targetOrigin, transfer) {
@@ -139,6 +161,14 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             //     postMessage('height;' + height);
             // })();
         ` : '';
+        if (position.lat && position.long) {
+            // If we have lat and long use mock
+            inlineJS = `
+                if (window.mock) {
+                    window.mock.geolocation.setCurrentPosition(${position.lat}, ${position.long});
+                }
+            `;
+        }
         const backButton = showBackForwardButtons ?
             (
                 <TouchableOpacity
