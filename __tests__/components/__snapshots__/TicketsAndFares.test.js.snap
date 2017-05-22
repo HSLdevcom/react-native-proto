@@ -10,9 +10,11 @@ exports[`renders correctly 1`] = `
         "borderBottomWidth": 1,
         "borderColor": "rgb(0, 122, 201)",
         "flex": 1,
-        "height": 1254,
         "justifyContent": "center",
         "marginBottom": 50,
+      },
+      Object {
+        "height": 2254,
       },
     ]
   }
@@ -52,19 +54,41 @@ exports[`renders correctly 1`] = `
       contentInset={undefined}
       dataDetectorTypes={undefined}
       decelerationRate={undefined}
-      injectedJavaScript={undefined}
+      injectedJavaScript="
+                // Workaround to https://github.com/facebook/react-native/issues/10865
+                var originalPostMessage = window.postMessage;
+                var patchedPostMessage = function(message, targetOrigin, transfer) {
+                    originalPostMessage(message, targetOrigin, transfer);
+                };
+                patchedPostMessage.toString = function() {
+                    return String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage');
+                };
+                window.postMessage = patchedPostMessage;
+                // window.postMessage(document.cookie);
+                // One way to try to send page height back to the app (not working with Android...)
+                // https://github.com/scazzy/react-native-webview-autoheight/blob/master/index.js
+                // (function(){
+                //     let height = 0;
+                //     if(document.documentElement.clientHeight>document.body.clientHeight) {
+                //         height = document.documentElement.clientHeight;
+                //     } else {
+                //         height = document.body.clientHeight;
+                //     }
+                //     postMessage('height;' + height);
+                // })();
+            "
       mediaPlaybackRequiresUserAction={undefined}
-      messagingEnabled={false}
+      messagingEnabled={true}
       onLoadingError={[Function]}
       onLoadingFinish={[Function]}
       onLoadingStart={[Function]}
       onMessage={[Function]}
       onShouldStartLoadWithRequest={undefined}
       scalesPageToFit={true}
-      scrollEnabled={undefined}
+      scrollEnabled={false}
       source={
         Object {
-          "uri": "https://www.hsl.fi/liput-ja-hinnat",
+          "uri": "https://www.hsl.fi/liput-ja-hinnat?content-only",
         }
       }
       style={
@@ -75,10 +99,15 @@ exports[`renders correctly 1`] = `
           Object {
             "backgroundColor": "#ffffff",
           },
-          Object {
-            "marginTop": 63,
-            "width": "100%",
-          },
+          Array [
+            Object {
+              "marginTop": 63,
+              "width": "100%",
+            },
+            Object {
+              "marginTop": 0,
+            },
+          ],
         ]
       }
     />
