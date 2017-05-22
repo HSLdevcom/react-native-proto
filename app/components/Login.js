@@ -10,4 +10,8 @@ function Login() {
     return <CustomWebView uri="https://login.hsl.fi/" />;
 }
 
+Login.propTypes = {
+    loggedIn: React.PropTypes.bool.isRequired,
+};
+
 export default Login;
