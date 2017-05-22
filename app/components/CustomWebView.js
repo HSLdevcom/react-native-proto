@@ -12,6 +12,10 @@ import {
     removeCookie,
     setCookie,
 } from '../actions/cookies';
+import {
+    setSession,
+    removeSession,
+} from '../actions/session';
 import colors from '../colors';
 
 const screenHeight = Dimensions.get('window').height;
@@ -87,7 +91,8 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     componentDidMount() {
         const {uri} = this.props;
         // TODO: do we want to get the position on every mount or keep it in state with some logic?
-        if (uri.startsWith('https://reittiopas')) {
+        // TODO: remove process.env check when https://github.com/facebook/react-native/pull/13442 is in RN
+        if (uri.startsWith('https://reittiopas') && process.env.NODE_ENV !== 'test') {
             navigator.geolocation.getCurrentPosition((position) => {
                 if (position.coords) {
                     this.setState({
@@ -107,12 +112,13 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     }
 
     componentDidUpdate() {
-        const {uri} = this.props;
-        Cookie.get(uri).then((cookie) => {
-            if (cookie) {
-                this.handleCookies(cookie);
-            }
-        });
+        // const {uri} = this.props;
+        // Cookie.get(uri)
+        // .then((cookie) => {
+        //     if (cookie) {
+        //         this.handleCookies(cookie);
+        //     }
+        // });
     }
 
     onMessage = (event) => {
@@ -122,16 +128,31 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         this.setState({loading: false});
     }
     onNavigationStateChange = (navState) => {
+        const {uri} = this.props;
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
         console.log(navState);
-        if (navState.url.startsWith('https://login.hsl.fi/user/logout')) {
-            console.log('REMOVE COOKIE!');
-            // this.props.removeCookie();
-            // setTimeout(() => {
-            //     console.log('REMOVE COOKIE!');
-            //     this.props.removeCookie();
-            // }, 1000);
+        if (navState.url.startsWith('https://login.hsl.fi/simplesaml/module.php/core/idp/resumelogout.php')) {
+            this.props.removeCookie();
+            this.props.removeSession();
+        } else if (
+            navState.navigationType === 'formsubmit' &&
+            (
+                navState.url.startsWith('https://www.hsl.fi') ||
+                navState.url.startsWith('https://login.hsl.fi')
+            )) {
+            Cookie.get(uri)
+            .then((cookie) => {
+                if (cookie) {
+                    if (cookie.HSLSAMLSessionID) {
+                        this.props.setCookie(cookie);
+                        this.props.setSession({
+                            loggedIn: true,
+                            [HSLSAMLSessionID]: cookie.HSLSAMLSessionID,
+                        });
+                    }
+                }
+            });
         }
         this.setState({
             backButtonEnabled: navState.canGoBack,
@@ -139,6 +160,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         });
     }
     handleCookies = (currentCookie) => {
+        console.log('currentCookie: ', currentCookie);
         const {cookies, uri} = this.props;
         if (
             (
@@ -151,8 +173,12 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 cookies.get('cookie')[HSLSAMLSessionID] !== currentCookie.HSLSAMLSessionID
             )
         ) {
-            console.log('setCookie: ', currentCookie);
+            console.log('setCookie to store');
             this.props.setCookie(currentCookie);
+            this.props.setSession({
+                loggedIn: true,
+                [HSLSAMLSessionID]: currentCookie.HSLSAMLSessionID,
+            });
         } else if (
             (
                 cookies.get('cookie')[HSLSAMLSessionID] &&
@@ -164,14 +190,13 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 cookies.get('cookie')[HSLSAMLSessionID] !== currentCookie.HSLSAMLSessionID
             )
         ) {
-            console.log('set cookies');
-            console.log('currentCookie: ', currentCookie);
-            Object.keys(cookies.get('cookie')).forEach((item) => {
-                console.log(item, cookies.get('cookie')[item]);
-                Cookie.set(uri, item, cookies.get('cookie')[item])
-                .then(() => console.log(`${item} cookie set success`))
-                .catch(err => console.log(err));
-            });
+            console.log('set cookies to webview');
+            // Object.keys(cookies.get('cookie')).forEach((item) => {
+            //     console.log(item, cookies.get('cookie')[item]);
+            //     Cookie.set(uri, item, cookies.get('cookie')[item])
+            //     .then(() => console.log(`${item} cookie set success`))
+            //     .catch(err => console.log(err));
+            // });
         }
     }
     goBack = () => {
@@ -187,7 +212,6 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     render() {
         const {
             autoHeightEnabled,
-            cookies,
             onMessageEnabled,
             scrollEnabled,
             showBackForwardButtons,
@@ -299,11 +323,13 @@ CustomWebView.propTypes = {
     autoHeightEnabled: React.PropTypes.bool,
     cookies: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     onMessageEnabled: React.PropTypes.bool,
+    removeCookie: React.PropTypes.func.isRequired,
+    removeSession: React.PropTypes.func.isRequired,
     scrollEnabled: React.PropTypes.bool,
+    setCookie: React.PropTypes.func.isRequired,
+    setSession: React.PropTypes.func.isRequired,
     showBackForwardButtons: React.PropTypes.bool,
     uri: React.PropTypes.string.isRequired,
-    setCookie: React.PropTypes.func.isRequired,
-    removeCookie: React.PropTypes.func.isRequired,
 };
 
 CustomWebView.defaultProps = {
@@ -321,8 +347,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        setCookie: cookie => dispatch(setCookie(cookie)),
         removeCookie: () => dispatch(removeCookie()),
+        removeSession: () => dispatch(removeSession()),
+        setCookie: cookie => dispatch(setCookie(cookie)),
+        setSession: session => dispatch(setSession(session)),
     };
 }
 
