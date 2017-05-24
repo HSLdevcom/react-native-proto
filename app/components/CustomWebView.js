@@ -115,9 +115,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         // const {uri} = this.props;
         // Cookie.get(uri)
         // .then((cookie) => {
-        //     if (cookie) {
-        //         this.handleCookies(cookie);
-        //     }
+        //     console.log('current webview cookie: ', cookie);
         // });
     }
 
@@ -128,76 +126,124 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         this.setState({loading: false});
     }
     onNavigationStateChange = (navState) => {
-        const {uri} = this.props;
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
         console.log(navState);
-        if (navState.url.startsWith('https://login.hsl.fi/simplesaml/module.php/core/idp/resumelogout.php')) {
-            this.props.removeCookie();
-            this.props.removeSession();
+
+        /* Handle logout flow
+        * 1) Check if we are on a page whose url includes SingleLogoutService / "saml/logout"
+        * 2) Get page cookies
+        * 3) Check if cookies includes SSESS...-cookie
+        * 4) If there's no SSESS-cookie, removeCookie and resetSession
+        * TODO: there really should be better solution for this
+        */
+        if (
+            navState.url.startsWith('https://login.hsl.fi/simplesaml/saml2/idp/SingleLogoutService.php') ||
+            navState.url.startsWith('https://www.hsl.fi/saml/logout')
+        ) {
+            this.maybeLoginOrLogout();
         } else if (
-            navState.navigationType === 'formsubmit' &&
+            /* Handle login flow
+            * 1) Check if we are on a page whose url includes (login.)hsl.fi
+            * and navigationType is formsubmit / title 'POST data'
+            * 2) Get page cookies
+            * 3) Check if cookies includes SSESS...- and HSLSAMLSessionID-cookie
+            * 4) If cookies exists, setCookie and setSession
+            * TODO: there really should be better solution for this
+            */
             (
-                navState.url.startsWith('https://www.hsl.fi') ||
-                navState.url.startsWith('https://login.hsl.fi')
-            )) {
-            Cookie.get(uri)
-            .then((cookie) => {
-                if (cookie) {
-                    if (cookie.HSLSAMLSessionID) {
-                        this.props.setCookie(cookie);
-                        this.props.setSession({
-                            loggedIn: true,
-                            [HSLSAMLSessionID]: cookie.HSLSAMLSessionID,
-                        });
-                    }
-                }
-            });
+                // iOS version
+                navState.navigationType === 'formsubmit' &&
+                (
+                    navState.url.startsWith('https://www.hsl.fi') ||
+                    navState.url.startsWith('https://login.hsl.fi')
+                )
+            ) ||
+            (
+                // Android version
+                navState.url.startsWith('https://login.hsl.fi/user') ||
+                (
+                    navState.title === 'POST data' &&
+                    navState.url.startsWith('https://www.hsl.fi')
+                )
+            )
+        ) {
+            this.maybeLoginOrLogout();
         }
         this.setState({
             backButtonEnabled: navState.canGoBack,
             forwardButtonEnabled: navState.canGoForward,
         });
     }
+
+    maybeLoginOrLogout = () => {
+        const {cookies, uri} = this.props;
+        Cookie.get(uri)
+        .then((cookie) => {
+            if (cookie) {
+                return this.checkSessionCookie(cookie);
+            }
+            throw new Error('No cookie found!');
+        })
+        .then((result) => {
+            if (!result.sessionCookieSet && cookies.get('cookie')) {
+                this.props.removeCookie();
+                this.props.resetSession();
+            } else if (
+                // TODO: if you don't do SSO-login directly via login.hsl.fi (Kirjaudu sisään-view)
+                // there isn't 'HSLSAMLSessionID'-cookie... and this logic doesn't work
+                // use case can be for example hsl.fi/citybike -> login -> redirect
+                // BUT that doesn't happen every time...
+                result.sessionCookieSet &&
+                result.cookie.HSLSAMLSessionID &&
+                (
+                    !cookies.get('cookie') ||
+                    !cookies.get('cookie')[HSLSAMLSessionID]
+                )
+            ) {
+                this.props.setCookie(result.cookie);
+                this.props.setSession({
+                    loggedIn: true,
+                    [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID,
+                });
+            }
+        })
+        .catch(err => console.error(err));
+    }
+    checkSessionCookie = (cookie) => {
+        let sessionCookieSet = false;
+        Object.keys(cookie).forEach((key) => {
+            // Well this isn't bulletproof but there seems to be a cookie like
+            // SSESS... when user is logged in
+            if (key.startsWith('SSESS')) {
+                sessionCookieSet = true;
+            }
+        });
+        return {cookie, sessionCookieSet};
+    }
+
     handleCookies = (currentCookie) => {
         console.log('currentCookie: ', currentCookie);
-        const {cookies, uri} = this.props;
-        if (
-            (
-                !cookies.get('cookie') &&
-                currentCookie.HSLSAMLSessionID
-            )
-            ||
-            (
-                currentCookie.HSLSAMLSessionID &&
-                cookies.get('cookie')[HSLSAMLSessionID] !== currentCookie.HSLSAMLSessionID
-            )
-        ) {
-            console.log('setCookie to store');
-            this.props.setCookie(currentCookie);
-            this.props.setSession({
-                loggedIn: true,
-                [HSLSAMLSessionID]: currentCookie.HSLSAMLSessionID,
-            });
-        } else if (
-            (
-                cookies.get('cookie')[HSLSAMLSessionID] &&
-                !currentCookie.HSLSAMLSessionID
-            )
-            ||
-            (
-                cookies.get('cookie')[HSLSAMLSessionID] &&
-                cookies.get('cookie')[HSLSAMLSessionID] !== currentCookie.HSLSAMLSessionID
-            )
-        ) {
-            console.log('set cookies to webview');
-            // Object.keys(cookies.get('cookie')).forEach((item) => {
-            //     console.log(item, cookies.get('cookie')[item]);
-            //     Cookie.set(uri, item, cookies.get('cookie')[item])
-            //     .then(() => console.log(`${item} cookie set success`))
-            //     .catch(err => console.log(err));
-            // });
-        }
+        // const {cookies, uri} = this.props;
+        // if (
+        //     (
+        //         cookies.get('cookie')[HSLSAMLSessionID] &&
+        //         !currentCookie.HSLSAMLSessionID
+        //     )
+        //     ||
+        //     (
+        //         cookies.get('cookie')[HSLSAMLSessionID] &&
+        //         cookies.get('cookie')[HSLSAMLSessionID] !== currentCookie.HSLSAMLSessionID
+        //     )
+        // ) {
+        //     console.log('set cookies to webview');
+        //     Object.keys(cookies.get('cookie')).forEach((item) => {
+        //         console.log(item, cookies.get('cookie')[item]);
+        //         Cookie.set(uri, item, cookies.get('cookie')[item])
+        //         .then(() => console.log(`${item} cookie set success`))
+        //         .catch(err => console.log(err));
+        //     });
+        // }
     }
     goBack = () => {
         this.webview.goBack();
@@ -321,10 +367,10 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
 
 CustomWebView.propTypes = {
     autoHeightEnabled: React.PropTypes.bool,
+    resetSession: React.PropTypes.func.isRequired,
     cookies: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     onMessageEnabled: React.PropTypes.bool,
     removeCookie: React.PropTypes.func.isRequired,
-    removeSession: React.PropTypes.func.isRequired,
     scrollEnabled: React.PropTypes.bool,
     setCookie: React.PropTypes.func.isRequired,
     setSession: React.PropTypes.func.isRequired,
@@ -348,7 +394,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         removeCookie: () => dispatch(removeCookie()),
-        removeSession: () => dispatch(removeSession()),
+        resetSession: () => dispatch(removeSession()),
         setCookie: cookie => dispatch(setCookie(cookie)),
         setSession: session => dispatch(setSession(session)),
     };
