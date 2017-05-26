@@ -17,6 +17,7 @@ import {
     removeSession,
 } from '../actions/session';
 import colors from '../colors';
+import {REITTIOPAS_URL, REITTIOPAS_MOCK_URL} from './Main';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -77,6 +78,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
 });
+
 const HSLSAMLSessionID = 'HSLSAMLSessionID';
 
 class CustomWebView extends Component { // eslint-disable-line react/prefer-stateless-function
@@ -86,12 +88,14 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         forwardButtonEnabled: false,
         loading: true,
         position: {},
+        overrideUri: false,
     };
 
     componentDidMount() {
         const {uri} = this.props;
-        // TODO: do we want to get the position on every mount or keep it in state with some logic?
+        // TODO: do we want to get the position on every mount or keep it in store with some logic?
         // TODO: remove process.env check when https://github.com/facebook/react-native/pull/13442 is in RN
+        // Get current position and use it in reittiopas
         if (uri.startsWith('https://reittiopas') && process.env.NODE_ENV !== 'test') {
             navigator.geolocation.getCurrentPosition((position) => {
                 if (position.coords) {
@@ -102,9 +106,20 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                         },
                     });
                 }
-            }, error => console.log(error), {
+            }, (error) => {
+                console.log('GeoLocation error: ', error);
+                // Location request timed out
+                if (error.code === 3 && uri === REITTIOPAS_MOCK_URL) {
+                    // TODO: figure out if this is better solution than showing
+                    // the default ?mock-position if we can't get user position
+                    // via navigator.geolocation
+                    // this.setState({
+                    //     overrideUri: REITTIOPAS_URL,
+                    // });
+                }
+            }, {
                 enableHighAccuracy: true,
-                timeout: 20000,
+                timeout: 10000,
                 maximumAge: 1000,
             }
             );
@@ -183,7 +198,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             if (cookie) {
                 return this.checkSessionCookie(cookie);
             }
-            throw new Error('No cookie found!');
+            return {sessionCookieSet: false};
         })
         .then((result) => {
             if (!result.sessionCookieSet && cookies.get('cookie')) {
@@ -253,19 +268,22 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         this.webview.goForward();
     }
 
-    // getCookiePart = (key) => {}
-
     render() {
         const {
             autoHeightEnabled,
             onMessageEnabled,
             scrollEnabled,
             showBackForwardButtons,
-            uri,
         } = this.props;
-        const {backButtonEnabled, forwardButtonEnabled, loading, position} = this.state;
+        const {
+            backButtonEnabled,
+            forwardButtonEnabled,
+            loading,
+            position,
+            overrideUri,
+        } = this.state;
+        const uri = overrideUri || this.props.uri;
         let containerHeight = parseInt(screenHeight - 80, 10);
-        // console.log('cookies: ', cookies.get('cookie'));
         // TODO: this is not bulletproof "solution" at all...
         // WebView inside ScrollView sucks...
         if (autoHeightEnabled) {
@@ -273,6 +291,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 (1000 + parseInt(screenHeight - 80, 10)) :
                 (1200 + parseInt(screenHeight - 80, 10));
         }
+        console.log('position: ', position);
         let webViewMarginTop = (Platform.OS === 'ios') ? 63 : 53;
         if (autoHeightEnabled) webViewMarginTop = 0;
         let inlineJS = onMessageEnabled ? `
@@ -302,9 +321,11 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         if (position.lat && position.long) {
             // If we have lat and long use mock
             inlineJS = `
-                if (window.mock) {
-                    window.mock.geolocation.setCurrentPosition(${position.lat}, ${position.long});
-                }
+                setTimeout(function () {
+                    if (window.mock) {
+                        window.mock.geolocation.setCurrentPosition(${position.lat}, ${position.long});
+                    }
+                }, 200);
             `;
         }
         const backButton = showBackForwardButtons ?
@@ -404,5 +425,3 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(CustomWebView);
-
-// export default CustomWebView;

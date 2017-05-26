@@ -14,6 +14,9 @@ import CustomWebView from './CustomWebView';
 //     hideSingleNews,
 // } from '../actions/news';
 
+export const REITTIOPAS_MOCK_URL = 'https://reittiopas.fi/?mock';
+export const REITTIOPAS_URL = 'https://reittiopas.fi';
+
 // const styles = StyleSheet.create({
 //     container: {
 //         marginBottom: 50,
@@ -39,7 +42,7 @@ function Main(/*props*/) {
     // );
 
     // TODO: add options view and define there if user wants to use this with "?mock"?
-    return <CustomWebView uri="https://reittiopas.fi/?mock" />;
+    return <CustomWebView uri={REITTIOPAS_MOCK_URL} />;
 }
 
 // Main.propTypes = {
