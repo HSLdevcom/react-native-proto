@@ -47,6 +47,13 @@ const styles = StyleSheet.create({
 });
 
 class FakeSideMenu extends Component { // eslint-disable-line react/prefer-stateless-function
+    componentDidUpdate(prevProps) {
+        const {routes} = this.props;
+        // If user press the more-button twice -> close fake menu and show home
+        if (routes.get('scene').name === prevProps.routes.get('scene').name) {
+            Actions.homeTab();
+        }
+    }
     getLoginTitle = () => {
         const {session} = this.props;
         return (session.get('data') && session.get('data').loggedIn)
@@ -73,7 +80,6 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
         // Add some "menu like animation" so this maybe feels more like real menu
         const fadeAnim = new Animated.Value(0);
         Animated.timing(fadeAnim, {toValue: 1, duration: 500}).start();
-
         return (
             <Animated.View
                 style={[styles.container, {
@@ -98,12 +104,14 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
 
 FakeSideMenu.propTypes = {
     name: React.PropTypes.string.isRequired,
+    routes: React.PropTypes.instanceOf(Immutable.Map).isRequired,
     session: React.PropTypes.instanceOf(Immutable.Map).isRequired,
 };
 
 function mapStateToProps(state) {
     return {
         session: state.session,
+        routes: state.routes,
     };
 }
 
