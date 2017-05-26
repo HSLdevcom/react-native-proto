@@ -50,7 +50,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
     componentDidUpdate(prevProps) {
         const {routes} = this.props;
         // If user press the more-button twice -> close fake menu and show home
-        if (routes.get('scene').name === prevProps.routes.get('scene').name) {
+        if (routes.get('scene').name === 'menuTab' && routes.get('scene').name === prevProps.routes.get('scene').name) {
             Actions.homeTab();
         }
     }
