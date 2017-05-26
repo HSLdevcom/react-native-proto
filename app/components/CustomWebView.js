@@ -18,6 +18,7 @@ import {
 } from '../actions/session';
 import colors from '../colors';
 import {REITTIOPAS_URL, REITTIOPAS_MOCK_URL} from './Main';
+import {HSL_LOGIN_URL} from './Login';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -123,6 +124,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 maximumAge: 1000,
             }
             );
+        } else if (uri === HSL_LOGIN_URL) {
+            // If we come to login-view let's just check are we logged in or not
+            this.maybeLoginOrLogout();
         }
     }
 
@@ -143,7 +147,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     onNavigationStateChange = (navState) => {
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
-        console.log(navState);
+        // console.log(navState);
 
         /* Handle logout flow
         * 1) Check if we are on a page whose url includes SingleLogoutService / "saml/logout"
@@ -291,7 +295,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 (1000 + parseInt(screenHeight - 80, 10)) :
                 (1200 + parseInt(screenHeight - 80, 10));
         }
-        console.log('position: ', position);
+
         let webViewMarginTop = (Platform.OS === 'ios') ? 63 : 53;
         if (autoHeightEnabled) webViewMarginTop = 0;
         let inlineJS = onMessageEnabled ? `
