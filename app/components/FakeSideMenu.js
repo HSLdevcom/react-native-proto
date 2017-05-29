@@ -97,6 +97,10 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                     <MaterialIcon style={styles.icon} size={26} name="bike" />
                     <Text style={styles.buttonText}>Kaupunkipyörät</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.wrapper} onPress={this.showCamera}>
+                    <MaterialIcon style={styles.icon} size={26} name="camera" />
+                    <Text style={styles.buttonText}>Kamera</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.wrapper} onPress={this.showLogin}>
                     <Icon style={styles.icon} size={26} name="login" />
                     <Text style={styles.buttonText}>{loginViewTitle}</Text>

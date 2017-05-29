@@ -17,7 +17,7 @@ import {
     removeSession,
 } from '../actions/session';
 import colors from '../colors';
-import {REITTIOPAS_URL, REITTIOPAS_MOCK_URL} from './Main';
+import {/*REITTIOPAS_URL,*/REITTIOPAS_MOCK_URL} from './Main';
 import {HSL_LOGIN_URL} from './Login';
 
 const screenHeight = Dimensions.get('window').height;

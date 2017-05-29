@@ -31,15 +31,15 @@ const styles = StyleSheet.create({
     },
 });
 
+/*
+* Just to test that camera works
+*/
 class CameraComponent extends Component {
     takePicture = () => {
-        console.log('KAMERA!');
-        console.log(this.camera);
+        // options can include for example location data
         const options = {};
-        //options.location = ...
         this.camera.capture({metadata: options})
-          .then(data => console.log(data))
-          .catch(err => console.error(err));
+        .then(data => console.log(data)).catch(err => console.error(err));
     }
     render() {
         return (
@@ -47,11 +47,9 @@ class CameraComponent extends Component {
                 <Camera
                     ref={(cam) => {
                         this.camera = cam;
-                    }}
-                    style={styles.preview}
-                    aspect={Camera.constants.Aspect.fill}
+                    }} style={styles.preview} aspect={Camera.constants.Aspect.fill}
                 >
-                    <Text onPress={this.takePicture} style={styles.capture}>[CAPTURE]</Text>
+                    <Text style={styles.capture} onPress={this.takePicture}>[CAPTURE]</Text>
                 </Camera>
             </View>
         );
