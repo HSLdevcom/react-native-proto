@@ -18,6 +18,7 @@ import FakeSideMenu from './app/components/FakeSideMenu';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
 // import Test from './app/components/Test';
+import NFCTest from './app/components/NFCTest';
 
 console.log('Starting');
 console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
@@ -129,6 +130,9 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                         </Scene>
                         <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
                             <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                        </Scene>
+                        <Scene materialIcon iconName="nfc" key="nfcTestTab" title="Nfc" icon={TabIcon}>
+                            <Scene key="nfcTest" component={NFCTest} title="NFC" />
                         </Scene>
                         <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                             <Scene key="camera" title="Kamera" />
