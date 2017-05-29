@@ -10,9 +10,11 @@ exports[`renders correctly 1`] = `
         "borderBottomWidth": 1,
         "borderColor": "rgb(0, 122, 201)",
         "flex": 1,
-        "height": 1254,
         "justifyContent": "center",
         "marginBottom": 50,
+      },
+      Object {
+        "height": 1254,
       },
     ]
   }
@@ -52,7 +54,8 @@ exports[`renders correctly 1`] = `
       contentInset={undefined}
       dataDetectorTypes={undefined}
       decelerationRate={undefined}
-      injectedJavaScript={undefined}
+      injectedJavaScript="
+            "
       mediaPlaybackRequiresUserAction={undefined}
       messagingEnabled={false}
       onLoadingError={[Function]}
@@ -61,7 +64,7 @@ exports[`renders correctly 1`] = `
       onMessage={[Function]}
       onShouldStartLoadWithRequest={undefined}
       scalesPageToFit={true}
-      scrollEnabled={undefined}
+      scrollEnabled={true}
       source={
         Object {
           "uri": "https://reittiopas.fi/?mock",
@@ -75,10 +78,15 @@ exports[`renders correctly 1`] = `
           Object {
             "backgroundColor": "#ffffff",
           },
-          Object {
-            "marginTop": 63,
-            "width": "100%",
-          },
+          Array [
+            Object {
+              "marginTop": 63,
+              "width": "100%",
+            },
+            Object {
+              "marginTop": 63,
+            },
+          ],
         ]
       }
     />

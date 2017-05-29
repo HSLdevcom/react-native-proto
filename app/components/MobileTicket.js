@@ -4,22 +4,29 @@
  */
 
 import React, {Component} from 'react';
-import {Linking, Modal, Platform, StyleSheet, Text, View} from 'react-native';
+import {Linking, Modal, Platform, ScrollView, StyleSheet, Text, View} from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import FoundationIcon from 'react-native-vector-icons/Foundation';
 import colors from '../colors';
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: 'center',
         flex: 1,
-        justifyContent: 'center',
+        marginTop: 20,
         padding: 15,
+    },
+    childContainer: {
+        justifyContent: 'center',
     },
     header: {
         color: colors.brandColor,
         fontSize: 30,
         marginBottom: 15,
+        marginTop: 30,
+    },
+    bigCenteredText: {
+        fontSize: 22,
+        textAlign: 'center',
     },
     text: {
         color: 'black',
@@ -36,8 +43,13 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textAlign: 'center',
     },
+    modalWrapper: {
+        alignItems: 'center',
+        flex: 1,
+        justifyContent: 'center',
+    },
     wrapper: {
-        marginTop: 10,
+        marginTop: 20,
     },
 });
 
@@ -75,8 +87,8 @@ class MobileTicket extends Component { // eslint-disable-line react/prefer-state
                 visible
                 onRequestClose={this.closeModal}
             >
-                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                    <Text style={{fontSize: 22, textAlign: 'center'}}>
+                <View style={styles.modalWrapper}>
+                    <Text style={styles.bigCenteredText}>
                         HSL Mobiililippu ei ole asennettuna puhelimeesi.
                     </Text>
                     <View style={styles.wrapper}>
@@ -99,9 +111,9 @@ class MobileTicket extends Component { // eslint-disable-line react/prefer-state
             </Modal>
         ) : null;
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container} contentContainerStyle={styles.childContainer}>
                 {modal}
-                <Text style={[styles.text, styles.header]}>
+                <Text style={[styles.text, styles.header, {marginTop: Platform.OS === 'ios' ? 60 : 40}]}>
                     Osta matkalippu suoraan puhelimeesi
                 </Text>
                 <Text style={styles.text}>Liput kelpaavat kaikkiin HSL:n kulkuvälineisiin</Text>
@@ -124,7 +136,7 @@ class MobileTicket extends Component { // eslint-disable-line react/prefer-state
                         <Text style={styles.buttonText}>Kausilippu</Text>
                     </FoundationIcon.Button>
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }

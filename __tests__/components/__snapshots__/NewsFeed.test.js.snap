@@ -1,63 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders correctly 1`] = `
-<View
+<RCTScrollView
+  contentContainerStyle={
+    Object {
+      "alignItems": "flex-start",
+      "justifyContent": "center",
+      "marginBottom": 50,
+      "padding": 15,
+    }
+  }
+  refreshControl={
+    <RefreshControlMock
+      onRefresh={[Function]}
+      refreshing={false}
+    />
+  }
   style={
     Object {
-      "alignItems": "center",
-      "justifyContent": "center",
-      "paddingBottom": 10,
-      "paddingTop": 10,
+      "flex": 1,
+      "marginBottom": 55,
+      "marginTop": 63,
     }
   }
 >
-  <Text
-    accessible={true}
-    allowFontScaling={true}
-    ellipsizeMode="tail"
-    style={
-      Object {
-        "color": "rgb(0, 122, 201)",
-      }
-    }
-  >
-    Hello from NewsFeed.js
-  </Text>
-  <Text
-    accessible={true}
-    allowFontScaling={true}
-    ellipsizeMode="tail"
-    style={
-      Object {
-        "color": "rgb(0, 122, 201)",
-      }
-    }
-  >
-    Hello from NewsFeed.js
-  </Text>
-  <Text
-    accessible={true}
-    allowFontScaling={true}
-    ellipsizeMode="tail"
-    style={
-      Object {
-        "color": "rgb(0, 122, 201)",
-      }
-    }
-  >
-    Hello from NewsFeed.js
-  </Text>
-  <Text
-    accessible={true}
-    allowFontScaling={true}
-    ellipsizeMode="tail"
-    style={
-      Object {
-        "color": "rgb(0, 122, 201)",
-      }
-    }
-  >
-    Hello from NewsFeed.js
-  </Text>
-</View>
+  <RCTRefreshControl />
+  <View />
+</RCTScrollView>
 `;

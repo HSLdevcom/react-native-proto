@@ -5,6 +5,7 @@ import android.app.Application;
 import com.facebook.react.ReactApplication;
 import com.lwansbrough.RCTCamera.RCTCameraPackage;
 import com.novadart.reactnativenfc.ReactNativeNFCPackage;
+import im.shimo.react.cookie.CookieManagerPackage;
 import com.hslfiproto.BuildConfig;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
@@ -30,6 +31,7 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
             new RCTCameraPackage(),
             new ReactNativeNFCPackage(),
+            new CookieManagerPackage(),
             new VectorIconsPackage(),
             new RNDeviceInfo()
       );

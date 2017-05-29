@@ -60,13 +60,16 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
 
     render() {
         const {news} = this.props;
+        let singleNewsComponent = null;
         const data = news.get('data');
         if (news.get('fetching')) {
             return <View style={styles.container}><ActivityIndicator style={{marginTop: 30}} size="large" /></View>;
         }
         if (news.get('activeSingleNews')) {
             const singleNews = data.find(item => item.get('nid') === news.get('activeSingleNews'));
-            return <SingleNews hide={this.props.hideSingleNews} singleNews={singleNews} />;
+            singleNewsComponent = (
+                <SingleNews hide={this.props.hideSingleNews} singleNews={singleNews} />
+            );
         }
         let newsList = null;
         if (data && data.count() > 0) {
@@ -87,6 +90,7 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
                 contentContainerStyle={styles.childContainer}
                 refreshControl={refreshControl}
             >
+                {singleNewsComponent}
                 {newsList}
             </Animated.ScrollView>
         );

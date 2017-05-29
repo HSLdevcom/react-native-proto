@@ -57,6 +57,12 @@ const closeModal = () => console.log('closed');
 
 function SingleNews({hide, singleNews}) {
     let img = null;
+
+    // Before we can use BackHandler, RN / React / RN-router needs an update
+    // if (Platform.OS === 'android') {
+    //     BackHandler.addEventListener('backPress', () => hide());
+    // }
+
     if (singleNews.get('images') && singleNews.get('images').count() > 0) {
         // TODO: can there be more than one image that we want to show?
         // TODO: is this url valid every time?

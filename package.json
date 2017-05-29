@@ -24,13 +24,16 @@
         "moment": "^2.18.1",
         "react": "15.4.2",
         "react-native": "0.42.3",
-        "react-native-camera": "https://github.com/lwansbrough/react-native-camera.git",
+        "react-native-camera": "^0.9.0",
+        "react-native-cookie": "^0.1.1",
         "react-native-device-info": "^0.10.2",
         "react-native-nfc": "^0.3.0",
         "react-native-router-flux": "^3.38.0",
         "react-native-vector-icons": "^4.0.1",
         "react-redux": "^5.0.3",
         "redux": "^3.6.0",
+        "redux-persist": "^4.8.0",
+        "redux-persist-transform-immutable": "^4.3.0",
         "redux-thunk": "^2.2.0",
         "remote-redux-devtools": "^0.5.10"
     },
@@ -50,6 +53,7 @@
         "lint-staged": "^3.4.0",
         "precommit-hook": "^3.0.0",
         "react-test-renderer": "~15.4.1",
+        "redux-mock-store": "^1.2.3",
         "rimraf": "^2.6.1"
     },
     "jest": {

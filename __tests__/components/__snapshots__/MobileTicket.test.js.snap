@@ -1,373 +1,383 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders correctly 1`] = `
-<View
+<RCTScrollView
+  contentContainerStyle={
+    Object {
+      "justifyContent": "center",
+    }
+  }
   style={
     Object {
-      "alignItems": "center",
       "flex": 1,
-      "justifyContent": "center",
+      "marginTop": 20,
       "padding": 15,
     }
   }
 >
-  <Text
-    accessible={true}
-    allowFontScaling={true}
-    ellipsizeMode="tail"
-    style={
-      Array [
+  <View>
+    <Text
+      accessible={true}
+      allowFontScaling={true}
+      ellipsizeMode="tail"
+      style={
+        Array [
+          Object {
+            "color": "black",
+            "textAlign": "center",
+          },
+          Object {
+            "color": "rgb(0, 122, 201)",
+            "fontSize": 30,
+            "marginBottom": 15,
+            "marginTop": 30,
+          },
+          Object {
+            "marginTop": 60,
+          },
+        ]
+      }
+    >
+      Osta matkalippu suoraan puhelimeesi
+    </Text>
+    <Text
+      accessible={true}
+      allowFontScaling={true}
+      ellipsizeMode="tail"
+      style={
         Object {
           "color": "black",
           "textAlign": "center",
-        },
+        }
+      }
+    >
+      Liput kelpaavat kaikkiin HSL:n kulkuvälineisiin
+    </Text>
+    <Text
+      accessible={true}
+      allowFontScaling={true}
+      ellipsizeMode="tail"
+      style={
         Object {
-          "color": "rgb(0, 122, 201)",
-          "fontSize": 30,
-          "marginBottom": 15,
-        },
-      ]
-    }
-  >
-    Osta matkalippu suoraan puhelimeesi
-  </Text>
-  <Text
-    accessible={true}
-    allowFontScaling={true}
-    ellipsizeMode="tail"
-    style={
-      Object {
-        "color": "black",
-        "textAlign": "center",
+          "color": "black",
+          "textAlign": "center",
+        }
       }
-    }
-  >
-    Liput kelpaavat kaikkiin HSL:n kulkuvälineisiin
-  </Text>
-  <Text
-    accessible={true}
-    allowFontScaling={true}
-    ellipsizeMode="tail"
-    style={
-      Object {
-        "color": "black",
-        "textAlign": "center",
-      }
-    }
-  >
-    Tunnistautumalla saat lippuja yhtä edulliseen hintaan kuin matkakortilla ostettaessa
-  </Text>
-  <View
-    style={
-      Object {
-        "marginTop": 10,
-      }
-    }
-  >
+    >
+      Tunnistautumalla saat lippuja yhtä edulliseen hintaan kuin matkakortilla ostettaessa
+    </Text>
     <View
-      accessibilityComponentType={undefined}
-      accessibilityLabel={undefined}
-      accessibilityTraits={undefined}
-      accessible={true}
-      hasTVPreferredFocus={undefined}
-      hitSlop={undefined}
-      isTVSelectable={true}
-      onLayout={undefined}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
       style={
-        Array [
-          Object {
-            "backgroundColor": "transparent",
-          },
-          Array [
-            Object {
-              "overflow": "hidden",
-            },
-            Object {
-              "backgroundColor": "rgb(0, 122, 201)",
-              "borderRadius": 10,
-            },
-          ],
-        ]
+        Object {
+          "marginTop": 20,
+        }
       }
-      testID={undefined}
-      tvParallaxProperties={undefined}
     >
       <View
+        accessibilityComponentType={undefined}
+        accessibilityLabel={undefined}
+        accessibilityTraits={undefined}
+        accessible={true}
+        hasTVPreferredFocus={undefined}
+        hitSlop={undefined}
+        isTVSelectable={true}
+        onLayout={undefined}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
         style={
           Array [
             Object {
-              "alignItems": "center",
-              "flexDirection": "row",
-              "justifyContent": "flex-start",
-              "padding": 8,
+              "backgroundColor": "transparent",
             },
-            Object {
-              "backgroundColor": "rgb(0, 122, 201)",
-              "borderRadius": 10,
-            },
-            Object {
-              "alignItems": "center",
-              "height": 50,
-              "justifyContent": "center",
-              "width": "90%",
-            },
+            Array [
+              Object {
+                "overflow": "hidden",
+              },
+              Object {
+                "backgroundColor": "rgb(0, 122, 201)",
+                "borderRadius": 10,
+              },
+            ],
           ]
         }
+        testID={undefined}
+        tvParallaxProperties={undefined}
       >
-        <Text
-          accessible={true}
-          allowFontScaling={false}
-          ellipsizeMode="tail"
-          onPress={[Function]}
+        <View
           style={
             Array [
               Object {
-                "color": "white",
-                "fontSize": 15,
+                "alignItems": "center",
+                "flexDirection": "row",
+                "justifyContent": "flex-start",
+                "padding": 8,
               },
               Object {
-                "marginRight": 10,
+                "backgroundColor": "rgb(0, 122, 201)",
+                "borderRadius": 10,
               },
               Object {
-                "fontFamily": "Entypo",
-                "fontStyle": "normal",
-                "fontWeight": "normal",
+                "alignItems": "center",
+                "height": 50,
+                "justifyContent": "center",
+                "width": "90%",
               },
             ]
           }
         >
-          
-        </Text>
-        <Text
-          accessible={true}
-          allowFontScaling={true}
-          ellipsizeMode="tail"
-          style={
-            Object {
-              "color": "white",
-              "fontWeight": "600",
-              "textAlign": "center",
+          <Text
+            accessible={true}
+            allowFontScaling={false}
+            ellipsizeMode="tail"
+            onPress={[Function]}
+            style={
+              Array [
+                Object {
+                  "color": "white",
+                  "fontSize": 15,
+                },
+                Object {
+                  "marginRight": 10,
+                },
+                Object {
+                  "fontFamily": "Entypo",
+                  "fontStyle": "normal",
+                  "fontWeight": "normal",
+                },
+              ]
             }
-          }
-        >
-          Kertalippu
-        </Text>
+          >
+            
+          </Text>
+          <Text
+            accessible={true}
+            allowFontScaling={true}
+            ellipsizeMode="tail"
+            style={
+              Object {
+                "color": "white",
+                "fontWeight": "600",
+                "textAlign": "center",
+              }
+            }
+          >
+            Kertalippu
+          </Text>
+        </View>
       </View>
     </View>
-  </View>
-  <View
-    style={
-      Object {
-        "marginTop": 10,
-      }
-    }
-  >
     <View
-      accessibilityComponentType={undefined}
-      accessibilityLabel={undefined}
-      accessibilityTraits={undefined}
-      accessible={true}
-      hasTVPreferredFocus={undefined}
-      hitSlop={undefined}
-      isTVSelectable={true}
-      onLayout={undefined}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
       style={
-        Array [
-          Object {
-            "backgroundColor": "transparent",
-          },
-          Array [
-            Object {
-              "overflow": "hidden",
-            },
-            Object {
-              "backgroundColor": "rgb(0, 122, 201)",
-              "borderRadius": 10,
-            },
-          ],
-        ]
+        Object {
+          "marginTop": 20,
+        }
       }
-      testID={undefined}
-      tvParallaxProperties={undefined}
     >
       <View
+        accessibilityComponentType={undefined}
+        accessibilityLabel={undefined}
+        accessibilityTraits={undefined}
+        accessible={true}
+        hasTVPreferredFocus={undefined}
+        hitSlop={undefined}
+        isTVSelectable={true}
+        onLayout={undefined}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
         style={
           Array [
             Object {
-              "alignItems": "center",
-              "flexDirection": "row",
-              "justifyContent": "flex-start",
-              "padding": 8,
+              "backgroundColor": "transparent",
             },
-            Object {
-              "backgroundColor": "rgb(0, 122, 201)",
-              "borderRadius": 10,
-            },
-            Object {
-              "alignItems": "center",
-              "height": 50,
-              "justifyContent": "center",
-              "width": "90%",
-            },
+            Array [
+              Object {
+                "overflow": "hidden",
+              },
+              Object {
+                "backgroundColor": "rgb(0, 122, 201)",
+                "borderRadius": 10,
+              },
+            ],
           ]
         }
+        testID={undefined}
+        tvParallaxProperties={undefined}
       >
-        <Text
-          accessible={true}
-          allowFontScaling={false}
-          ellipsizeMode="tail"
-          onPress={[Function]}
+        <View
           style={
             Array [
               Object {
-                "color": "white",
-                "fontSize": 15,
+                "alignItems": "center",
+                "flexDirection": "row",
+                "justifyContent": "flex-start",
+                "padding": 8,
               },
               Object {
-                "marginRight": 10,
+                "backgroundColor": "rgb(0, 122, 201)",
+                "borderRadius": 10,
               },
               Object {
-                "fontFamily": "Entypo",
-                "fontStyle": "normal",
-                "fontWeight": "normal",
+                "alignItems": "center",
+                "height": 50,
+                "justifyContent": "center",
+                "width": "90%",
               },
             ]
           }
         >
-          
-        </Text>
-        <Text
-          accessible={true}
-          allowFontScaling={true}
-          ellipsizeMode="tail"
-          style={
-            Object {
-              "color": "white",
-              "fontWeight": "600",
-              "textAlign": "center",
+          <Text
+            accessible={true}
+            allowFontScaling={false}
+            ellipsizeMode="tail"
+            onPress={[Function]}
+            style={
+              Array [
+                Object {
+                  "color": "white",
+                  "fontSize": 15,
+                },
+                Object {
+                  "marginRight": 10,
+                },
+                Object {
+                  "fontFamily": "Entypo",
+                  "fontStyle": "normal",
+                  "fontWeight": "normal",
+                },
+              ]
             }
-          }
-        >
-          Vuorokausilippu
-        </Text>
+          >
+            
+          </Text>
+          <Text
+            accessible={true}
+            allowFontScaling={true}
+            ellipsizeMode="tail"
+            style={
+              Object {
+                "color": "white",
+                "fontWeight": "600",
+                "textAlign": "center",
+              }
+            }
+          >
+            Vuorokausilippu
+          </Text>
+        </View>
       </View>
     </View>
-  </View>
-  <View
-    style={
-      Object {
-        "marginTop": 10,
-      }
-    }
-  >
     <View
-      accessibilityComponentType={undefined}
-      accessibilityLabel={undefined}
-      accessibilityTraits={undefined}
-      accessible={true}
-      hasTVPreferredFocus={undefined}
-      hitSlop={undefined}
-      isTVSelectable={true}
-      onLayout={undefined}
-      onResponderGrant={[Function]}
-      onResponderMove={[Function]}
-      onResponderRelease={[Function]}
-      onResponderTerminate={[Function]}
-      onResponderTerminationRequest={[Function]}
-      onStartShouldSetResponder={[Function]}
       style={
-        Array [
-          Object {
-            "backgroundColor": "transparent",
-          },
-          Array [
-            Object {
-              "overflow": "hidden",
-            },
-            Object {
-              "backgroundColor": "rgb(0, 122, 201)",
-              "borderRadius": 10,
-            },
-          ],
-        ]
+        Object {
+          "marginTop": 20,
+        }
       }
-      testID={undefined}
-      tvParallaxProperties={undefined}
     >
       <View
+        accessibilityComponentType={undefined}
+        accessibilityLabel={undefined}
+        accessibilityTraits={undefined}
+        accessible={true}
+        hasTVPreferredFocus={undefined}
+        hitSlop={undefined}
+        isTVSelectable={true}
+        onLayout={undefined}
+        onResponderGrant={[Function]}
+        onResponderMove={[Function]}
+        onResponderRelease={[Function]}
+        onResponderTerminate={[Function]}
+        onResponderTerminationRequest={[Function]}
+        onStartShouldSetResponder={[Function]}
         style={
           Array [
             Object {
-              "alignItems": "center",
-              "flexDirection": "row",
-              "justifyContent": "flex-start",
-              "padding": 8,
+              "backgroundColor": "transparent",
             },
-            Object {
-              "backgroundColor": "rgb(0, 122, 201)",
-              "borderRadius": 10,
-            },
-            Object {
-              "alignItems": "center",
-              "height": 50,
-              "justifyContent": "center",
-              "width": "90%",
-            },
+            Array [
+              Object {
+                "overflow": "hidden",
+              },
+              Object {
+                "backgroundColor": "rgb(0, 122, 201)",
+                "borderRadius": 10,
+              },
+            ],
           ]
         }
+        testID={undefined}
+        tvParallaxProperties={undefined}
       >
-        <Text
-          accessible={true}
-          allowFontScaling={false}
-          ellipsizeMode="tail"
-          onPress={[Function]}
+        <View
           style={
             Array [
               Object {
-                "color": "white",
-                "fontSize": 20,
+                "alignItems": "center",
+                "flexDirection": "row",
+                "justifyContent": "flex-start",
+                "padding": 8,
               },
               Object {
-                "marginRight": 10,
+                "backgroundColor": "rgb(0, 122, 201)",
+                "borderRadius": 10,
               },
               Object {
-                "fontFamily": "fontcustom",
-                "fontStyle": "normal",
-                "fontWeight": "normal",
+                "alignItems": "center",
+                "height": 50,
+                "justifyContent": "center",
+                "width": "90%",
               },
             ]
           }
         >
-          
-        </Text>
-        <Text
-          accessible={true}
-          allowFontScaling={true}
-          ellipsizeMode="tail"
-          style={
-            Object {
-              "color": "white",
-              "fontWeight": "600",
-              "textAlign": "center",
+          <Text
+            accessible={true}
+            allowFontScaling={false}
+            ellipsizeMode="tail"
+            onPress={[Function]}
+            style={
+              Array [
+                Object {
+                  "color": "white",
+                  "fontSize": 20,
+                },
+                Object {
+                  "marginRight": 10,
+                },
+                Object {
+                  "fontFamily": "fontcustom",
+                  "fontStyle": "normal",
+                  "fontWeight": "normal",
+                },
+              ]
             }
-          }
-        >
-          Kausilippu
-        </Text>
+          >
+            
+          </Text>
+          <Text
+            accessible={true}
+            allowFontScaling={true}
+            ellipsizeMode="tail"
+            style={
+              Object {
+                "color": "white",
+                "fontWeight": "600",
+                "textAlign": "center",
+              }
+            }
+          >
+            Kausilippu
+          </Text>
+        </View>
       </View>
     </View>
   </View>
-</View>
+</RCTScrollView>
 `;
