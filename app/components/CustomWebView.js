@@ -27,7 +27,7 @@ import {
     removeSession,
 } from '../actions/session';
 import colors from '../colors';
-import {REITTIOPAS_URL, REITTIOPAS_MOCK_URL} from './Main';
+import {/*REITTIOPAS_URL,*/REITTIOPAS_MOCK_URL} from './Main';
 import {HSL_LOGIN_URL} from './Login';
 
 const screenHeight = Dimensions.get('window').height;
@@ -160,24 +160,17 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             url.startsWith('http://')
         ) {
             this.webview.stopLoading();
-            this.setState({
-                overrideUri: this.props.uri,
-            });
+            // force update the view in case webview didn't stopLoading so iOS don't try to load any http://-url
+            this.forceUpdate();
             Linking.openURL(url).catch(err => console.log(err));
-        } else {
-            this.setState({
-                overrideUri: false,
-            });
-        }
-
-        /* Handle logout flow
-        * 1) Check if we are on a page whose url includes SingleLogoutService / "saml/logout"
-        * 2) Get page cookies
-        * 3) Check if cookies includes SSESS...-cookie
-        * 4) If there's no SSESS-cookie, removeCookie and resetSession
-        * TODO: there really should be better solution for this
-        */
-        if (
+        } else if (
+            /* Handle logout flow
+            * 1) Check if we are on a page whose url includes SingleLogoutService / "saml/logout"
+            * 2) Get page cookies
+            * 3) Check if cookies includes SSESS...-cookie
+            * 4) If there's no SSESS-cookie, removeCookie and resetSession
+            * TODO: there really should be better solution for this
+            */
             url.startsWith('https://login.hsl.fi/simplesaml/saml2/idp/SingleLogoutService.php') ||
             url.startsWith('https://www.hsl.fi/saml/logout')
         ) {
