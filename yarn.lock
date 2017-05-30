@@ -3757,6 +3757,10 @@ react-deep-force-update@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-deep-force-update/-/react-deep-force-update-1.0.1.tgz#f911b5be1d2a6fe387507dd6e9a767aa2924b4c7"
 
+react-native-beacons-manager@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/react-native-beacons-manager/-/react-native-beacons-manager-1.0.4.tgz#cf1b81bc156176e063ab38f797e6246ea798031f"
+
 react-native-cookie@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/react-native-cookie/-/react-native-cookie-0.1.1.tgz#dd4567ddaa864495b0a10eacc6af962bb34d9f35"

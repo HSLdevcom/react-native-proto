@@ -137,6 +137,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-beacons-manager')
     compile project(':react-native-cookie')
     compile project(':react-native-vector-icons')
     compile project(':react-native-device-info')

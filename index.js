@@ -17,6 +17,7 @@ import Main from './app/components/Main';
 import FakeSideMenu from './app/components/FakeSideMenu';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
+import Beacon from './app/components/Beacon';
 // import Test from './app/components/Test';
 
 console.log('Starting');
@@ -133,6 +134,9 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                         <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                             <Scene key="cityBike" title="Kaupunkipyörät" />
                             <Scene key="login" title="Kirjaudu sisään" />
+                        </Scene>
+                        <Scene iconName="code" key="beaconTab" title="Beacon" icon={TabIcon}>
+                            <Scene key="beacons" component={Beacon} title="Beacon" />
                         </Scene>
                     </Scene>
                 </RouterWithRedux>

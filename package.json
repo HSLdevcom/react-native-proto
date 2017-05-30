@@ -1,79 +1,80 @@
 {
-    "name": "HSLProto",
-    "version": "0.0.1",
-    "scripts": {
-        "lint": "eslint --ignore-path .gitignore -- .",
-        "lint:staged": "lint-staged",
-        "pretest": "npm run test:clean && npm run lint",
-        "test": "cross-env NODE_ENV=test jest",
-        "test:regenerate-snapshots": "cross-env NODE_ENV=test jest -u",
-        "test:clean": "rimraf ./coverage",
-        "start": "node node_modules/react-native/local-cli/cli.js start",
-        "validate": "npm ls"
-    },
-    "pre-commit": [
-        "lint:staged"
+  "name": "HSLProto",
+  "version": "0.0.1",
+  "scripts": {
+    "lint": "eslint --ignore-path .gitignore -- .",
+    "lint:staged": "lint-staged",
+    "pretest": "npm run test:clean && npm run lint",
+    "test": "cross-env NODE_ENV=test jest",
+    "test:regenerate-snapshots": "cross-env NODE_ENV=test jest -u",
+    "test:clean": "rimraf ./coverage",
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "validate": "npm ls"
+  },
+  "pre-commit": [
+    "lint:staged"
+  ],
+  "lint-staged": {
+    "*.js": "lint"
+  },
+  "dependencies": {
+    "base-64": "^0.1.0",
+    "immutable": "^3.8.1",
+    "isomorphic-fetch": "^2.2.1",
+    "moment": "^2.18.1",
+    "react": "15.4.2",
+    "react-native": "0.42.3",
+    "react-native-beacons-manager": "^1.0.4",
+    "react-native-cookie": "^0.1.1",
+    "react-native-device-info": "^0.10.2",
+    "react-native-router-flux": "^3.38.0",
+    "react-native-vector-icons": "^4.0.1",
+    "react-redux": "^5.0.3",
+    "redux": "^3.6.0",
+    "redux-persist": "^4.8.0",
+    "redux-persist-transform-immutable": "^4.3.0",
+    "redux-thunk": "^2.2.0",
+    "remote-redux-devtools": "^0.5.10"
+  },
+  "devDependencies": {
+    "babel-eslint": "^7.2.1",
+    "babel-jest": "19.0.0",
+    "babel-preset-react-native": "1.9.1",
+    "cross-env": "^4.0.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-compat": "^1.0.2",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.3",
+    "jest": "19.0.2",
+    "jest-fetch-mock": "^1.0.8",
+    "lint-staged": "^3.4.0",
+    "precommit-hook": "^3.0.0",
+    "react-test-renderer": "~15.4.1",
+    "redux-mock-store": "^1.2.3",
+    "rimraf": "^2.6.1"
+  },
+  "jest": {
+    "preset": "react-native",
+    "setupFiles": [
+      "./jest/setup.js"
     ],
-    "lint-staged": {
-        "*.js": "lint"
+    "collectCoverage": false,
+    "collectCoverageFrom": [
+      "**/*.{js,jsx}",
+      "!**/*.test.{js,jsx}"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 90,
+        "branches": 90,
+        "functions": 90,
+        "lines": 90
+      }
     },
-    "dependencies": {
-        "base-64": "^0.1.0",
-        "immutable": "^3.8.1",
-        "isomorphic-fetch": "^2.2.1",
-        "moment": "^2.18.1",
-        "react": "15.4.2",
-        "react-native": "0.42.3",
-        "react-native-cookie": "^0.1.1",
-        "react-native-device-info": "^0.10.2",
-        "react-native-router-flux": "^3.38.0",
-        "react-native-vector-icons": "^4.0.1",
-        "react-redux": "^5.0.3",
-        "redux": "^3.6.0",
-        "redux-persist": "^4.8.0",
-        "redux-persist-transform-immutable": "^4.3.0",
-        "redux-thunk": "^2.2.0",
-        "remote-redux-devtools": "^0.5.10"
-    },
-    "devDependencies": {
-        "babel-eslint": "^7.2.1",
-        "babel-jest": "19.0.0",
-        "babel-preset-react-native": "1.9.1",
-        "cross-env": "^4.0.0",
-        "eslint": "^3.19.0",
-        "eslint-config-airbnb": "^14.1.0",
-        "eslint-plugin-compat": "^1.0.2",
-        "eslint-plugin-import": "^2.2.0",
-        "eslint-plugin-jsx-a11y": "^4.0.0",
-        "eslint-plugin-react": "^6.10.3",
-        "jest": "19.0.2",
-        "jest-fetch-mock": "^1.0.8",
-        "lint-staged": "^3.4.0",
-        "precommit-hook": "^3.0.0",
-        "react-test-renderer": "~15.4.1",
-        "redux-mock-store": "^1.2.3",
-        "rimraf": "^2.6.1"
-    },
-    "jest": {
-        "preset": "react-native",
-        "setupFiles": [
-            "./jest/setup.js"
-        ],
-        "collectCoverage": false,
-        "collectCoverageFrom": [
-            "**/*.{js,jsx}",
-            "!**/*.test.{js,jsx}"
-        ],
-        "coverageThreshold": {
-            "global": {
-                "statements": 90,
-                "branches": 90,
-                "functions": 90,
-                "lines": 90
-            }
-        },
-        "moduleDirectories": [
-            "node_modules"
-        ]
-    }
+    "moduleDirectories": [
+      "node_modules"
+    ]
+  }
 }

@@ -3,6 +3,7 @@ package com.hslfiproto;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.mackentoch.beaconsandroid.BeaconsAndroidPackage;
 import im.shimo.react.cookie.CookieManagerPackage;
 import com.hslfiproto.BuildConfig;
 import com.oblador.vectoricons.VectorIconsPackage;
@@ -27,6 +28,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new BeaconsAndroidPackage(),
             new CookieManagerPackage(),
             new VectorIconsPackage(),
             new RNDeviceInfo()
