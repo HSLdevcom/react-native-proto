@@ -129,7 +129,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                     // });
                 }
             }, {
-                enableHighAccuracy: true,
+                enableHighAccuracy: false, // true seems to cause timeout in Android...
                 timeout: 10000,
                 maximumAge: 1000,
             }
