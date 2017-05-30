@@ -65,7 +65,6 @@ const closeModal = () => {
 
 // Handle navigation change in webview and open all links in phone browser
 const onNavigationStateChange = (navState) => {
-    console.log(navState);
     const {url} = navState;
     if (webview && url.startsWith('http')) {
         webview.stopLoading();
