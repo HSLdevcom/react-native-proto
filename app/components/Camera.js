@@ -4,7 +4,7 @@
  */
 
 import React, {Component} from 'react';
-import {View, StyleSheet, Text} from 'react-native';
+import {Linking, StyleSheet, Text, View} from 'react-native';
 import Camera from 'react-native-camera';
 
 const styles = StyleSheet.create({
@@ -29,17 +29,39 @@ const styles = StyleSheet.create({
         padding: 30,
         margin: 40,
     },
+    image: {
+        width: '100%',
+    },
 });
 
 /*
 * Just to test that camera works
 */
 class CameraComponent extends Component {
+    state = {
+        mediaUri: false,
+    };
+    readBarCode = (data) => {
+        console.log('data: ', data);
+        if (
+            (data.type === 'org.iso.QRCode' || data.type === 'QR_CODE') &&
+            data.data.startsWith('http')
+        ) {
+            Linking.openURL(data.data).catch(err => console.log(err));
+        }
+    }
     takePicture = () => {
         // options can include for example location data
         const options = {};
         this.camera.capture({metadata: options})
-        .then(data => console.log(data)).catch(err => console.error(err));
+        .then((data) => {
+            console.log(data);
+            if (data.mediaUri) {
+                this.setState({
+                    mediaUri: data.mediaUri,
+                });
+            }
+        }).catch(err => console.error(err));
     }
     render() {
         return (
@@ -47,7 +69,9 @@ class CameraComponent extends Component {
                 <Camera
                     ref={(cam) => {
                         this.camera = cam;
-                    }} style={styles.preview} aspect={Camera.constants.Aspect.fill}
+                    }}
+                    style={styles.preview} aspect={Camera.constants.Aspect.fill}
+                    onBarCodeRead={this.readBarCode}
                 >
                     <Text style={styles.capture} onPress={this.takePicture}>[CAPTURE]</Text>
                 </Camera>

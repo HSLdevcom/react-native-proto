@@ -135,7 +135,7 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                             <Scene key="nfcTest" component={NFCTest} title="NFC" />
                         </Scene>
                         <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
-                            <Scene key="camera" title="Kamera" />
+                            <Scene hideNavBar key="camera" title="Kamera" />
                             <Scene key="cityBike" title="Kaupunkipyörät" />
                             <Scene key="login" title="Kirjaudu sisään" />
                         </Scene>
