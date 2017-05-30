@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     },
     title: {
         color: colors.brandColor,
-        fontSize: 24,
+        fontSize: 22,
         paddingLeft: 5,
         paddingRight: 5,
         width: '95%',
@@ -55,22 +55,30 @@ const styles = StyleSheet.create({
 
 // Define ref to webview
 let webview = false;
+let closeModalFunc = false;
 
-const closeModal = () => console.log('closed');
+const closeModal = () => {
+    if (closeModalFunc) {
+        closeModalFunc();
+    }
+};
 
 // Handle navigation change in webview and open all links in phone browser
 const onNavigationStateChange = (navState) => {
+    console.log(navState);
     const {url} = navState;
     if (webview && url.startsWith('http')) {
         webview.stopLoading();
-        webview.goBack();
+        if (Platform.OS === 'android' && navState.canGoBack) {
+            webview.goBack();
+        }
         Linking.openURL(url);
     }
 };
 
 function SingleNews({hide, singleNews}) {
     let img = null;
-
+    closeModalFunc = hide;
     // Before we can use BackHandler, RN / React / RN-router needs an update
     // if (Platform.OS === 'android') {
     //     BackHandler.addEventListener('backPress', () => hide());
