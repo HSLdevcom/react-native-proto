@@ -7,7 +7,17 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import Cookie from 'react-native-cookie';
 import Immutable from 'immutable';
-import {ActivityIndicator, Dimensions, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
+import {
+    ActivityIndicator,
+    Dimensions,
+    Linking,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    WebView,
+} from 'react-native';
 import {
     removeCookie,
     setCookie,
@@ -145,9 +155,19 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         this.setState({loading: false});
     }
     onNavigationStateChange = (navState) => {
+        const {url} = navState;
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
         // console.log(navState);
+
+        // If next url isn't hsl.fi / reittiopas.fi spesific or http:// -> open it in phone browser
+        if (
+            (url.startsWith('http') && !url.includes('hsl.fi') && !url.includes('reittiopas.fi')) ||
+            url.startsWith('http://')
+        ) {
+            this.webview.stopLoading();
+            Linking.openURL(url);
+        }
 
         /* Handle logout flow
         * 1) Check if we are on a page whose url includes SingleLogoutService / "saml/logout"
@@ -157,8 +177,8 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         * TODO: there really should be better solution for this
         */
         if (
-            navState.url.startsWith('https://login.hsl.fi/simplesaml/saml2/idp/SingleLogoutService.php') ||
-            navState.url.startsWith('https://www.hsl.fi/saml/logout')
+            url.startsWith('https://login.hsl.fi/simplesaml/saml2/idp/SingleLogoutService.php') ||
+            url.startsWith('https://www.hsl.fi/saml/logout')
         ) {
             this.maybeLoginOrLogout();
         } else if (
@@ -174,16 +194,16 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 // iOS version
                 navState.navigationType === 'formsubmit' &&
                 (
-                    navState.url.startsWith('https://www.hsl.fi') ||
-                    navState.url.startsWith('https://login.hsl.fi')
+                    url.startsWith('https://www.hsl.fi') ||
+                    url.startsWith('https://login.hsl.fi')
                 )
             ) ||
             (
                 // Android version
-                navState.url.startsWith('https://login.hsl.fi/user') ||
+                url.startsWith('https://login.hsl.fi/user') ||
                 (
                     navState.title === 'POST data' &&
-                    navState.url.startsWith('https://www.hsl.fi')
+                    url.startsWith('https://www.hsl.fi')
                 )
             )
         ) {
