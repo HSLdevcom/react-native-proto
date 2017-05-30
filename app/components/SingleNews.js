@@ -3,7 +3,7 @@
  * @flow
  */
 
-import React from 'react';
+import React, {Component} from 'react';
 import {Image, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
 import Immutable from 'immutable';
 import colors from '../colors';
@@ -53,67 +53,56 @@ const styles = StyleSheet.create({
     },
 });
 
-// Define ref to webview
-let webview = false;
-let closeModalFunc = false;
+class SingleNews extends Component { // eslint-disable-line react/prefer-stateless-function
 
-const closeModal = () => {
-    if (closeModalFunc) {
-        closeModalFunc();
-    }
-};
-
-// Handle navigation change in webview and open all links in phone browser
-const onNavigationStateChange = (navState) => {
-    const {url} = navState;
-    if (webview && url.startsWith('http')) {
-        webview.stopLoading();
-        if (Platform.OS === 'android' && navState.canGoBack) {
-            webview.goBack();
+    // Handle navigation change in webview and open all links in phone browser
+    onNavigationStateChange = (navState) => {
+        const {url} = navState;
+        if (url.startsWith('http')) {
+            this.webview.stopLoading();
+            Linking.openURL(url).catch(err => console.log(err));
         }
-        Linking.openURL(url);
     }
-};
 
-function SingleNews({hide, singleNews}) {
-    let img = null;
-    closeModalFunc = hide;
-    // Before we can use BackHandler, RN / React / RN-router needs an update
-    // if (Platform.OS === 'android') {
-    //     BackHandler.addEventListener('backPress', () => hide());
-    // }
-
-    if (singleNews.get('images') && singleNews.get('images').count() > 0) {
-        // TODO: can there be more than one image that we want to show?
-        // TODO: is this url valid every time?
-        const uri = `https://www.hsl.fi/sites/default/files/uploads/${singleNews.getIn(['images', 0, 'entity', 'filename'])}`;
-        img = (<Image
-            style={styles.image}
-            source={{uri}}
-        />);
+    closeModal = () => {
+        this.props.hide();
     }
-    return (
-        <Modal
-            animationType="slide"
-            transparent={false}
-            visible
-            onRequestClose={closeModal}
-        >
-            <View style={[styles.container]}>
-                <TouchableOpacity style={styles.button} onPress={hide}>
-                    <Text style={styles.buttonText}>Sulje</Text>
-                </TouchableOpacity>
-                <Text style={[styles.text, styles.title]}>{singleNews.get('title')}</Text>
-                {img}
-                <WebView
-                    style={styles.webView}
-                    source={{html: removeMetaFromNewsHtml(singleNews.get('body').get('value'))}}
-                    ref={(c) => { webview = c; }}
-                    onNavigationStateChange={onNavigationStateChange}
-                />
-            </View>
-        </Modal>
-    );
+
+    render() {
+        const {hide, singleNews} = this.props;
+        let img = null;
+        if (singleNews.get('images') && singleNews.get('images').count() > 0) {
+            // TODO: can there be more than one image that we want to show?
+            // TODO: is this url valid every time?
+            const uri = `https://www.hsl.fi/sites/default/files/uploads/${singleNews.getIn(['images', 0, 'entity', 'filename'])}`;
+            img = (<Image
+                style={styles.image}
+                source={{uri}}
+            />);
+        }
+        return (
+            <Modal
+                animationType="slide"
+                transparent={false}
+                visible
+                onRequestClose={this.closeModal}
+            >
+                <View style={[styles.container]}>
+                    <TouchableOpacity style={styles.button} onPress={hide}>
+                        <Text style={styles.buttonText}>Sulje</Text>
+                    </TouchableOpacity>
+                    <Text style={[styles.text, styles.title]}>{singleNews.get('title')}</Text>
+                    {img}
+                    <WebView
+                        style={styles.webView}
+                        source={{html: removeMetaFromNewsHtml(singleNews.get('body').get('value'))}}
+                        ref={(c) => { this.webview = c; }}
+                        onNavigationStateChange={this.onNavigationStateChange}
+                    />
+                </View>
+            </Modal>
+        );
+    }
 }
 
 SingleNews.propTypes = {
