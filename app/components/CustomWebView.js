@@ -140,13 +140,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         }
     }
 
-    componentDidUpdate() {
-        // const {uri} = this.props;
-        // Cookie.get(uri)
-        // .then((cookie) => {
-        //     console.log('current webview cookie: ', cookie);
-        // });
-    }
+    componentDidUpdate() {}
 
     onMessage = (event) => {
         console.log('message: ', event.nativeEvent.data);
@@ -166,7 +160,14 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             url.startsWith('http://')
         ) {
             this.webview.stopLoading();
-            Linking.openURL(url);
+            this.setState({
+                overrideUri: this.props.uri,
+            });
+            Linking.openURL(url).catch(err => console.log(err));
+        } else {
+            this.setState({
+                overrideUri: false,
+            });
         }
 
         /* Handle logout flow
