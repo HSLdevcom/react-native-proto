@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import {Image, Modal, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
+import {Image, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
 import Immutable from 'immutable';
 import colors from '../colors';
 import {removeMetaFromNewsHtml} from '../utils/helpers';
@@ -53,7 +53,20 @@ const styles = StyleSheet.create({
     },
 });
 
+// Define ref to webview
+let webview = false;
+
 const closeModal = () => console.log('closed');
+
+// Handle navigation change in webview and open all links in phone browser
+const onNavigationStateChange = (navState) => {
+    const {url} = navState;
+    if (webview && url.startsWith('http')) {
+        webview.stopLoading();
+        webview.goBack();
+        Linking.openURL(url);
+    }
+};
 
 function SingleNews({hide, singleNews}) {
     let img = null;
@@ -85,7 +98,12 @@ function SingleNews({hide, singleNews}) {
                 </TouchableOpacity>
                 <Text style={[styles.text, styles.title]}>{singleNews.get('title')}</Text>
                 {img}
-                <WebView style={styles.webView} source={{html: removeMetaFromNewsHtml(singleNews.get('body').get('value'))}} />
+                <WebView
+                    style={styles.webView}
+                    source={{html: removeMetaFromNewsHtml(singleNews.get('body').get('value'))}}
+                    ref={(c) => { webview = c; }}
+                    onNavigationStateChange={onNavigationStateChange}
+                />
             </View>
         </Modal>
     );
