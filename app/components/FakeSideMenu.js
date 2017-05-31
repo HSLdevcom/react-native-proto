@@ -14,6 +14,7 @@ import Icon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CityBikes from './CityBikes';
 import Camera from './Camera';
+import Microphone from './Microphone';
 import Login from './Login';
 import colors from '../colors';
 
@@ -64,6 +65,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
     showCityBikes = () => Actions.cityBike();
     showLogin = () => Actions.login({title: this.getLoginTitle()});
     showCamera = () => Actions.camera();
+    showMicrophone = () => Actions.microphone();
     render() {
         const {name, session} = this.props;
         const loginViewTitle = this.getLoginTitle();
@@ -80,6 +82,8 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
             );
         } else if (name === 'camera') {
             return <Camera />;
+        } else if (name === 'microphone') {
+            return <Microphone />;
         }
         // Add some "menu like animation" so this maybe feels more like real menu
         const fadeAnim = new Animated.Value(0);
@@ -100,6 +104,10 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                 <TouchableOpacity style={styles.wrapper} onPress={this.showCamera}>
                     <MaterialIcon style={styles.icon} size={26} name="camera" />
                     <Text style={styles.buttonText}>Kamera</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.wrapper} onPress={this.showMicrophone}>
+                    <MaterialIcon style={styles.icon} size={26} name="microphone" />
+                    <Text style={styles.buttonText}>Äänitys</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.wrapper} onPress={this.showLogin}>
                     <Icon style={styles.icon} size={26} name="login" />

@@ -136,6 +136,7 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                         </Scene>
                         <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                             <Scene hideNavBar key="camera" title="Kamera" />
+                            <Scene key="microphone" title="Äänitys" />
                             <Scene key="cityBike" title="Kaupunkipyörät" />
                             <Scene key="login" title="Kirjaudu sisään" />
                         </Scene>
