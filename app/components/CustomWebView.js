@@ -9,6 +9,7 @@ import Cookie from 'react-native-cookie';
 import Immutable from 'immutable';
 import {
     ActivityIndicator,
+    AppState,
     Dimensions,
     Linking,
     Platform,
@@ -100,9 +101,11 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         loading: true,
         position: {},
         overrideUri: false,
+        currentUrl: false,
     };
 
     componentDidMount() {
+        AppState.addEventListener('change', this.handleAppStateChange);
         const {uri} = this.props;
         // TODO: do we want to get the position on every mount or keep it in store with some logic?
         // TODO: remove process.env check when https://github.com/facebook/react-native/pull/13442 is in RN
@@ -142,6 +145,10 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
 
     componentDidUpdate() {}
 
+    componentWillUnmount() {
+        AppState.removeEventListener('change', this.handleAppStateChange);
+    }
+
     onMessage = (event) => {
         console.log('message: ', event.nativeEvent.data);
     }
@@ -153,7 +160,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
         // console.log(navState);
-
+        this.setState({currentUrl: url});
         // If next url isn't hsl.fi / reittiopas.fi spesific or http:// -> open it in phone browser
         if (
             (url.startsWith('http') && !url.includes('hsl.fi') && !url.includes('reittiopas.fi')) ||
@@ -207,6 +214,20 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             backButtonEnabled: navState.canGoBack,
             forwardButtonEnabled: navState.canGoForward,
         });
+    }
+
+    handleAppStateChange = (nextAppState) => {
+        /* If app goes background reload webview to stop possible YouTube-video playback
+        * in case we are in hsl.fi and OS is android
+        * iOS pauses playback automatically
+        */
+        if (
+            nextAppState === 'background' &&
+            Platform.OS === 'android' &&
+            this.state.currentUrl.includes('hsl.fi')
+        ) {
+            this.webview.reload();
+        }
     }
 
     maybeLoginOrLogout = () => {
