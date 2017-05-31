@@ -51,6 +51,8 @@
     <!-- Include this only if you are planning to use the microphone for video recording -->
     <key>NSMicrophoneUsageDescription</key>
     <string>Your message to user when the microsphone is accessed for the first time</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>This sample uses the microphone to record your speech</string>
     <key>UIAppFonts</key>
     <array>
       <string>Entypo.ttf</string>

@@ -3835,6 +3835,10 @@ react-deep-force-update@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-deep-force-update/-/react-deep-force-update-1.0.1.tgz#f911b5be1d2a6fe387507dd6e9a767aa2924b4c7"
 
+react-native-audio@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/react-native-audio/-/react-native-audio-3.2.2.tgz#0fcbda338c9cc85aabed595f9c762fa6eebbdb88"
+
 "react-native-camera@git+https://github.com/lwansbrough/react-native-camera.git":
   version "0.9.0"
   resolved "git+https://github.com/lwansbrough/react-native-camera.git#6e840f3ebd06873cd9d64de09258d3f66ba0d169"
@@ -3873,6 +3877,10 @@ react-native-router-flux@^3.38.0:
     react-native-experimental-navigation "0.26.x"
     react-native-tabs "^1.0.9"
     react-static-container "1.0.1"
+
+react-native-sound@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/react-native-sound/-/react-native-sound-0.10.1.tgz#c6afa5114cea6e39f479a2c67d6d843894ed745c"
 
 react-native-tabs@^1.0.9:
   version "1.0.9"
