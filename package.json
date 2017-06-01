@@ -22,6 +22,7 @@
         "immutable": "^3.8.1",
         "isomorphic-fetch": "^2.2.1",
         "moment": "^2.18.1",
+        "nfc-ndef-react-native": "^0.2.1",
         "react": "15.4.2",
         "react-native": "0.42.3",
         "react-native-audio": "^3.2.2",

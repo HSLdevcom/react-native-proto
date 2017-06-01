@@ -3,6 +3,7 @@ package com.hslfiproto;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import es.tiarg.nfcndefreactnative.NfcNdefReactNativePackage;
 import com.zmxv.RNSound.RNSoundPackage;
 import com.rnim.rn.audio.ReactNativeAudioPackage;
 import com.lwansbrough.RCTCamera.RCTCameraPackage;
@@ -31,6 +32,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new NfcNdefReactNativePackage(),
             new RNSoundPackage(),
             new ReactNativeAudioPackage(),
             new RCTCameraPackage(),
