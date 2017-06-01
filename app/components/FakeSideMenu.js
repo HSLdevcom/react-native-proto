@@ -6,7 +6,7 @@
  */
 
 import React, {Component} from 'react';
-import {Animated, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {Animated, Platform, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import Immutable from 'immutable';
@@ -15,6 +15,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CityBikes from './CityBikes';
 import Camera from './Camera';
 import Microphone from './Microphone';
+import NFCTest from './NFCTest';
 import Login from './Login';
 import colors from '../colors';
 
@@ -66,6 +67,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
     showLogin = () => Actions.login({title: this.getLoginTitle()});
     showCamera = () => Actions.camera();
     showMicrophone = () => Actions.microphone();
+    showNFC = () => Actions.nfc();
     render() {
         const {name, session} = this.props;
         const loginViewTitle = this.getLoginTitle();
@@ -84,7 +86,16 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
             return <Camera />;
         } else if (name === 'microphone') {
             return <Microphone />;
+        } else if (name === 'nfc') {
+            return <NFCTest />;
         }
+        const nfcElement = Platform.OS === 'android' ?
+            (
+                <TouchableOpacity style={styles.wrapper} onPress={this.showNFC}>
+                    <MaterialIcon style={styles.icon} size={26} name="nfc" />
+                    <Text style={styles.buttonText}>NFC</Text>
+                </TouchableOpacity>
+            ) : null;
         // Add some "menu like animation" so this maybe feels more like real menu
         const fadeAnim = new Animated.Value(0);
         Animated.timing(fadeAnim, {toValue: 1, duration: 500}).start();
@@ -109,6 +120,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                     <MaterialIcon style={styles.icon} size={26} name="microphone" />
                     <Text style={styles.buttonText}>Äänitys</Text>
                 </TouchableOpacity>
+                {nfcElement}
                 <TouchableOpacity style={styles.wrapper} onPress={this.showLogin}>
                     <Icon style={styles.icon} size={26} name="login" />
                     <Text style={styles.buttonText}>{loginViewTitle}</Text>

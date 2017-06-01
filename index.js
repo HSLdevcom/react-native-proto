@@ -4,7 +4,7 @@
  * @flow
  */
 import React, {Component} from 'react';
-import {ActivityIndicator, AppRegistry, AsyncStorage, StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, AppRegistry, AsyncStorage, Platform, StyleSheet, Text, View} from 'react-native';
 import {persistStore} from 'redux-persist';
 import {connect, Provider} from 'react-redux';
 import {Router, Scene} from 'react-native-router-flux';
@@ -18,7 +18,6 @@ import FakeSideMenu from './app/components/FakeSideMenu';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
 // import Test from './app/components/Test';
-import NFCTest from './app/components/NFCTest';
 
 console.log('Starting');
 console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
@@ -118,29 +117,50 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                 </View>
             );
         }
+        const scenes = Platform.OS === 'android' ?
+            (
+                <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
+                    <Scene iconName="address" key="homeTab" title="Reittiopas" icon={TabIcon}>
+                        <Scene key="home" component={Main} title="Reittiopas" />
+                    </Scene>
+                    <Scene iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
+                        <Scene key="news" component={News} title="Ajankohtaista" />
+                    </Scene>
+                    <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
+                        <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                    </Scene>
+                    <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
+                        <Scene hideNavBar key="camera" title="Kamera" />
+                        <Scene key="microphone" title="Äänitys" />
+                        <Scene key="nfc" title="NFC" />
+                        <Scene key="cityBike" title="Kaupunkipyörät" />
+                        <Scene key="login" title="Kirjaudu sisään" />
+                    </Scene>
+                </Scene>
+            ) :
+            (
+                <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
+                    <Scene iconName="address" key="homeTab" title="Reittiopas" icon={TabIcon}>
+                        <Scene key="home" component={Main} title="Reittiopas" />
+                    </Scene>
+                    <Scene iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
+                        <Scene key="news" component={News} title="Ajankohtaista" />
+                    </Scene>
+                    <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
+                        <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                    </Scene>
+                    <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
+                        <Scene hideNavBar key="camera" title="Kamera" />
+                        <Scene key="microphone" title="Äänitys" />
+                        <Scene key="cityBike" title="Kaupunkipyörät" />
+                        <Scene key="login" title="Kirjaudu sisään" />
+                    </Scene>
+                </Scene>
+            );
         return (
             <Provider store={store}>
                 <RouterWithRedux>
-                    <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
-                        <Scene iconName="address" key="homeTab" title="Reittiopas" icon={TabIcon}>
-                            <Scene key="home" component={Main} title="Reittiopas" />
-                        </Scene>
-                        <Scene iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
-                            <Scene key="news" component={News} title="Ajankohtaista" />
-                        </Scene>
-                        <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
-                            <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
-                        </Scene>
-                        <Scene materialIcon iconName="nfc" key="nfcTestTab" title="Nfc" icon={TabIcon}>
-                            <Scene key="nfcTest" component={NFCTest} title="NFC" />
-                        </Scene>
-                        <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
-                            <Scene hideNavBar key="camera" title="Kamera" />
-                            <Scene key="microphone" title="Äänitys" />
-                            <Scene key="cityBike" title="Kaupunkipyörät" />
-                            <Scene key="login" title="Kirjaudu sisään" />
-                        </Scene>
-                    </Scene>
+                    {scenes}
                 </RouterWithRedux>
             </Provider>
         );
