@@ -4,8 +4,8 @@
  */
 
 import React, {Component} from 'react';
+import {Platform, StyleSheet, Text, View} from 'react-native';
 import NFC, {NfcDataType, NdefRecordType} from 'react-native-nfc';
-import {View, StyleSheet, Platform} from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -13,14 +13,21 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
     },
+    text: {
+        fontSize: 20,
+        marginTop: 20,
+    },
 });
 
 class NFCTest extends Component { // eslint-disable-line react/prefer-stateless-function
+    state = {
+        payload: false,
+    };
     componentDidMount() {
         if (Platform.OS === 'android') {
-            console.log('NFC');
             NFC.addListener((payload) => {
-                console.log('payload.type: ', payload.type);
+                console.log('payload: ', payload);
+                this.setState({payload});
                 switch (payload.type) {
                 case NfcDataType.NDEF:
                     this.test(payload);
@@ -49,7 +56,20 @@ class NFCTest extends Component { // eslint-disable-line react/prefer-stateless-
         });
     }
     render() {
-        return <View style={styles.container} />;
+        const {payload} = this.state;
+        if (payload) {
+            return (
+                <View style={styles.container}>
+                    <Text style={styles.text}>ID: {payload.data.id}</Text>
+                    <Text style={styles.text}>Type: {payload.type}</Text>
+                </View>
+            );
+        }
+        return (
+            <View style={styles.container}>
+                <Text style={styles.text}>Read NFC</Text>
+            </View>
+        );
     }
 }
 
