@@ -41,6 +41,8 @@
 	</dict>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Access needed for beacon discovery to work</string>
+	<key>NSLocationUsageDescription</key>
+	<string></string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Access needed for beacon discovery to work</string>
 	<key>UIAppFonts</key>
