@@ -165,8 +165,8 @@ const getData = async function getData(dispatch) {
                 }
             });
 
-            const beaconData = (workingBeacons.lenght > 1)
-            ? workingBeacons[strongestBeaconRSSI]
+            const beaconData = (workingBeacons.length > 1)
+            ? workingBeacons[closestBeaconIndex]
             : workingBeacons;
 
             if (beaconData.uuid === beaconId) {
@@ -182,7 +182,7 @@ const getData = async function getData(dispatch) {
             }
         }
         attempts += 1;
-        // (beaconFound && vehicleBeaconsFound) tryingToFindBeacons = false;
+        if (beaconFound && vehicleBeaconsFound) tryingToFindBeacons = false;
     });
 };
 
