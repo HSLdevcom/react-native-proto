@@ -1,3 +1,4 @@
+
 # OSX
 #
 .DS_Store
@@ -58,3 +59,8 @@ coverage
 
 # config
 config.js
+
+
+#VSCode
+.vscode
+jsconfig.json

@@ -99,16 +99,21 @@ export const vehicleBeaconError = function vehicleBeaconError(error) {
     };
 };
 
-// data.beacons - Array of all beacons inside a region
-   //  in the following structure:
-   //    .uuid
-   //    .major - The major version of a beacon
-   //    .minor - The minor version of a beacon
-   //    .rssi - Signal strength: RSSI value (between -100 and 0)
-   //    .proximity - Proximity value, can either be "unknown", "far", "near" or "immediate"
-   //    .accuracy - The accuracy of a beacon
+/**
+* data.beacons - Array of all beacons inside a region
+* in the following structure:
+* .uuid
+* .major - The major version of a beacon
+* .minor - The minor version of a beacon
+* .rssi - Signal strength: RSSI value (between -100 and 0)
+* .proximity - Proximity value, can either be "unknown", "far", "near" or "immediate"
+* .accuracy - The accuracy of a beacon
+**/
 
 const getData = async function getData(dispatch) {
+    Beacons.startMonitoringForRegion(beaconRegion);
+    //Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+
     if (Platform.os === 'android') {
         Beacons.detectIBeacons();
         Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
@@ -117,10 +122,10 @@ const getData = async function getData(dispatch) {
 
     try {
         await Beacons.startRangingBeaconsInRegion(beaconRegion);
-        await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
+        //await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
     } catch (error) {
         Beacons.stopRangingBeaconsInRegion(beaconRegion);
-        Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
+        //Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
         if (!beaconFound) dispatch(beaconError("Beacon didn't start ranging"));
         if (!vehicleBeaconsFound) dispatch(vehicleBeaconError("Beacon didn't start ranging"));
         tryingToFindBeacons = false;
@@ -129,6 +134,7 @@ const getData = async function getData(dispatch) {
     }
 
     DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
+        /**
         if (attempts === ATTEMPT_LIMIT) {
             Beacons.stopRangingBeaconsInRegion(beaconRegion);
             Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
@@ -143,13 +149,14 @@ const getData = async function getData(dispatch) {
             ));
             }
             tryingToFindBeacons = false;
-
             return;
         }
+        **/
+        const workingBeacons = data.beacons.filter(b => b.accuracy > 0);
+        console.log(`BEACONS: ${data.beacons
+            .map(b => `\n ${b.major}-${b.minor} strength: ${b.rssi} accuracy: ${b.accuracy}\n`)}`);
+
         if (data.beacons.length > 0) {
-            const workingBeacons = data.beacons.filter(b => b.accuracy > 0);
-            console.log(`BEACONS: ${workingBeacons
-                .map(b => `\n ${b.major}-${b.minor} strength: ${b.rssi} accuracy: ${b.accuracy}\n`)}`);
             let closestBeaconIndex = 0;
             let strongestBeaconRSSI = -101;
 
@@ -171,18 +178,23 @@ const getData = async function getData(dispatch) {
 
             if (beaconData.uuid === beaconId) {
                 dispatch(setBeaconData(beaconData));
-                Beacons.stopRangingBeaconsInRegion(beaconRegion);
+                //Beacons.stopRangingBeaconsInRegion(beaconRegion);
                 beaconFound = true;
             }
-
+            /**
             if (vehicleBeacons.length > 0) {
                 dispatch(setBusBeaconData(vehicleBeacons));
-                Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
+                //Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
                 vehicleBeaconsFound = true;
             }
+            **/
+        } else {
+            //No beacons found, empty the store
+            dispatch(setBeaconData({}));
+            dispatch(setBusBeaconData([]));
         }
-        attempts += 1;
-        if (beaconFound && vehicleBeaconsFound) tryingToFindBeacons = false;
+        //attempts += 1;
+        //if (beaconFound && vehicleBeaconsFound) tryingToFindBeacons = false;
     });
 };
 

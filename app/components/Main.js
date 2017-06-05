@@ -5,8 +5,8 @@
 
 import React, {Component} from 'react';
 import {
-    DeviceEventEmitter,
-    Platform} from 'react-native';
+    AppState,
+} from 'react-native';
 import Beacons from 'react-native-beacons-manager';
 // import {ScrollView, StyleSheet} from 'react-native';
 import {connect} from 'react-redux';
@@ -32,32 +32,17 @@ export const REITTIOPAS_URL = 'https://reittiopas.fi';
 //     },
 // });
 
-/**
-* A placeholder function for resolving line name based on beacon "major" identifier.
-* Should be replaced with DB query in the future.
-*/
-const resolveLine = (major) => {
-    switch (major) {
-    case 234:
-        return '102T';
-    case 235:
-        return '103';
-    default:
-        return '';
-    }
-};
-
-/**
-* Estimating the bus the user is on.
-* Currently just taking the strongest signal. Could utilize queues.
-*/
-const lineEstimate = arr => arr.sort((a, b) => a.rssi - b.rssi)[0].major;
 
 class Main extends Component { // eslint-disable-line react/prefer-stateless-function
 
+    state = {
+        appState: AppState.currentState,
+    }
+
     componentWillMount = () => {
         this.props.getBeaconData();
-        const enter = DeviceEventEmitter.addListener(
+        /**
+        DeviceEventEmitter.addListener(
             'regionDidEnter',
             (data) => {
                 console.log('monitoring - regionDidEnter data: ', data);
@@ -65,14 +50,31 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
             }
         );
 
-        const exit = DeviceEventEmitter.addListener(
+        DeviceEventEmitter.addListener(
             'regionDidExit',
             (data) => {
                 console.log('monitoring - regionDidExit data: ', data);
                 getBeaconData();
             }
         );
+        */
     }
+    componentDidMount() {
+        AppState.addEventListener('change', this.handleAppStateChange);
+    }
+
+    componentWillUnmount() {
+        AppState.removeEventListener('change', this.handleAppStateChange);
+    }
+
+    handleAppStateChange = (nextAppState) => {
+        if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
+            this.props.getBeaconData();
+        }
+        this.setState({appState: nextAppState});
+    }
+
+
     /**
     componentWillMount() {
         const region = {

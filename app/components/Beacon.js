@@ -4,10 +4,10 @@
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, DeviceEventEmitter} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import {connect} from 'react-redux';
-import Beacons from 'react-native-beacons-manager';
 import Immutable from 'immutable';
+import {getBeaconData} from '../actions/beacons';
 
 const styles = StyleSheet.create({
     container: {
@@ -21,18 +21,33 @@ const styles = StyleSheet.create({
     },
 });
 
+/**
+* A placeholder function for resolving line name based on beacon "major" identifier.
+* Should be replaced with DB query in the future.
+*/
+const resolveLine = (major) => {
+    switch (major) {
+    case 234:
+        return '102T';
+    case 235:
+        return '103';
+    default:
+        return '';
+    }
+};
 
 class Beacon extends Component { // eslint-disable-line react/prefer-stateless-function
+
+    componentWillMount() {
+        this.props.getBeaconData();
+    }
 
     render() {
         const bData = this.props.beacons.get('beaconData');
         return (
             <View style={styles.container}>
-                <Text>
-                    Olet linjalla:
-                </Text>
                 <Text style={styles.textStyle}>
-                    {bData.major || 'Ei linjalla'}
+                    {resolveLine(bData.major) || 'Ei linjalla'}
                 </Text>
             </View>
         );
@@ -40,6 +55,7 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
 }
 
 Beacon.propTypes = {
+    getBeaconData: React.PropTypes.func.isRequired,
     beacons: React.PropTypes.instanceOf(Immutable.Map).isRequired,
 };
 
@@ -49,8 +65,11 @@ function mapStateToProps(state) {
     };
 }
 
-const mapDispatchToProps = () => ({
-});
+function mapDispatchToProps(dispatch) {
+    return {
+        getBeaconData: () => dispatch(getBeaconData()),
+    };
+}
 
 
 export default connect(
