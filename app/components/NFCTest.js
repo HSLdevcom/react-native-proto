@@ -33,7 +33,7 @@ class NFCTest extends Component { // eslint-disable-line react/prefer-stateless-
                     this.test(payload);
                     break;
                 case NfcDataType.TAG:
-                    console.log(`The TAG is non-NDEF:\n\n${payload.data.description}`);
+                    console.log(`The TAG is non-NDEF:\n${payload.data.description}`);
                     break;
                 default:
                     console.log('default');

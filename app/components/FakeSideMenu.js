@@ -17,6 +17,7 @@ import Camera from './Camera';
 import Microphone from './Microphone';
 import NFCTest from './NFCTest';
 import Login from './Login';
+import FormView from './FormView';
 import colors from '../colors';
 
 const styles = StyleSheet.create({
@@ -68,6 +69,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
     showCamera = () => Actions.camera();
     showMicrophone = () => Actions.microphone();
     showNFC = () => Actions.nfc();
+    showForm = () => Actions.form();
     render() {
         const {name, session} = this.props;
         const loginViewTitle = this.getLoginTitle();
@@ -88,6 +90,8 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
             return <Microphone />;
         } else if (name === 'nfc') {
             return <NFCTest />;
+        } else if (name === 'form') {
+            return <FormView />;
         }
         const nfcElement = Platform.OS === 'android' ?
             (
@@ -121,6 +125,10 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                     <Text style={styles.buttonText}>Äänitys</Text>
                 </TouchableOpacity>
                 {nfcElement}
+                <TouchableOpacity style={styles.wrapper} onPress={this.showForm}>
+                    <MaterialIcon style={styles.icon} size={26} name="file-document" />
+                    <Text style={styles.buttonText}>Pikapalaute</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.wrapper} onPress={this.showLogin}>
                     <Icon style={styles.icon} size={26} name="login" />
                     <Text style={styles.buttonText}>{loginViewTitle}</Text>
