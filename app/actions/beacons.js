@@ -111,7 +111,7 @@ export const vehicleBeaconError = function vehicleBeaconError(error) {
 **/
 
 const getData = async function getData(dispatch) {
-    Beacons.startMonitoringForRegion(beaconRegion);
+    //Beacons.startMonitoringForRegion(beaconRegion);
     //Beacons.startMonitoringForRegion(vehicleBeaconRegion);
 
     if (Platform.os === 'android') {
@@ -122,10 +122,10 @@ const getData = async function getData(dispatch) {
 
     try {
         await Beacons.startRangingBeaconsInRegion(beaconRegion);
-        //await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
+        await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
     } catch (error) {
         Beacons.stopRangingBeaconsInRegion(beaconRegion);
-        //Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
+        Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
         if (!beaconFound) dispatch(beaconError("Beacon didn't start ranging"));
         if (!vehicleBeaconsFound) dispatch(vehicleBeaconError("Beacon didn't start ranging"));
         tryingToFindBeacons = false;
@@ -153,8 +153,8 @@ const getData = async function getData(dispatch) {
         }
         **/
         const workingBeacons = data.beacons.filter(b => b.accuracy > 0);
-        console.log(`BEACONS: ${data.beacons
-            .map(b => `\n ${b.major}-${b.minor} strength: ${b.rssi} accuracy: ${b.accuracy}\n`)}`);
+        // console.log(`BEACONS: ${data.beacons
+        //     .map(b => `\n ${b.major}-${b.minor} strength: ${b.rssi} accuracy: ${b.accuracy}\n`)}`);
 
         if (data.beacons.length > 0) {
             let closestBeaconIndex = 0;
@@ -174,20 +174,19 @@ const getData = async function getData(dispatch) {
 
             const beaconData = (workingBeacons.length > 1)
             ? workingBeacons[closestBeaconIndex]
-            : workingBeacons;
+            : workingBeacons[0];
 
-            if (beaconData.uuid === beaconId) {
+            if (beaconData && beaconData.uuid === beaconId) {
                 dispatch(setBeaconData(beaconData));
                 //Beacons.stopRangingBeaconsInRegion(beaconRegion);
                 beaconFound = true;
             }
-            /**
+
             if (vehicleBeacons.length > 0) {
                 dispatch(setBusBeaconData(vehicleBeacons));
                 //Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
                 vehicleBeaconsFound = true;
             }
-            **/
         } else {
             //No beacons found, empty the store
             dispatch(setBeaconData({}));
@@ -215,6 +214,7 @@ export const getBeaconData = function getBeaconData() {
     return {type: REQUESTING_DATA};
 };
 
+/*
 const enter = DeviceEventEmitter.addListener(
     'regionDidEnter',
     (data) => {
@@ -230,3 +230,4 @@ const exit = DeviceEventEmitter.addListener(
         getData();
     }
 );
+*/

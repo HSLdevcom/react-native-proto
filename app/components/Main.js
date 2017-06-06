@@ -6,6 +6,7 @@
 import React, {Component} from 'react';
 import {
     AppState,
+    DeviceEventEmitter,
 } from 'react-native';
 import Beacons from 'react-native-beacons-manager';
 // import {ScrollView, StyleSheet} from 'react-native';
@@ -32,6 +33,23 @@ export const REITTIOPAS_URL = 'https://reittiopas.fi';
 //     },
 // });
 
+/*
+* Current UUID for OnyxBeacon
+* 20CAE8A0-A9CF-11E3-A5E2-0800200C9A66
+*/
+const beaconId = '20CAE8A0-A9CF-11E3-A5E2-0800200C9A66';
+const vehicleBeaconId = '20CAE8A0-A9CF-11E3-A5E2-0800200C9A66';
+
+const beaconRegion = {
+    identifier: 'OnyxBeacon',
+    uuid: beaconId,
+};
+
+const vehicleBeaconRegion = {
+    identifier: 'OnyxBeacon',
+    uuid: vehicleBeaconId,
+};
+
 
 class Main extends Component { // eslint-disable-line react/prefer-stateless-function
 
@@ -40,25 +58,28 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
     }
 
     componentWillMount = () => {
+        Beacons.startMonitoringForRegion(beaconRegion);
+        Beacons.startMonitoringForRegion(vehicleBeaconRegion);
         this.props.getBeaconData();
-        /**
         DeviceEventEmitter.addListener(
             'regionDidEnter',
             (data) => {
-                console.log('monitoring - regionDidEnter data: ', data);
-                getBeaconData();
+                console.log('MONITORING - regionDidEnter data: ', data);
             }
         );
 
         DeviceEventEmitter.addListener(
             'regionDidExit',
             (data) => {
-                console.log('monitoring - regionDidExit data: ', data);
-                getBeaconData();
+                console.log('MONITORING - regionDidExit data: ', data);
             }
         );
-        */
+        Beacons.startUpdatingLocation();
+        // Beacons.stopMonitoringForRegion(beaconRegion);
+        // Beacons.stopRangingBeaconsInRegion(beaconRegion);
+        // Beacons.stopUpdatingLocation();
     }
+    /*
     componentDidMount() {
         AppState.addEventListener('change', this.handleAppStateChange);
     }
@@ -73,6 +94,7 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
         }
         this.setState({appState: nextAppState});
     }
+    */
 
 
     /**
