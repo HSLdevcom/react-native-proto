@@ -154,7 +154,7 @@ const getData = async function getData(dispatch) {
         **/
         const workingBeacons = data.beacons.filter(b => b.accuracy > 0);
         // console.log(`BEACONS: ${data.beacons
-        //     .map(b => `\n ${b.major}-${b.minor} strength: ${b.rssi} accuracy: ${b.accuracy}\n`)}`);
+//     .map(b => `\n ${b.major}-${b.minor}strength: ${b.rssi} accuracy: ${b.accuracy}\n`)}`);
 
         if (data.beacons.length > 0) {
             let closestBeaconIndex = 0;
