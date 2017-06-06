@@ -7,7 +7,18 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import Cookie from 'react-native-cookie';
 import Immutable from 'immutable';
-import {ActivityIndicator, Dimensions, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
+import {
+    ActivityIndicator,
+    AppState,
+    Dimensions,
+    Linking,
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    WebView,
+} from 'react-native';
 import {
     removeCookie,
     setCookie,
@@ -17,7 +28,7 @@ import {
     removeSession,
 } from '../actions/session';
 import colors from '../colors';
-import {REITTIOPAS_URL, REITTIOPAS_MOCK_URL} from './Main';
+import {/*REITTIOPAS_URL,*/REITTIOPAS_MOCK_URL} from './Main';
 import {HSL_LOGIN_URL} from './Login';
 
 const screenHeight = Dimensions.get('window').height;
@@ -90,9 +101,11 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         loading: true,
         position: {},
         overrideUri: false,
+        currentUrl: false,
     };
 
     componentDidMount() {
+        AppState.addEventListener('change', this.handleAppStateChange);
         const {uri} = this.props;
         // TODO: do we want to get the position on every mount or keep it in store with some logic?
         // TODO: remove process.env check when https://github.com/facebook/react-native/pull/13442 is in RN
@@ -119,7 +132,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                     // });
                 }
             }, {
-                enableHighAccuracy: true,
+                enableHighAccuracy: Platform.OS === 'ios', // true seems to cause timeout in Android...
                 timeout: 10000,
                 maximumAge: 1000,
             }
@@ -130,12 +143,10 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         }
     }
 
-    componentDidUpdate() {
-        // const {uri} = this.props;
-        // Cookie.get(uri)
-        // .then((cookie) => {
-        //     console.log('current webview cookie: ', cookie);
-        // });
+    componentDidUpdate() {}
+
+    componentWillUnmount() {
+        AppState.removeEventListener('change', this.handleAppStateChange);
     }
 
     onMessage = (event) => {
@@ -145,20 +156,30 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         this.setState({loading: false});
     }
     onNavigationStateChange = (navState) => {
+        const {url} = navState;
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
         // console.log(navState);
-
-        /* Handle logout flow
-        * 1) Check if we are on a page whose url includes SingleLogoutService / "saml/logout"
-        * 2) Get page cookies
-        * 3) Check if cookies includes SSESS...-cookie
-        * 4) If there's no SSESS-cookie, removeCookie and resetSession
-        * TODO: there really should be better solution for this
-        */
+        this.setState({currentUrl: url});
+        // If next url isn't hsl.fi / reittiopas.fi spesific or http:// -> open it in phone browser
         if (
-            navState.url.startsWith('https://login.hsl.fi/simplesaml/saml2/idp/SingleLogoutService.php') ||
-            navState.url.startsWith('https://www.hsl.fi/saml/logout')
+            (url.startsWith('http') && !url.includes('hsl.fi') && !url.includes('reittiopas.fi')) ||
+            url.startsWith('http://')
+        ) {
+            this.webview.stopLoading();
+            // force update the view in case webview didn't stopLoading so iOS don't try to load any http://-url
+            this.forceUpdate();
+            Linking.openURL(url).catch(err => console.log(err));
+        } else if (
+            /* Handle logout flow
+            * 1) Check if we are on a page whose url includes SingleLogoutService / "saml/logout"
+            * 2) Get page cookies
+            * 3) Check if cookies includes SSESS...-cookie
+            * 4) If there's no SSESS-cookie, removeCookie and resetSession
+            * TODO: there really should be better solution for this
+            */
+            url.startsWith('https://login.hsl.fi/simplesaml/saml2/idp/SingleLogoutService.php') ||
+            url.startsWith('https://www.hsl.fi/saml/logout')
         ) {
             this.maybeLoginOrLogout();
         } else if (
@@ -174,16 +195,16 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 // iOS version
                 navState.navigationType === 'formsubmit' &&
                 (
-                    navState.url.startsWith('https://www.hsl.fi') ||
-                    navState.url.startsWith('https://login.hsl.fi')
+                    url.startsWith('https://www.hsl.fi') ||
+                    url.startsWith('https://login.hsl.fi')
                 )
             ) ||
             (
                 // Android version
-                navState.url.startsWith('https://login.hsl.fi/user') ||
+                url.startsWith('https://login.hsl.fi/user') ||
                 (
                     navState.title === 'POST data' &&
-                    navState.url.startsWith('https://www.hsl.fi')
+                    url.startsWith('https://www.hsl.fi')
                 )
             )
         ) {
@@ -193,6 +214,20 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             backButtonEnabled: navState.canGoBack,
             forwardButtonEnabled: navState.canGoForward,
         });
+    }
+
+    handleAppStateChange = (nextAppState) => {
+        /* If app goes background reload webview to stop possible YouTube-video playback
+        * in case we are in hsl.fi and OS is android
+        * iOS pauses playback automatically
+        */
+        if (
+            nextAppState === 'background' &&
+            Platform.OS === 'android' &&
+            this.state.currentUrl.includes('hsl.fi')
+        ) {
+            this.webview.reload();
+        }
     }
 
     maybeLoginOrLogout = () => {

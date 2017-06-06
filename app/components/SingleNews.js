@@ -3,8 +3,8 @@
  * @flow
  */
 
-import React from 'react';
-import {Image, Modal, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
+import React, {Component} from 'react';
+import {Image, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
 import Immutable from 'immutable';
 import colors from '../colors';
 import {removeMetaFromNewsHtml} from '../utils/helpers';
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     },
     title: {
         color: colors.brandColor,
-        fontSize: 24,
+        fontSize: 22,
         paddingLeft: 5,
         paddingRight: 5,
         width: '95%',
@@ -53,36 +53,56 @@ const styles = StyleSheet.create({
     },
 });
 
-const closeModal = () => console.log('closed');
+class SingleNews extends Component { // eslint-disable-line react/prefer-stateless-function
 
-function SingleNews({hide, singleNews}) {
-    let img = null;
-    if (singleNews.get('images') && singleNews.get('images').count() > 0) {
-        // TODO: can there be more than one image that we want to show?
-        // TODO: is this url valid every time?
-        const uri = `https://www.hsl.fi/sites/default/files/uploads/${singleNews.getIn(['images', 0, 'entity', 'filename'])}`;
-        img = (<Image
-            style={styles.image}
-            source={{uri}}
-        />);
+    // Handle navigation change in webview and open all links in phone browser
+    onNavigationStateChange = (navState) => {
+        const {url} = navState;
+        if (url.startsWith('http')) {
+            this.webview.stopLoading();
+            Linking.openURL(url).catch(err => console.log(err));
+        }
     }
-    return (
-        <Modal
-            animationType="slide"
-            transparent={false}
-            visible
-            onRequestClose={closeModal}
-        >
-            <View style={[styles.container]}>
-                <TouchableOpacity style={styles.button} onPress={hide}>
-                    <Text style={styles.buttonText}>Sulje</Text>
-                </TouchableOpacity>
-                <Text style={[styles.text, styles.title]}>{singleNews.get('title')}</Text>
-                {img}
-                <WebView style={styles.webView} source={{html: removeMetaFromNewsHtml(singleNews.get('body').get('value'))}} />
-            </View>
-        </Modal>
-    );
+
+    closeModal = () => {
+        this.props.hide();
+    }
+
+    render() {
+        const {hide, singleNews} = this.props;
+        let img = null;
+        if (singleNews.get('images') && singleNews.get('images').count() > 0) {
+            // TODO: can there be more than one image that we want to show?
+            // TODO: is this url valid every time?
+            const uri = `https://www.hsl.fi/sites/default/files/uploads/${singleNews.getIn(['images', 0, 'entity', 'filename'])}`;
+            img = (<Image
+                style={styles.image}
+                source={{uri}}
+            />);
+        }
+        return (
+            <Modal
+                animationType="slide"
+                transparent={false}
+                visible
+                onRequestClose={this.closeModal}
+            >
+                <View style={[styles.container]}>
+                    <TouchableOpacity style={styles.button} onPress={hide}>
+                        <Text style={styles.buttonText}>Sulje</Text>
+                    </TouchableOpacity>
+                    <Text style={[styles.text, styles.title]}>{singleNews.get('title')}</Text>
+                    {img}
+                    <WebView
+                        style={styles.webView}
+                        source={{html: removeMetaFromNewsHtml(singleNews.get('body').get('value'))}}
+                        ref={(c) => { this.webview = c; }}
+                        onNavigationStateChange={this.onNavigationStateChange}
+                    />
+                </View>
+            </Modal>
+        );
+    }
 }
 
 SingleNews.propTypes = {

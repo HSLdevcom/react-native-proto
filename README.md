@@ -10,6 +10,9 @@
     * During development you will need do a port forwarding: `adb reverse tcp:8081 tcp:8081`
         * This will allow the app to access the React Packager server which serve the JS. The port `8081` is the default React Packager port.
     * You can list the existing forwards using `adb reverse --list`
+    * If you have an error like `Error:The SDK Build Tools revision (23.0.1) is too low for project ':react-native-xxx'. Minimum required is 25.0.0` you can
+        * Replace those manually in `react-native-xxx`-package to `25.0.0` or
+        * Open project for example in [Android Studio](https://developer.android.com/studio/index.html), run Gradle sync and after that click `Update Build Tools version and sync project`
 
 ## Tests
 * See for example: https://facebook.github.io/jest/docs/tutorial-react-native.html
