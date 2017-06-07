@@ -17,7 +17,7 @@ import Camera from './Camera';
 import Microphone from './Microphone';
 import NFCTest from './NFCTest';
 import Login from './Login';
-import FormView from './FormView';
+import WebSurvey from './WebSurvey';
 import colors from '../colors';
 
 const styles = StyleSheet.create({
@@ -91,7 +91,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
         } else if (name === 'nfc') {
             return <NFCTest />;
         } else if (name === 'form') {
-            return <FormView />;
+            return <WebSurvey />;
         }
         const nfcElement = Platform.OS === 'android' ?
             (
