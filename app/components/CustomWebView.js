@@ -7,6 +7,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import Cookie from 'react-native-cookie';
 import Immutable from 'immutable';
+import AndroidWebView from 'react-native-webview-file-upload-android';
 import {
     ActivityIndicator,
     AppState,
@@ -30,6 +31,7 @@ import {
 import colors from '../colors';
 import {/*REITTIOPAS_URL,*/REITTIOPAS_MOCK_URL} from './Main';
 import {HSL_LOGIN_URL} from './Login';
+import {SURVEY_URL} from './WebSurvey';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -401,6 +403,43 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             ) :
             null;
 
+        // we need to use this until this PR is merged https://github.com/facebook/react-native/pull/12807
+        // to enable input type file in Webview
+        const webView = (uri === SURVEY_URL && Platform.OS === 'android') ?
+        (<AndroidWebView
+            ref={(c) => { this.webview = c; }}
+            domStorageEnabled
+            javaScriptEnabled
+            style={[styles.webView, {marginTop: webViewMarginTop}]}
+            source={{uri}}
+            scalesPageToFit
+            onLoadEnd={this.onLoadEnd}
+            onMessage={
+                onMessageEnabled ?
+                    this.onMessage :
+                    null
+            } // there's issuses with onMessage
+            onNavigationStateChange={this.onNavigationStateChange}
+            scrollEnabled={scrollEnabled}
+            injectedJavaScript={inlineJS}
+        />) :
+        (<WebView
+            ref={(c) => { this.webview = c; }}
+            domStorageEnabled
+            javaScriptEnabled
+            style={[styles.webView, {marginTop: webViewMarginTop}]}
+            source={{uri}}
+            scalesPageToFit
+            onLoadEnd={this.onLoadEnd}
+            onMessage={
+                onMessageEnabled ?
+                    this.onMessage :
+                    null
+            } // there's issuses with onMessage
+            onNavigationStateChange={this.onNavigationStateChange}
+            scrollEnabled={scrollEnabled}
+            injectedJavaScript={inlineJS}
+        />);
         return (
             <View
                 style={[styles.container, {height: containerHeight}]}
@@ -412,23 +451,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 />
                 {backButton}
                 {forwardButton}
-                <WebView
-                    ref={(c) => { this.webview = c; }}
-                    domStorageEnabled
-                    javaScriptEnabled
-                    style={[styles.webView, {marginTop: webViewMarginTop}]}
-                    source={{uri}}
-                    scalesPageToFit
-                    onLoadEnd={this.onLoadEnd}
-                    onMessage={
-                        onMessageEnabled ?
-                            this.onMessage :
-                            null
-                    } // there's issuses with onMessage
-                    onNavigationStateChange={this.onNavigationStateChange}
-                    scrollEnabled={scrollEnabled}
-                    injectedJavaScript={inlineJS}
-                />
+                {webView}
             </View>
         );
     }
