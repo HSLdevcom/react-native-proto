@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
 });
 
 const HSLSAMLSessionID = 'HSLSAMLSessionID';
+const whitelistUrls = ['hsl.fi', 'reittiopas.fi', 'jola.louhin'];
 
 class CustomWebView extends Component { // eslint-disable-line react/prefer-stateless-function
     // Inner state is bad but at this point it's easier
@@ -163,7 +164,10 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         this.setState({currentUrl: url});
         // If next url isn't hsl.fi / reittiopas.fi spesific or http:// -> open it in phone browser
         if (
-            (url.startsWith('http') && !url.includes('hsl.fi') && !url.includes('reittiopas.fi')) ||
+            (
+                url.startsWith('http') &&
+                !whitelistUrls.map(v => url.includes(v))
+            ) ||
             url.startsWith('http://')
         ) {
             this.webview.stopLoading();
@@ -356,6 +360,11 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             //     postMessage('height;' + height);
             // })();
         ` : `
+            // setTimeout(function() {
+            //     var e = document.createElement('h1');
+            //     e.innerText = navigator.userAgent;
+            //     document.getElementsByTagName('body')[0].append(e);
+            // }, 1000);
         `;
         if (position.lat && position.long) {
             // If we have lat and long use mock
