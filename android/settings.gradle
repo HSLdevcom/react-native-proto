@@ -1,4 +1,6 @@
 rootProject.name = 'HSLProto'
+include ':react-native-webview-file-upload-android'
+project(':react-native-webview-file-upload-android').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-webview-file-upload-android/android')
 include ':nfc-ndef-react-native'
 project(':nfc-ndef-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/nfc-ndef-react-native/android')
 include ':react-native-sound'

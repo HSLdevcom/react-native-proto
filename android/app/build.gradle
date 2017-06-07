@@ -137,6 +137,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-webview-file-upload-android')
     compile project(':nfc-ndef-react-native')
     compile project(':react-native-sound')
     compile project(':react-native-audio')
