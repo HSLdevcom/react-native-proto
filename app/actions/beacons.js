@@ -153,8 +153,8 @@ const getData = async function getData(dispatch) {
         }
         **/
         const workingBeacons = data.beacons.filter(b => b.accuracy > 0);
-        // console.log(`BEACONS: ${data.beacons
-//     .map(b => `\n ${b.major}-${b.minor}strength: ${b.rssi} accuracy: ${b.accuracy}\n`)}`);
+        console.log(`BEACONS: ${data.beacons
+            .map(b => `\n ${b.major}-${b.minor} || strength: ${b.rssi} accuracy: ${b.accuracy}\n`)}`);
 
         if (data.beacons.length > 0) {
             let closestBeaconIndex = 0;
@@ -168,13 +168,20 @@ const getData = async function getData(dispatch) {
                     strongestBeaconRSSI = beacon.rssi;
                 }
                 if (beacon.uuid === vehicleBeaconId) {
-                    vehicleBeacons.push(beacon);
+                    if (vehicleBeacons.filter(b => b.major === beacon.major).length > 0) {
+                        vehicleBeacons
+                        .filter(b => b.major === beacon.major)[0].rssi += (100 + beacon.rssi);
+                    } else {
+                        vehicleBeacons.push(beacon);
+                    }
+
+                    // vehicleBeacons.push(beacon);
                 }
             });
 
-            const beaconData = (workingBeacons.length > 1)
-            ? workingBeacons[closestBeaconIndex]
-            : workingBeacons[0];
+            vehicleBeacons.forEach((v, index) => console.log(`vehiclebeacons : ${v.major} RSSI total ${v.rssi}`));
+
+            const beaconData = workingBeacons[closestBeaconIndex];
 
             if (beaconData && beaconData.uuid === beaconId) {
                 dispatch(setBeaconData(beaconData));

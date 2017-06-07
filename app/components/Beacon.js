@@ -8,6 +8,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import {getBeaconData} from '../actions/beacons';
+import colors from '../colors';
 
 const styles = StyleSheet.create({
     container: {
@@ -17,7 +18,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     textStyle: {
-        fontSize: 30,
+        fontSize: 70,
+        color: colors.brandColor,
     },
 });
 
