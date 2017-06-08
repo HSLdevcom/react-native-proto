@@ -7,6 +7,7 @@ import React, {Component} from 'react';
 import {
     AppState,
     DeviceEventEmitter,
+    Platform,
 } from 'react-native';
 import Beacons from 'react-native-beacons-manager';
 // import {ScrollView, StyleSheet} from 'react-native';
@@ -58,6 +59,9 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
     }
 
     componentWillMount = () => {
+        if (Platform.OS === 'android') {
+            Beacons.detectIBeacons();
+        }
         Beacons.startMonitoringForRegion(beaconRegion);
         Beacons.startMonitoringForRegion(vehicleBeaconRegion);
         this.props.getBeaconData();
@@ -74,7 +78,7 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
                 console.log('MONITORING - regionDidExit data: ', data);
             }
         );
-        Beacons.startUpdatingLocation();
+        if (Platform.OS === 'ios') Beacons.startUpdatingLocation();
         // Beacons.stopMonitoringForRegion(beaconRegion);
         // Beacons.stopRangingBeaconsInRegion(beaconRegion);
         // Beacons.stopUpdatingLocation();
@@ -104,7 +108,7 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
             uuid: '20CAE8A0-A9CF-11E3-A5E2-0800200C9A66',
         };
 
-        if (Platform.os === 'ios') {
+        if (Platform.OS === 'ios') {
             Beacons.requestAlwaysAuthorization();
         }
         Beacons.startMonitoringForRegion(region);

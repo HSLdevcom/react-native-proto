@@ -1,24 +1,9 @@
-// export const SET_BEACON_LINE = 'HSLProto/app/SET_BEACON_LINE';
-// export const REMOVE_BEACON_LINE = 'HSLProto/app/REMOVE_BEACON_LINE';
-
-/**
-* Set beaconLine
-* @param  {string} beaconLine
-* @return {object} An action object with a type of SET_BEACON_LINE
-*/
-// export function setBeaconLine(beaconLine) {
-    // return {type: SET_BEACON_LINE, beaconLine};
-// }
-
-/**
-* Remove beaconLine
-* @return {object} An action object with a type REMOVE_BEACON_LINE SET_BEACON_LINE
-*/
-// export function removeBeaconLine() {
-    // return {type: REMOVE_BEACON_LINE};
-// }
 import Beacons from 'react-native-beacons-manager';
-import {DeviceEventEmitter, Platform} from 'react-native';
+import {
+    DeviceEventEmitter,
+    Platform,
+    PermissionsAndroid,
+} from 'react-native';
 
 export const SET_BEACON_DATA = 'SET_BEACON_DATA';
 export const SET_VEHICLE_BEACON_DATA = 'SET_VEHICLE_BEACON_DATA';
@@ -32,26 +17,49 @@ const BACKGROUND_SCAN_PERIOD = 1000;
 
 const ATTEMPT_LIMIT = 8;
 
-if (Platform.os === 'ios') {
+if (Platform.OS === 'ios') {
     Beacons.requestAlwaysAuthorization();
+} else {
+    try {
+        PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            {
+                title: 'HSL-sovellusproto',
+                message: 'Permission needed to detect beacons',
+            }
+        );
+        PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+            {
+                title: 'HSL-sovellusproto',
+                message: 'Permission needed to detect beacons',
+            }
+        );
+    } catch (err) {
+        console.warn(err);
+    }
 }
 
 /*
 * Current UUID for OnyxBeacon
 * 20CAE8A0-A9CF-11E3-A5E2-0800200C9A66
 */
-const beaconId = '20CAE8A0-A9CF-11E3-A5E2-0800200C9A66';
-const vehicleBeaconId = '20CAE8A0-A9CF-11E3-A5E2-0800200C9A66';
+const beaconId = (Platform.OS === 'ios') ?
+'20CAE8A0-A9CF-11E3-A5E2-0800200C9A66' :
+'20cae8a0-a9cf-11e3-a5e2-0800200c9a66';
+const vehicleBeaconId = (Platform.OS === 'ios') ?
+'20CAE8A0-A9CF-11E3-A5E2-0800200C9A66' :
+'20cae8a0-a9cf-11e3-a5e2-0800200c9a66';
 
-const beaconRegion = {
+const beaconRegion = (Platform.OS === 'ios') ? {
     identifier: 'OnyxBeacon',
     uuid: beaconId,
-};
+} : beaconId;
 
-const vehicleBeaconRegion = {
+const vehicleBeaconRegion = (Platform.OS === 'ios') ? {
     identifier: 'OnyxBeacon',
-    uuid: vehicleBeaconId,
-};
+    uuid: beaconId,
+} : beaconId;
 
 let beaconFound = false;
 let vehicleBeaconsFound = false;
@@ -110,15 +118,14 @@ export const vehicleBeaconError = function vehicleBeaconError(error) {
 * .accuracy - The accuracy of a beacon
 **/
 
+if (Platform.OS === 'android') {
+    Beacons.detectIBeacons();
+    // Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
+    // Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
+}
 const getData = async function getData(dispatch) {
     //Beacons.startMonitoringForRegion(beaconRegion);
     //Beacons.startMonitoringForRegion(vehicleBeaconRegion);
-
-    if (Platform.os === 'android') {
-        Beacons.detectIBeacons();
-        Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
-        Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
-    }
 
     try {
         await Beacons.startRangingBeaconsInRegion(beaconRegion);
@@ -152,9 +159,9 @@ const getData = async function getData(dispatch) {
             return;
         }
         **/
-        const workingBeacons = data.beacons.filter(b => b.accuracy > 0);
+        const workingBeacons = data.beacons.filter(b => b.rssi < 0);
         console.log(`BEACONS: ${data.beacons
-            .map(b => `\n ${b.major}-${b.minor} || strength: ${b.rssi} accuracy: ${b.accuracy}\n`)}`);
+            .map(b => `\n ${b.major}-${b.minor} || strength: ${b.rssi} accuracy: ${b.accuracy} uuid: ${b.uuid} proximity: ${b.proximity}\n`)}`);
 
         if (data.beacons.length > 0) {
             let closestBeaconIndex = 0;
@@ -174,12 +181,10 @@ const getData = async function getData(dispatch) {
                     } else {
                         vehicleBeacons.push(beacon);
                     }
-
-                    // vehicleBeacons.push(beacon);
                 }
             });
 
-            vehicleBeacons.forEach((v, index) => console.log(`vehiclebeacons : ${v.major} RSSI total ${v.rssi}`));
+            vehicleBeacons.forEach(v => console.log(`vehiclebeacons : ${v.major} RSSI total ${v.rssi}`));
 
             const beaconData = workingBeacons[closestBeaconIndex];
 
