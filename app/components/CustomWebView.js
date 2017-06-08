@@ -4,10 +4,11 @@
  */
 
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import Cookie from 'react-native-cookie';
 import Immutable from 'immutable';
-import AndroidWebView from 'react-native-webview-file-upload-android';
+// import AndroidWebView from 'react-native-webview-file-upload-android';
 import {
     ActivityIndicator,
     AppState,
@@ -42,7 +43,6 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     container: {
-        alignItems: 'center',
         backgroundColor: colors.brandColor,
         borderBottomWidth: 1,
         borderColor: colors.brandColor,
@@ -80,16 +80,17 @@ const styles = StyleSheet.create({
     },
     spinner: {
         height: 80,
+        left: parseInt((screenWidth / 2) - 40, 10), // centering spinner...
         position: 'absolute',
+        width: 80,
         zIndex: 2,
     },
     text: {
-        color: 'rgb(255, 255, 255)',
+        color: '#ffffff',
         height: 50,
     },
     webView: {
         marginTop: (Platform.OS === 'ios') ? 63 : 53,
-        width: '100%',
     },
 });
 
@@ -155,9 +156,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     onMessage = (event) => {
         console.log('message: ', event.nativeEvent.data);
     }
-    onLoadEnd = () => {
-        this.setState({loading: false});
-    }
+    onLoadEnd = () => this.setState({loading: false});
+    onError = e => console.log(e);
+
     onNavigationStateChange = (navState) => {
         const {url} = navState;
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
@@ -312,7 +313,6 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     goForward = () => {
         this.webview.goForward();
     }
-
     render() {
         const {
             autoHeightEnabled,
@@ -405,8 +405,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
 
         // we need to use this until this PR is merged https://github.com/facebook/react-native/pull/12807
         // to enable input type file in Webview
+        // TODO: AndroidWebView isn't working with RN 0.44...
         const webView = (uri === SURVEY_URL && Platform.OS === 'android') ?
-        (<AndroidWebView
+        (<WebView
             ref={(c) => { this.webview = c; }}
             domStorageEnabled
             javaScriptEnabled
@@ -429,7 +430,6 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             javaScriptEnabled
             style={[styles.webView, {marginTop: webViewMarginTop}]}
             source={{uri}}
-            scalesPageToFit
             onLoadEnd={this.onLoadEnd}
             onMessage={
                 onMessageEnabled ?
@@ -458,16 +458,19 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
 }
 
 CustomWebView.propTypes = {
-    autoHeightEnabled: React.PropTypes.bool,
-    resetSession: React.PropTypes.func.isRequired,
-    cookies: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    onMessageEnabled: React.PropTypes.bool,
-    removeCookie: React.PropTypes.func.isRequired,
-    scrollEnabled: React.PropTypes.bool,
-    setCookie: React.PropTypes.func.isRequired,
-    setSession: React.PropTypes.func.isRequired,
-    showBackForwardButtons: React.PropTypes.bool,
-    uri: React.PropTypes.string.isRequired,
+    autoHeightEnabled: PropTypes.bool,
+    resetSession: PropTypes.func.isRequired,
+    cookies: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
+    onMessageEnabled: PropTypes.bool,
+    removeCookie: PropTypes.func.isRequired,
+    scrollEnabled: PropTypes.bool,
+    setCookie: PropTypes.func.isRequired,
+    setSession: PropTypes.func.isRequired,
+    showBackForwardButtons: PropTypes.bool,
+    uri: PropTypes.string.isRequired,
 };
 
 CustomWebView.defaultProps = {

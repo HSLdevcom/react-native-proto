@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {ActivityIndicator, Animated, Platform, RefreshControl, StyleSheet, View} from 'react-native';
+import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import {
@@ -74,7 +75,7 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         let newsList = null;
         if (data && data.count() > 0) {
             // TODO: don't use reverse, get the data in desc order (when it's possible)
-            newsList = data.reverse().map(item =>
+            newsList = data.valueSeq().reverse().map(item =>
                 <NewsFeedItem key={item.get('nid')} data={item} showSingle={this.showSingle} />
             );
         }
@@ -98,10 +99,13 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
 }
 
 NewsFeed.propTypes = {
-    fetchNewsData: React.PropTypes.func.isRequired,
-    hideSingleNews: React.PropTypes.func.isRequired,
-    news: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    showSingleNews: React.PropTypes.func.isRequired,
+    fetchNewsData: PropTypes.func.isRequired,
+    hideSingleNews: PropTypes.func.isRequired,
+    news: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
+    showSingleNews: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {

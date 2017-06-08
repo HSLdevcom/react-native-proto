@@ -7,6 +7,7 @@
 
 import React, {Component} from 'react';
 import {Animated, Platform, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import Immutable from 'immutable';
@@ -139,9 +140,15 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
 }
 
 FakeSideMenu.propTypes = {
-    name: React.PropTypes.string.isRequired,
-    routes: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    session: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    name: PropTypes.string.isRequired,
+    routes: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
+    session: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
 };
 
 function mapStateToProps(state) {

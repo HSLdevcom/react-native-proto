@@ -93,9 +93,11 @@ class MobileTicket extends Component { // eslint-disable-line react/prefer-state
                     </Text>
                     <View style={styles.wrapper}>
                         <Icon.Button
-                            name={installAppIcon} style={styles.button}
+                            name={installAppIcon}
+                            style={styles.button}
                             backgroundColor={colors.brandColor}
-                            borderRadius={10} onPress={this.openStore}
+                            borderRadius={10}
+                            onPress={this.openStore}
                         >
                             <Text style={styles.buttonText}>
                                 Asenna sovellus

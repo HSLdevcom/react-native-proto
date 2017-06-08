@@ -123,7 +123,7 @@ class CameraComponent extends Component {
                 <ScrollView contentContainerStyle={styles.scrollView}>
                     {
                     photos.map(p =>
-                        <TouchableHighlight
+                        (<TouchableHighlight
                             key={p.node.image.uri}
                             underlayColor="transparent"
                         >
@@ -134,7 +134,7 @@ class CameraComponent extends Component {
                                 }}
                                 source={{uri: p.node.image.uri}}
                             />
-                        </TouchableHighlight>
+                        </TouchableHighlight>)
                     )
                   }
                     <Text
@@ -155,7 +155,8 @@ class CameraComponent extends Component {
                     ref={(cam) => {
                         this.camera = cam;
                     }}
-                    style={styles.preview} aspect={Camera.constants.Aspect.fill}
+                    style={styles.preview}
+                    aspect={Camera.constants.Aspect.fill}
                     onBarCodeRead={this.readBarCode}
                 >
                     {captureButton}
