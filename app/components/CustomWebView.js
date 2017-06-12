@@ -25,12 +25,14 @@ import {
     removeCookie,
     setCookie,
 } from '../actions/cookies';
+import {removeCityBikeData} from '../actions/cityBike';
 import {
     setSession,
     removeSession,
 } from '../actions/session';
 import colors from '../colors';
 import {/*REITTIOPAS_URL,*/REITTIOPAS_MOCK_URL} from './Main';
+import {CITYBIKE_URL} from './CityBikes';
 import {HSL_LOGIN_URL} from './Login';
 import {SURVEY_URL} from './WebSurvey';
 
@@ -250,13 +252,14 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             if (!result.sessionCookieSet && cookies.get('cookie')) {
                 this.props.removeCookie();
                 this.props.resetSession();
+                this.props.removeCityBikeData();
             } else if (
                 // TODO: if you don't do SSO-login directly via login.hsl.fi (Kirjaudu sisään-view)
                 // there isn't 'HSLSAMLSessionID'-cookie... and this logic doesn't work
                 // use case can be for example hsl.fi/citybike -> login -> redirect
                 // BUT that doesn't happen every time...
                 result.sessionCookieSet &&
-                result.cookie.HSLSAMLSessionID &&
+                // result.cookie.HSLSAMLSessionID && // do not check HSLSAMLSessionID at this time
                 (
                     !cookies.get('cookie') ||
                     !cookies.get('cookie')[HSLSAMLSessionID]
@@ -265,7 +268,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 this.props.setCookie(result.cookie);
                 this.props.setSession({
                     loggedIn: true,
-                    [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID,
+                    [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID || 'loggedInViaCitybikes',
                 });
             }
         })
@@ -318,6 +321,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             autoHeightEnabled,
             onMessageEnabled,
             scrollEnabled,
+            session,
             showBackForwardButtons,
         } = this.props;
         const {
@@ -362,22 +366,33 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             //     postMessage('height;' + height);
             // })();
         ` : `
-            // setTimeout(function() {
-            //     var e = document.createElement('h1');
-            //     e.innerText = navigator.userAgent;
-            //     document.getElementsByTagName('body')[0].append(e);
-            // }, 1000);
         `;
         if (position.lat && position.long) {
             // If we have lat and long use mock
-            inlineJS = `
+            inlineJS += `
                 setTimeout(function () {
                     if (window.mock) {
                         window.mock.geolocation.setCurrentPosition(${position.lat}, ${position.long});
                     }
                 }, 200);
             `;
+        } else if (uri === CITYBIKE_URL && session.get('data') && session.get('data').loggedIn) {
+            inlineJS += `
+                // Try to click the login-button in hsl.fi/citybike to enable "automatic login"
+                window.onload = function() {
+                    const loginContainer = document.getElementsByClassName('saml-login-link');
+                    if (
+                        loginContainer.length &&
+                        loginContainer[0].children.length &&
+                        loginContainer[0].children[0].href &&
+                        loginContainer[0].children[0].href.includes('login')
+                    ) {
+                        document.getElementsByClassName('saml-login-link')[0].children[0].click();
+                    }
+                }
+            `;
         }
+
         const backButton = showBackForwardButtons ?
             (
                 <TouchableOpacity
@@ -465,8 +480,13 @@ CustomWebView.propTypes = {
         PropTypes.instanceOf(Immutable.Map)],
     ).isRequired,
     onMessageEnabled: PropTypes.bool,
+    removeCityBikeData: PropTypes.func.isRequired,
     removeCookie: PropTypes.func.isRequired,
     scrollEnabled: PropTypes.bool,
+    session: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
     setCookie: PropTypes.func.isRequired,
     setSession: PropTypes.func.isRequired,
     showBackForwardButtons: PropTypes.bool,
@@ -483,12 +503,14 @@ CustomWebView.defaultProps = {
 function mapStateToProps(state) {
     return {
         cookies: state.cookies,
+        session: state.session,
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
         removeCookie: () => dispatch(removeCookie()),
+        removeCityBikeData: () => dispatch(removeCityBikeData()),
         resetSession: () => dispatch(removeSession()),
         setCookie: cookie => dispatch(setCookie(cookie)),
         setSession: session => dispatch(setSession(session)),
