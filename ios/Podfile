@@ -6,6 +6,7 @@ target 'HSLProto' do
   # use_frameworks!
 
   # Pods for HSLProto
+  pod 'Firebase/Core'
   pod 'Firebase/Messaging'
 
   target 'HSLProto-tvOSTests' do
