@@ -18,6 +18,7 @@ import FakeSideMenu from './app/components/FakeSideMenu';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
 // import Test from './app/components/Test';
+import CityBikesData from './app/components/CityBikesData';
 
 console.log('Starting');
 console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
@@ -129,6 +130,9 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                     <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
                         <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                     </Scene>
+                    <Scene iconName="user" key="sessionTab" title="CityBikesData" icon={TabIcon}>
+                        <Scene key="session" component={CityBikesData} title="CityBikesData" />
+                    </Scene>
                     <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                         <Scene hideNavBar key="camera" title="Kamera" />
                         <Scene key="microphone" title="Äänitys" />
@@ -149,6 +153,9 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                     </Scene>
                     <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
                         <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                    </Scene>
+                    <Scene iconName="user" key="sessionTab" title="CityBikesData" icon={TabIcon}>
+                        <Scene key="session" component={CityBikesData} title="CityBikesData" />
                     </Scene>
                     <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                         <Scene hideNavBar key="camera" title="Kamera" />
