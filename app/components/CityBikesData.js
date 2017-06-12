@@ -54,8 +54,7 @@ class CityBikesData extends Component {
             return false;
         })
         .then((rentalsData) => {
-            console.log(rentalsData);
-            if (rentalsData.result) {
+            if (rentalsData && rentalsData.result) {
                 this.props.setCityBikesRentalData(rentalsData.result);
             }
         })
