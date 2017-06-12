@@ -15,7 +15,7 @@ export const REQUESTING_DATA = 'REQUESTING_DATA';
 const FOREGROUND_SCAN_PERIOD = 1000;
 const BACKGROUND_SCAN_PERIOD = 1000;
 
-const ATTEMPT_LIMIT = 8;
+const ATTEMPT_LIMIT = 30;
 
 if (Platform.OS === 'ios') {
     Beacons.requestAlwaysAuthorization();
@@ -120,8 +120,8 @@ export const vehicleBeaconError = function vehicleBeaconError(error) {
 
 if (Platform.OS === 'android') {
     Beacons.detectIBeacons();
-    // Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
-    // Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
+    Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
+    Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
 }
 const getData = async function getData(dispatch) {
     //Beacons.startMonitoringForRegion(beaconRegion);
@@ -141,10 +141,9 @@ const getData = async function getData(dispatch) {
     }
 
     DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
-        /**
         if (attempts === ATTEMPT_LIMIT) {
-            Beacons.stopRangingBeaconsInRegion(beaconRegion);
-            Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
+            // Beacons.stopRangingBeaconsInRegion(beaconRegion);
+            // Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
             if (!beaconFound) {
                 dispatch(beaconError(
                 `Beacon not found within the attempt limit (${ATTEMPT_LIMIT})`
@@ -158,12 +157,13 @@ const getData = async function getData(dispatch) {
             tryingToFindBeacons = false;
             return;
         }
-        **/
-        const workingBeacons = data.beacons.filter(b => b.rssi < 0);
+
+        const workingBeacons = data.beacons.filter(b =>
+        (b.rssi < 0 && (b.uuid === beaconId || b.uuid === vehicleBeaconId)));
         console.log(`BEACONS: ${data.beacons
             .map(b => `\n ${b.major}-${b.minor} || strength: ${b.rssi} accuracy: ${b.accuracy} uuid: ${b.uuid} proximity: ${b.proximity}\n`)}`);
 
-        if (data.beacons.length > 0) {
+        if (workingBeacons.length > 0) {
             let closestBeaconIndex = 0;
             let strongestBeaconRSSI = -101;
 
@@ -184,8 +184,6 @@ const getData = async function getData(dispatch) {
                 }
             });
 
-            vehicleBeacons.forEach(v => console.log(`vehiclebeacons : ${v.major} RSSI total ${v.rssi}`));
-
             const beaconData = workingBeacons[closestBeaconIndex];
 
             if (beaconData && beaconData.uuid === beaconId) {
@@ -203,8 +201,8 @@ const getData = async function getData(dispatch) {
             //No beacons found, empty the store
             dispatch(setBeaconData({}));
             dispatch(setBusBeaconData([]));
+            // attempts += 1;
         }
-        //attempts += 1;
         //if (beaconFound && vehicleBeaconsFound) tryingToFindBeacons = false;
     });
 };
@@ -226,20 +224,3 @@ export const getBeaconData = function getBeaconData() {
     return {type: REQUESTING_DATA};
 };
 
-/*
-const enter = DeviceEventEmitter.addListener(
-    'regionDidEnter',
-    (data) => {
-        console.log('monitoring - regionDidEnter data: ', data);
-        getData();
-    }
-);
-
-const exit = DeviceEventEmitter.addListener(
-    'regionDidExit',
-    (data) => {
-        console.log('monitoring - regionDidExit data: ', data);
-        getData();
-    }
-);
-*/

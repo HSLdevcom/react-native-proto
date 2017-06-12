@@ -33,6 +33,8 @@ const resolveLine = (major) => {
         return '102T';
     case 235:
         return '103';
+    case 1:
+        return '59';
     default:
         return '';
     }
