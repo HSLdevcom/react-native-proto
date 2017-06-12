@@ -4,7 +4,7 @@
  */
 
 import React, {Component} from 'react';
-import {RefreshControl, ScrollView, Text, View} from 'react-native';
+import {Platform, RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import Immutable from 'immutable';
@@ -14,6 +14,20 @@ import {
     setCityBikesRentalData,
     setCityBikesUserData,
 } from '../actions/cityBike';
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginBottom: 55,
+        marginTop: (Platform.OS === 'ios') ? 63 : 53,
+    },
+    childContainer: {
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        marginBottom: 50,
+        padding: 15,
+    },
+});
 
 class CityBikesData extends Component {
     componentDidMount() {
@@ -70,8 +84,8 @@ class CityBikesData extends Component {
         );
         return (
             <ScrollView
-                style={{flex: 1}}
-                contentContainerStyle={{alignItems: 'center', flex: 1, justifyContent: 'center'}}
+                style={styles.container}
+                contentContainerStyle={styles.childContainer}
                 refreshControl={refreshControl}
             >
                 <Text style={{fontSize: 20}}>Käyttäjätunnus: {text}</Text>
