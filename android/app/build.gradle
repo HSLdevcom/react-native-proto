@@ -137,6 +137,8 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-fcm')
+    compile 'com.google.firebase:firebase-core:10.0.1'
     compile project(':react-native-cookie')
     compile project(':react-native-vector-icons')
     compile project(':react-native-device-info')
@@ -151,3 +153,4 @@ task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
 }
+apply plugin: 'com.google.gms.google-services'
