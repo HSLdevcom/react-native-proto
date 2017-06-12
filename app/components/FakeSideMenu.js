@@ -6,12 +6,12 @@
  */
 
 import React, {Component} from 'react';
-import {Animated, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {Animated, Image, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import Immutable from 'immutable';
-import Icon from 'react-native-vector-icons/Entypo';
-import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+// import Icon from 'react-native-vector-icons/Entypo';
+// import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CityBikes from './CityBikes';
 import Login from './Login';
 import colors from '../colors';
@@ -90,11 +90,17 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                 }]}
             >
                 <TouchableOpacity style={styles.wrapper} onPress={this.showCityBikes}>
-                    <MaterialIcon style={styles.icon} size={26} name="bike" />
+                    <Image
+                        style={{width: 30, height: 20, marginRight: 10}}
+                        source={require('../img/icon-citybike.png')} //eslint-disable-line global-require
+                    />
                     <Text style={styles.buttonText}>Kaupunkipyörät</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.wrapper} onPress={this.showLogin}>
-                    <Icon style={styles.icon} size={26} name="login" />
+                    <Image
+                        style={{width: 18, height: 22, marginRight: 10}}
+                        source={require('../img/icon-login.png')} //eslint-disable-line global-require
+                    />
                     <Text style={styles.buttonText}>{loginViewTitle}</Text>
                 </TouchableOpacity>
             </Animated.View>
