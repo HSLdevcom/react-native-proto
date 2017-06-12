@@ -7,8 +7,9 @@ import React from 'react';
 import CustomWebView from './CustomWebView';
 
 export const HSL_LOGIN_URL = 'https://login.hsl.fi/';
-function Login() {
-    return <CustomWebView uri={HSL_LOGIN_URL} />;
+export const HSL_LOGOUT_URL = 'https://login.hsl.fi/user/slo';
+function Login({loggedIn}) {
+    return <CustomWebView uri={loggedIn ? HSL_LOGOUT_URL : HSL_LOGIN_URL} />;
 }
 
 Login.propTypes = {

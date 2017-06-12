@@ -29,6 +29,7 @@ import {
 } from '../actions/session';
 import colors from '../colors';
 import {/*REITTIOPAS_URL,*/REITTIOPAS_MOCK_URL} from './Main';
+import {CITYBIKE_URL} from './CityBikes';
 import {HSL_LOGIN_URL} from './Login';
 
 const screenHeight = Dimensions.get('window').height;
@@ -249,7 +250,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 // use case can be for example hsl.fi/citybike -> login -> redirect
                 // BUT that doesn't happen every time...
                 result.sessionCookieSet &&
-                result.cookie.HSLSAMLSessionID &&
+                 // result.cookie.HSLSAMLSessionID && // do not check HSLSAMLSessionID at this time
                 (
                     !cookies.get('cookie') ||
                     !cookies.get('cookie')[HSLSAMLSessionID]
@@ -258,7 +259,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 this.props.setCookie(result.cookie);
                 this.props.setSession({
                     loggedIn: true,
-                    [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID,
+                    [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID || 'loggedInViaCitybikes',
                 });
             }
         })
@@ -312,6 +313,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             autoHeightEnabled,
             onMessageEnabled,
             scrollEnabled,
+            session,
             showBackForwardButtons,
         } = this.props;
         const {
@@ -365,6 +367,21 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                         window.mock.geolocation.setCurrentPosition(${position.lat}, ${position.long});
                     }
                 }, 200);
+            `;
+        } else if (uri === CITYBIKE_URL && session.get('data') && session.get('data').loggedIn) {
+            inlineJS += `
+                // Try to click the login-button in hsl.fi/citybike to enable "automatic login"
+                window.onload = function() {
+                    const loginContainer = document.getElementsByClassName('saml-login-link');
+                    if (
+                        loginContainer.length &&
+                        loginContainer[0].children.length &&
+                        loginContainer[0].children[0].href &&
+                        loginContainer[0].children[0].href.includes('login')
+                    ) {
+                        document.getElementsByClassName('saml-login-link')[0].children[0].click();
+                    }
+                }
             `;
         }
         const backButton = showBackForwardButtons ?
@@ -428,10 +445,17 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
 CustomWebView.propTypes = {
     autoHeightEnabled: React.PropTypes.bool,
     resetSession: React.PropTypes.func.isRequired,
-    cookies: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    cookies: React.PropTypes.oneOfType([
+        React.PropTypes.instanceOf(Object),
+        React.PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
     onMessageEnabled: React.PropTypes.bool,
     removeCookie: React.PropTypes.func.isRequired,
     scrollEnabled: React.PropTypes.bool,
+    session: React.PropTypes.oneOfType([
+        React.PropTypes.instanceOf(Object),
+        React.PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
     setCookie: React.PropTypes.func.isRequired,
     setSession: React.PropTypes.func.isRequired,
     showBackForwardButtons: React.PropTypes.bool,
@@ -448,6 +472,7 @@ CustomWebView.defaultProps = {
 function mapStateToProps(state) {
     return {
         cookies: state.cookies,
+        session: state.session,
     };
 }
 

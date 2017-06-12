@@ -74,7 +74,7 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         let newsList = null;
         if (data && data.count() > 0) {
             // TODO: don't use reverse, get the data in desc order (when it's possible)
-            newsList = data.reverse().map(item =>
+            newsList = data.valueSeq().reverse().map(item =>
                 <NewsFeedItem key={item.get('nid')} data={item} showSingle={this.showSingle} />
             );
         }
@@ -100,7 +100,10 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
 NewsFeed.propTypes = {
     fetchNewsData: React.PropTypes.func.isRequired,
     hideSingleNews: React.PropTypes.func.isRequired,
-    news: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    news: React.PropTypes.oneOfType([
+        React.PropTypes.instanceOf(Object),
+        React.PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
     showSingleNews: React.PropTypes.func.isRequired,
 };
 
