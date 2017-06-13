@@ -28,7 +28,7 @@ import {
     removeSession,
 } from '../actions/session';
 import colors from '../colors';
-import {/*REITTIOPAS_URL,*/REITTIOPAS_MOCK_URL} from './Main';
+import {REITTIOPAS_URL, REITTIOPAS_MOCK_URL} from './Main';
 import {CITYBIKE_URL} from './CityBikes';
 import {HSL_LOGIN_URL} from './Login';
 
@@ -112,32 +112,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         // TODO: remove process.env check when https://github.com/facebook/react-native/pull/13442 is in RN
         // Get current position and use it in reittiopas
         if (uri.startsWith('https://reittiopas') && process.env.NODE_ENV !== 'test') {
-            navigator.geolocation.getCurrentPosition((position) => {
-                if (position.coords) {
-                    this.setState({
-                        position: {
-                            lat: position.coords.latitude,
-                            long: position.coords.longitude,
-                        },
-                    });
-                }
-            }, (error) => {
-                console.log('GeoLocation error: ', error);
-                // Location request timed out
-                if (error.code === 3 && uri === REITTIOPAS_MOCK_URL) {
-                    // TODO: figure out if this is better solution than showing
-                    // the default ?mock-position if we can't get user position
-                    // via navigator.geolocation
-                    // this.setState({
-                    //     overrideUri: REITTIOPAS_URL,
-                    // });
-                }
-            }, {
-                enableHighAccuracy: Platform.OS === 'ios', // true seems to cause timeout in Android...
-                timeout: 10000,
-                maximumAge: 1000,
-            }
-            );
+            this.getLocation();
         } else if (uri === HSL_LOGIN_URL) {
             // If we come to login-view let's just check are we logged in or not
             this.maybeLoginOrLogout();
@@ -217,6 +192,33 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         });
     }
 
+    getLocation = () => {
+        const {uri} = this.props;
+        navigator.geolocation.getCurrentPosition((position) => {
+            if (position.coords) {
+                this.setState({
+                    position: {
+                        lat: position.coords.latitude + 1,
+                        long: position.coords.longitude + 0.5,
+                    },
+                });
+            }
+        }, (error) => {
+            console.log('GeoLocation error: ', error);
+            // Location request timed out
+            if (error.code === 3 && uri === REITTIOPAS_MOCK_URL) {
+                // TODO: figure out if this is better solution than showing
+                // the default ?mock-position if we can't get user position
+                // via navigator.geolocation
+                this.setState({
+                    overrideUri: REITTIOPAS_URL,
+                });
+            }
+        }, {enableHighAccuracy: Platform.OS === 'ios', timeout: 20000, maximumAge: 0}
+        // enableHighAccuracy seems to cause timeout in Android...
+        );
+    }
+
     handleAppStateChange = (nextAppState) => {
         /* If app goes background reload webview to stop possible YouTube-video playback
         * in case we are in hsl.fi and OS is android
@@ -263,7 +265,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 });
             }
         })
-        .catch(err => console.error(err));
+        .catch(err => console.log(err));
     }
     checkSessionCookie = (cookie) => {
         let sessionCookieSet = false;
@@ -359,14 +361,40 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             // })();
         ` : `
         `;
+        /*
+        * Android doesn't seem to run inlineJS code in WebView
+        * if it's injected after initial render
+        * So just wait that we get location and render WebView after that
+        * (still the inlineJS isn't working every time...)
+        */
+        if (uri === REITTIOPAS_MOCK_URL && Platform.OS === 'android' && !position.lat) {
+            return (
+                <View
+                    style={[styles.container, {height: containerHeight}]}
+                >
+                    <ActivityIndicator
+                        animating={loading}
+                        size="large"
+                        style={[styles.centering, styles.spinner]}
+                    />
+                </View>
+            );
+        }
         if (position.lat && position.long) {
-            // If we have lat and long use mock
-            inlineJS = `
-                setTimeout(function () {
+            // If we have lat and long use mock.geolocation.setCurrentPosition
+            inlineJS += `
+                setTimeout(() => {
                     if (window.mock) {
                         window.mock.geolocation.setCurrentPosition(${position.lat}, ${position.long});
+                        if (navigator && navigator.geolocation) {
+                            navigator.geolocation.watchPosition((position) => {
+                                window.mock.geolocation.setCurrentPosition(position.coords.latitude, position.coords.longitude);
+                            },
+                                error => console.log(error)
+                            , {enableHighAccuracy: true, timeout: 20000, maximumAge: 10000, distanceFilter: 10});
+                        }
                     }
-                }, 200);
+                }, 300);
             `;
         } else if (uri === CITYBIKE_URL && session.get('data') && session.get('data').loggedIn) {
             inlineJS += `
