@@ -61,6 +61,10 @@ coverage
 config.js
 
 
-#VSCode
+# VSCode
 .vscode
 jsconfig.json
+
+# Firebase
+google-services.json
+GoogleService-Info.plist
