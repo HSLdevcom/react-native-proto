@@ -47,6 +47,8 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		98545137F0BF49929131C2BC /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DED7EF02CD54445D9383534E /* Foundation.ttf */; };
 		9D08FC0F99E74C798546F147 /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EE78872D0E02493CB848F93C /* Entypo.ttf */; };
+		A86E63E41EEFE24700ED8FD1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A86E63E31EEFE24700ED8FD1 /* GoogleService-Info.plist */; };
+		A86E63E51EEFE24700ED8FD1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A86E63E31EEFE24700ED8FD1 /* GoogleService-Info.plist */; };
 		BB9DEE98CD1442B389EE6901 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BE68F7BCBD5A45AD86787650 /* Zocial.ttf */; };
 		CC5A0F67601A441183601252 /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C78A1DEDA5C64E8A8E4F76A1 /* Ionicons.ttf */; };
 		DF05E62C14964C42AEAF4109 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EAC9B65B08BC49A7A247194F /* Octicons.ttf */; };
@@ -323,6 +325,7 @@
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		9A5B0F8D1A4A4991836EDA71 /* libRNFIRMessaging.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFIRMessaging.a; sourceTree = "<group>"; };
 		A1C669B05DD2228428B7B61F /* Pods-HSLProto-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HSLProto-tvOSTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-HSLProto-tvOSTests/Pods-HSLProto-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		A86E63E31EEFE24700ED8FD1 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A8C09F461EEE9D1600678A1B /* HSLProto.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = HSLProto.entitlements; path = HSLProto/HSLProto.entitlements; sourceTree = "<group>"; };
 		BB2696EF330243678E552F94 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		BE68F7BCBD5A45AD86787650 /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
@@ -487,6 +490,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				A86E63E31EEFE24700ED8FD1 /* GoogleService-Info.plist */,
 			);
 			name = HSLProto;
 			sourceTree = "<group>";
@@ -1079,6 +1083,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A86E63E51EEFE24700ED8FD1 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1099,6 +1104,7 @@
 				629B5BD21EA60C4B005FF80E /* Icon-App-60x60.png in Resources */,
 				E5930E47AD9541C6954090E7 /* SimpleLineIcons.ttf in Resources */,
 				BB9DEE98CD1442B389EE6901 /* Zocial.ttf in Resources */,
+				A86E63E41EEFE24700ED8FD1 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

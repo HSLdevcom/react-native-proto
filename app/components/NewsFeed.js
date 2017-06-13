@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {ActivityIndicator, Animated, Platform, RefreshControl, StyleSheet, View} from 'react-native';
+import FCM, {FCMEvent, RemoteNotificationResult, WillPresentNotificationResult, NotificationType} from 'react-native-fcm';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import {
@@ -35,6 +36,15 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         refreshing: false,
     };
     componentDidMount() {
+        FCM.presentLocalNotification({
+            id: '345gfdgsrstrt534', // (optional for instant notification)
+            title: 'Newsfeed Notification',  // as FCM payload
+            body: 'Test Local notification', // as FCM payload (required)
+            sound: 'default', // as FCM payload
+            priority: 'high', // as FCM payload
+            icon: 'ic_launcher', // as FCM payload, you can relace this with custom icon you put in mipmap
+            show_in_foreground: true, // notification when app is in foreground (local & remote)
+        });
         const {news} = this.props;
         const data = news.get('data');
         if (!data) {

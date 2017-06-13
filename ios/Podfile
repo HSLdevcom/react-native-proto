@@ -8,6 +8,7 @@ target 'HSLProto' do
   # Pods for HSLProto
   pod 'Firebase/Core'
   pod 'Firebase/Messaging'
+  pod 'GoogleToolboxForMac', '~> 2.1'
 
   target 'HSLProto-tvOSTests' do
     inherit! :search_paths
