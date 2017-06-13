@@ -91,7 +91,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
             >
                 <TouchableOpacity style={styles.wrapper} onPress={this.showCityBikes}>
                     <Image
-                        style={{width: 30, height: 20, marginRight: 10}}
+                        style={{width: 28, height: 19, marginRight: 10}}
                         source={require('../img/icon-citybike.png')} //eslint-disable-line global-require
                     />
                     <Text style={styles.buttonText}>Kaupunkipyörät</Text>
