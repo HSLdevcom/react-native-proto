@@ -23,7 +23,7 @@ const getNewsData = q =>
         return response.json();
     })
     .catch((e) => {
-        console.error(e);
+        console.log(e);
         return new Error('Fetch failed');
     });
 
