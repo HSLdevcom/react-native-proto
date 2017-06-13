@@ -137,7 +137,13 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-webview-file-upload-android')
     compile project(':react-native-beacons-manager')
+    compile project(':nfc-ndef-react-native')
+    compile project(':react-native-sound')
+    compile project(':react-native-audio')
+    compile project(':react-native-camera')
+    compile project(':react-native-nfc')
     compile project(':react-native-cookie')
     compile project(':react-native-vector-icons')
     compile project(':react-native-device-info')

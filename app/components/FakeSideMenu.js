@@ -6,14 +6,19 @@
  */
 
 import React, {Component} from 'react';
-import {Animated, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {Animated, Platform, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import Immutable from 'immutable';
 import Icon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CityBikes from './CityBikes';
+import Camera from './Camera';
+import Microphone from './Microphone';
+import NFCTest from './NFCTest';
 import Login from './Login';
+import WebSurvey from './WebSurvey';
 import colors from '../colors';
 
 const styles = StyleSheet.create({
@@ -62,6 +67,10 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
     }
     showCityBikes = () => Actions.cityBike();
     showLogin = () => Actions.login({title: this.getLoginTitle()});
+    showCamera = () => Actions.camera();
+    showMicrophone = () => Actions.microphone();
+    showNFC = () => Actions.nfc();
+    showForm = () => Actions.form();
     render() {
         const {name, session} = this.props;
         const loginViewTitle = this.getLoginTitle();
@@ -76,7 +85,22 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
             return (
                 <Login loggedIn={!!session.get('data')} />
             );
+        } else if (name === 'camera') {
+            return <Camera />;
+        } else if (name === 'microphone') {
+            return <Microphone />;
+        } else if (name === 'nfc') {
+            return <NFCTest />;
+        } else if (name === 'form') {
+            return <WebSurvey />;
         }
+        const nfcElement = Platform.OS === 'android' ?
+            (
+                <TouchableOpacity style={styles.wrapper} onPress={this.showNFC}>
+                    <MaterialIcon style={styles.icon} size={26} name="nfc" />
+                    <Text style={styles.buttonText}>NFC</Text>
+                </TouchableOpacity>
+            ) : null;
         // Add some "menu like animation" so this maybe feels more like real menu
         const fadeAnim = new Animated.Value(0);
         Animated.timing(fadeAnim, {toValue: 1, duration: 500}).start();
@@ -93,6 +117,19 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                     <MaterialIcon style={styles.icon} size={26} name="bike" />
                     <Text style={styles.buttonText}>Kaupunkipyörät</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.wrapper} onPress={this.showCamera}>
+                    <MaterialIcon style={styles.icon} size={26} name="camera" />
+                    <Text style={styles.buttonText}>Kamera</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.wrapper} onPress={this.showMicrophone}>
+                    <MaterialIcon style={styles.icon} size={26} name="microphone" />
+                    <Text style={styles.buttonText}>Äänitys</Text>
+                </TouchableOpacity>
+                {nfcElement}
+                <TouchableOpacity style={styles.wrapper} onPress={this.showForm}>
+                    <MaterialIcon style={styles.icon} size={26} name="file-document" />
+                    <Text style={styles.buttonText}>Pikapalaute</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.wrapper} onPress={this.showLogin}>
                     <Icon style={styles.icon} size={26} name="login" />
                     <Text style={styles.buttonText}>{loginViewTitle}</Text>
@@ -103,9 +140,15 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
 }
 
 FakeSideMenu.propTypes = {
-    name: React.PropTypes.string.isRequired,
-    routes: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    session: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    name: PropTypes.string.isRequired,
+    routes: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
+    session: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
 };
 
 function mapStateToProps(state) {

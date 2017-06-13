@@ -4,7 +4,7 @@
  * @flow
  */
 import React, {Component} from 'react';
-import {ActivityIndicator, AppRegistry, AsyncStorage, StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, AppRegistry, AsyncStorage, Platform, StyleSheet, Text, View} from 'react-native';
 import {persistStore} from 'redux-persist';
 import {connect, Provider} from 'react-redux';
 import {Router, Scene} from 'react-native-router-flux';
@@ -19,6 +19,7 @@ import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
 import Beacon from './app/components/Beacon';
 // import Test from './app/components/Test';
+import CityBikesData from './app/components/CityBikesData';
 
 console.log('Starting');
 console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
@@ -118,27 +119,64 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                 </View>
             );
         }
+        const scenes = Platform.OS === 'android' ?
+            (
+                <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
+                    <Scene iconName="address" key="homeTab" title="Reittiopas" icon={TabIcon}>
+                        <Scene key="home" component={Main} title="Reittiopas" />
+                    </Scene>
+                    <Scene iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
+                        <Scene key="news" component={News} title="Ajankohtaista" />
+                    </Scene>
+                    <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
+                        <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                    </Scene>
+                    <Scene iconName="user" key="sessionTab" title="CityBikesData" icon={TabIcon}>
+                        <Scene key="session" component={CityBikesData} title="CityBikesData" />
+                    </Scene>
+                    <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
+                        <Scene hideNavBar key="camera" title="Kamera" />
+                        <Scene key="microphone" title="Äänitys" />
+                        <Scene key="nfc" title="NFC" />
+                        <Scene key="form" title="Pikapalaute" />
+                        <Scene key="cityBike" title="Kaupunkipyörät" />
+                        <Scene key="login" title="Kirjaudu sisään" />
+                    </Scene>
+                    <Scene iconName="code" key="beaconTab" title="Beacon" icon={TabIcon}>
+                        <Scene key="beacons" component={Beacon} title="Beacon" />
+                    </Scene>
+                </Scene>
+            ) :
+            (
+                <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
+                    <Scene iconName="address" key="homeTab" title="Reittiopas" icon={TabIcon}>
+                        <Scene key="home" component={Main} title="Reittiopas" />
+                    </Scene>
+                    <Scene iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
+                        <Scene key="news" component={News} title="Ajankohtaista" />
+                    </Scene>
+                    <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
+                        <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                    </Scene>
+                    <Scene iconName="user" key="sessionTab" title="CityBikesData" icon={TabIcon}>
+                        <Scene key="session" component={CityBikesData} title="CityBikesData" />
+                    </Scene>
+                    <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
+                        <Scene hideNavBar key="camera" title="Kamera" />
+                        <Scene key="microphone" title="Äänitys" />
+                        <Scene key="form" title="Pikapalaute" />
+                        <Scene key="cityBike" title="Kaupunkipyörät" />
+                        <Scene key="login" title="Kirjaudu sisään" />
+                    </Scene>
+                    <Scene iconName="code" key="beaconTab" title="Beacon" icon={TabIcon}>
+                        <Scene key="beacons" component={Beacon} title="Beacon" />
+                    </Scene>
+                </Scene>
+            );
         return (
             <Provider store={store}>
                 <RouterWithRedux>
-                    <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
-                        <Scene iconName="address" key="homeTab" title="Reittiopas" icon={TabIcon}>
-                            <Scene key="home" component={Main} title="Reittiopas" />
-                        </Scene>
-                        <Scene iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
-                            <Scene key="news" component={News} title="Ajankohtaista" />
-                        </Scene>
-                        <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
-                            <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
-                        </Scene>
-                        <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
-                            <Scene key="cityBike" title="Kaupunkipyörät" />
-                            <Scene key="login" title="Kirjaudu sisään" />
-                        </Scene>
-                        <Scene iconName="code" key="beaconTab" title="Beacon" icon={TabIcon}>
-                            <Scene key="beacons" component={Beacon} title="Beacon" />
-                        </Scene>
-                    </Scene>
+                    {scenes}
                 </RouterWithRedux>
             </Provider>
         );

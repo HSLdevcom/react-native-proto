@@ -6,8 +6,10 @@
 import React from 'react';
 import CustomWebView from './CustomWebView';
 
+export const CITYBIKE_URL = 'https://www.hsl.fi/citybike';
+
 function CityBikes() {
-    return <CustomWebView uri="https://www.hsl.fi/citybike" />;
+    return <CustomWebView uri={CITYBIKE_URL} />;
 }
 
 export default CityBikes;

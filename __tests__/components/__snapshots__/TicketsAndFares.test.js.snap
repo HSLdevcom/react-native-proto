@@ -5,7 +5,6 @@ exports[`renders correctly 1`] = `
   style={
     Array [
       Object {
-        "alignItems": "center",
         "backgroundColor": "rgb(0, 122, 201)",
         "borderBottomWidth": 1,
         "borderColor": "rgb(0, 122, 201)",
@@ -33,7 +32,9 @@ exports[`renders correctly 1`] = `
         },
         Object {
           "height": 80,
+          "left": 335,
           "position": "absolute",
+          "width": 80,
           "zIndex": 2,
         },
         null,
@@ -84,7 +85,7 @@ exports[`renders correctly 1`] = `
       onLoadingStart={[Function]}
       onMessage={[Function]}
       onShouldStartLoadWithRequest={undefined}
-      scalesPageToFit={true}
+      scalesPageToFit={undefined}
       scrollEnabled={false}
       source={
         Object {
@@ -102,7 +103,6 @@ exports[`renders correctly 1`] = `
           Array [
             Object {
               "marginTop": 63,
-              "width": "100%",
             },
             Object {
               "marginTop": 0,

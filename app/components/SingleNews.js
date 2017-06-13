@@ -5,6 +5,7 @@
 
 import React, {Component} from 'react';
 import {Image, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View, WebView} from 'react-native';
+import PropTypes from 'prop-types';
 import Immutable from 'immutable';
 import colors from '../colors';
 import {removeMetaFromNewsHtml} from '../utils/helpers';
@@ -25,11 +26,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     container: {
-        alignItems: 'center',
         backgroundColor: 'white',
         flex: 1,
         justifyContent: 'center',
         paddingTop: (Platform.OS === 'ios') ? 30 : 20,
+    },
+    wrapper: {
+        alignItems: 'center',
     },
     image: {
         height: 125,
@@ -88,11 +91,13 @@ class SingleNews extends Component { // eslint-disable-line react/prefer-statele
                 onRequestClose={this.closeModal}
             >
                 <View style={[styles.container]}>
-                    <TouchableOpacity style={styles.button} onPress={hide}>
-                        <Text style={styles.buttonText}>Sulje</Text>
-                    </TouchableOpacity>
-                    <Text style={[styles.text, styles.title]}>{singleNews.get('title')}</Text>
-                    {img}
+                    <View style={[styles.wrapper]}>
+                        <TouchableOpacity style={styles.button} onPress={hide}>
+                            <Text style={styles.buttonText}>Sulje</Text>
+                        </TouchableOpacity>
+                        <Text style={[styles.text, styles.title]}>{singleNews.get('title')}</Text>
+                        {img}
+                    </View>
                     <WebView
                         style={styles.webView}
                         source={{html: removeMetaFromNewsHtml(singleNews.get('body').get('value'))}}
@@ -106,8 +111,11 @@ class SingleNews extends Component { // eslint-disable-line react/prefer-statele
 }
 
 SingleNews.propTypes = {
-    hide: React.PropTypes.func.isRequired,
-    singleNews: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    hide: PropTypes.func.isRequired,
+    singleNews: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
 };
 
 export default SingleNews;

@@ -4,6 +4,7 @@
  */
 
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import Cookie from 'react-native-cookie';
 import Immutable from 'immutable';
@@ -23,13 +24,16 @@ import {
     removeCookie,
     setCookie,
 } from '../actions/cookies';
+import {removeCityBikeData} from '../actions/cityBike';
 import {
     setSession,
     removeSession,
 } from '../actions/session';
 import colors from '../colors';
 import {/*REITTIOPAS_URL,*/REITTIOPAS_MOCK_URL} from './Main';
+import {CITYBIKE_URL} from './CityBikes';
 import {HSL_LOGIN_URL} from './Login';
+import {SURVEY_URL} from './WebSurvey';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -40,7 +44,6 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     container: {
-        alignItems: 'center',
         backgroundColor: colors.brandColor,
         borderBottomWidth: 1,
         borderColor: colors.brandColor,
@@ -78,20 +81,22 @@ const styles = StyleSheet.create({
     },
     spinner: {
         height: 80,
+        left: parseInt((screenWidth / 2) - 40, 10), // centering spinner...
         position: 'absolute',
+        width: 80,
         zIndex: 2,
     },
     text: {
-        color: 'rgb(255, 255, 255)',
+        color: '#ffffff',
         height: 50,
     },
     webView: {
         marginTop: (Platform.OS === 'ios') ? 63 : 53,
-        width: '100%',
     },
 });
 
 const HSLSAMLSessionID = 'HSLSAMLSessionID';
+const whitelistUrls = ['hsl.fi', 'reittiopas.fi', 'jola.louhin'];
 
 class CustomWebView extends Component { // eslint-disable-line react/prefer-stateless-function
     // Inner state is bad but at this point it's easier
@@ -152,9 +157,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     onMessage = (event) => {
         console.log('message: ', event.nativeEvent.data);
     }
-    onLoadEnd = () => {
-        this.setState({loading: false});
-    }
+    onLoadEnd = () => this.setState({loading: false});
+    onError = e => console.log(e);
+
     onNavigationStateChange = (navState) => {
         const {url} = navState;
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
@@ -163,7 +168,10 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         this.setState({currentUrl: url});
         // If next url isn't hsl.fi / reittiopas.fi spesific or http:// -> open it in phone browser
         if (
-            (url.startsWith('http') && !url.includes('hsl.fi') && !url.includes('reittiopas.fi')) ||
+            (
+                url.startsWith('http') &&
+                !whitelistUrls.map(v => url.includes(v))
+            ) ||
             url.startsWith('http://')
         ) {
             this.webview.stopLoading();
@@ -243,13 +251,14 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             if (!result.sessionCookieSet && cookies.get('cookie')) {
                 this.props.removeCookie();
                 this.props.resetSession();
+                this.props.removeCityBikeData();
             } else if (
                 // TODO: if you don't do SSO-login directly via login.hsl.fi (Kirjaudu sisään-view)
                 // there isn't 'HSLSAMLSessionID'-cookie... and this logic doesn't work
                 // use case can be for example hsl.fi/citybike -> login -> redirect
                 // BUT that doesn't happen every time...
                 result.sessionCookieSet &&
-                result.cookie.HSLSAMLSessionID &&
+                // result.cookie.HSLSAMLSessionID && // do not check HSLSAMLSessionID at this time
                 (
                     !cookies.get('cookie') ||
                     !cookies.get('cookie')[HSLSAMLSessionID]
@@ -258,7 +267,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 this.props.setCookie(result.cookie);
                 this.props.setSession({
                     loggedIn: true,
-                    [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID,
+                    [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID || 'loggedInViaCitybikes',
                 });
             }
         })
@@ -306,12 +315,12 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     goForward = () => {
         this.webview.goForward();
     }
-
     render() {
         const {
             autoHeightEnabled,
             onMessageEnabled,
             scrollEnabled,
+            session,
             showBackForwardButtons,
         } = this.props;
         const {
@@ -359,14 +368,30 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         `;
         if (position.lat && position.long) {
             // If we have lat and long use mock
-            inlineJS = `
+            inlineJS += `
                 setTimeout(function () {
                     if (window.mock) {
                         window.mock.geolocation.setCurrentPosition(${position.lat}, ${position.long});
                     }
                 }, 200);
             `;
+        } else if (uri === CITYBIKE_URL && session.get('data') && session.get('data').loggedIn) {
+            inlineJS += `
+                // Try to click the login-button in hsl.fi/citybike to enable "automatic login"
+                window.onload = function() {
+                    const loginContainer = document.getElementsByClassName('saml-login-link');
+                    if (
+                        loginContainer.length &&
+                        loginContainer[0].children.length &&
+                        loginContainer[0].children[0].href &&
+                        loginContainer[0].children[0].href.includes('login')
+                    ) {
+                        document.getElementsByClassName('saml-login-link')[0].children[0].click();
+                    }
+                }
+            `;
         }
+
         const backButton = showBackForwardButtons ?
             (
                 <TouchableOpacity
@@ -392,6 +417,43 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             ) :
             null;
 
+        // we need to use this until this PR is merged https://github.com/facebook/react-native/pull/12807
+        // to enable input type file in Webview
+        // TODO: AndroidWebView isn't working with RN 0.44...
+        const webView = (uri === SURVEY_URL && Platform.OS === 'android') ?
+        (<WebView
+            ref={(c) => { this.webview = c; }}
+            domStorageEnabled
+            javaScriptEnabled
+            style={[styles.webView, {marginTop: webViewMarginTop}]}
+            source={{uri}}
+            scalesPageToFit
+            onLoadEnd={this.onLoadEnd}
+            onMessage={
+                onMessageEnabled ?
+                    this.onMessage :
+                    null
+            } // there's issuses with onMessage
+            onNavigationStateChange={this.onNavigationStateChange}
+            scrollEnabled={scrollEnabled}
+            injectedJavaScript={inlineJS}
+        />) :
+        (<WebView
+            ref={(c) => { this.webview = c; }}
+            domStorageEnabled
+            javaScriptEnabled
+            style={[styles.webView, {marginTop: webViewMarginTop}]}
+            source={{uri}}
+            onLoadEnd={this.onLoadEnd}
+            onMessage={
+                onMessageEnabled ?
+                    this.onMessage :
+                    null
+            } // there's issuses with onMessage
+            onNavigationStateChange={this.onNavigationStateChange}
+            scrollEnabled={scrollEnabled}
+            injectedJavaScript={inlineJS}
+        />);
         return (
             <View
                 style={[styles.container, {height: containerHeight}]}
@@ -403,39 +465,31 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 />
                 {backButton}
                 {forwardButton}
-                <WebView
-                    ref={(c) => { this.webview = c; }}
-                    domStorageEnabled
-                    javaScriptEnabled
-                    style={[styles.webView, {marginTop: webViewMarginTop}]}
-                    source={{uri}}
-                    scalesPageToFit
-                    onLoadEnd={this.onLoadEnd}
-                    onMessage={
-                        onMessageEnabled ?
-                            this.onMessage :
-                            null
-                    } // there's issuses with onMessage
-                    onNavigationStateChange={this.onNavigationStateChange}
-                    scrollEnabled={scrollEnabled}
-                    injectedJavaScript={inlineJS}
-                />
+                {webView}
             </View>
         );
     }
 }
 
 CustomWebView.propTypes = {
-    autoHeightEnabled: React.PropTypes.bool,
-    resetSession: React.PropTypes.func.isRequired,
-    cookies: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    onMessageEnabled: React.PropTypes.bool,
-    removeCookie: React.PropTypes.func.isRequired,
-    scrollEnabled: React.PropTypes.bool,
-    setCookie: React.PropTypes.func.isRequired,
-    setSession: React.PropTypes.func.isRequired,
-    showBackForwardButtons: React.PropTypes.bool,
-    uri: React.PropTypes.string.isRequired,
+    autoHeightEnabled: PropTypes.bool,
+    resetSession: PropTypes.func.isRequired,
+    cookies: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
+    onMessageEnabled: PropTypes.bool,
+    removeCityBikeData: PropTypes.func.isRequired,
+    removeCookie: PropTypes.func.isRequired,
+    scrollEnabled: PropTypes.bool,
+    session: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
+    setCookie: PropTypes.func.isRequired,
+    setSession: PropTypes.func.isRequired,
+    showBackForwardButtons: PropTypes.bool,
+    uri: PropTypes.string.isRequired,
 };
 
 CustomWebView.defaultProps = {
@@ -448,12 +502,14 @@ CustomWebView.defaultProps = {
 function mapStateToProps(state) {
     return {
         cookies: state.cookies,
+        session: state.session,
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
         removeCookie: () => dispatch(removeCookie()),
+        removeCityBikeData: () => dispatch(removeCityBikeData()),
         resetSession: () => dispatch(removeSession()),
         setCookie: cookie => dispatch(setCookie(cookie)),
         setSession: session => dispatch(setSession(session)),
