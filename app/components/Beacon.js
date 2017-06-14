@@ -34,7 +34,7 @@ const resolveLine = (major) => {
     case 235:
         return '103';
     case 1:
-        return '59';
+        return '9';
     default:
         return '';
     }
@@ -60,7 +60,10 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
 
 Beacon.propTypes = {
     getBeaconData: React.PropTypes.func.isRequired,
-    beacons: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    beacons: React.PropTypes.oneOfType([
+        React.PropTypes.instanceOf(Object),
+        React.PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
 };
 
 function mapStateToProps(state) {
