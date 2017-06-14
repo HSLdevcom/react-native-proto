@@ -110,8 +110,14 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
 
 FakeSideMenu.propTypes = {
     name: React.PropTypes.string.isRequired,
-    routes: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    session: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    routes: React.PropTypes.oneOfType([
+        React.PropTypes.instanceOf(Object),
+        React.PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
+    session: React.PropTypes.oneOfType([
+        React.PropTypes.instanceOf(Object),
+        React.PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
 };
 
 function mapStateToProps(state) {
