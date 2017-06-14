@@ -110,9 +110,11 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         const {uri} = this.props;
         // TODO: do we want to get the position on every mount or keep it in store with some logic?
         // TODO: remove process.env check when https://github.com/facebook/react-native/pull/13442 is in RN
-        // Get current position and use it in reittiopas
         if (uri.startsWith('https://reittiopas') && process.env.NODE_ENV !== 'test') {
-            this.getLocation();
+            // At the moment WebView inlineJS is used to get the current position
+            // via navigator.geolocation.watchPosition
+            // Get current position and use it in reittiopas
+            // this.getLocation();
         } else if (uri === HSL_LOGIN_URL) {
             // If we come to login-view let's just check are we logged in or not
             this.maybeLoginOrLogout();
@@ -322,7 +324,6 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             backButtonEnabled,
             forwardButtonEnabled,
             loading,
-            position,
             overrideUri,
         } = this.state;
         const uri = overrideUri || this.props.uri;
@@ -359,57 +360,42 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             //     }
             //     postMessage('height;' + height);
             // })();
-        ` : `
-        `;
-        /*
-        * Android doesn't seem to run inlineJS code in WebView
-        * if it's injected after initial render
-        * So just wait that we get location and render WebView after that
-        * (still the inlineJS isn't working every time...)
-        */
-        if (uri === REITTIOPAS_MOCK_URL && Platform.OS === 'android' && !position.lat) {
-            return (
-                <View
-                    style={[styles.container, {height: containerHeight}]}
-                >
-                    <ActivityIndicator
-                        animating={loading}
-                        size="large"
-                        style={[styles.centering, styles.spinner]}
-                    />
-                </View>
-            );
-        }
-        if (position.lat && position.long) {
-            // If we have lat and long use mock.geolocation.setCurrentPosition
+        ` : '';
+
+        if (uri === REITTIOPAS_MOCK_URL) {
+            // Use inlineJS to set mock position
             inlineJS += `
                 setTimeout(() => {
                     if (window.mock) {
-                        window.mock.geolocation.setCurrentPosition(${position.lat}, ${position.long});
                         if (navigator && navigator.geolocation) {
-                            navigator.geolocation.watchPosition((position) => {
-                                window.mock.geolocation.setCurrentPosition(position.coords.latitude, position.coords.longitude);
+                            navigator.geolocation.watchPosition(function(position) {
+                                if (
+                                    parseInt(position.coords.latitude, 10) > 0 &&
+                                    parseInt(position.coords.longitude, 10) > 0
+                                ) {
+                                    window.mock.geolocation.setCurrentPosition(position.coords.latitude, position.coords.longitude);
+                                }
                             },
-                                error => console.log(error)
-                            , {enableHighAccuracy: true, timeout: 20000, maximumAge: 10000, distanceFilter: 10});
+                            error => console.log(error),
+                            {enableHighAccuracy: true, timeout: 60000, maximumAge: 60000});
                         }
                     }
                 }, 300);
             `;
         } else if (uri === CITYBIKE_URL && session.get('data') && session.get('data').loggedIn) {
+            // Try to click the login-button in hsl.fi/citybike to enable "automatic login"
             inlineJS += `
-                // Try to click the login-button in hsl.fi/citybike to enable "automatic login"
                 window.onload = function() {
-                    const loginContainer = document.getElementsByClassName('saml-login-link');
+                    var loginContainer = document.getElementsByClassName('saml-login-link');
                     if (
                         loginContainer.length &&
                         loginContainer[0].children.length &&
                         loginContainer[0].children[0].href &&
                         loginContainer[0].children[0].href.includes('login')
                     ) {
-                        document.getElementsByClassName('saml-login-link')[0].children[0].click();
+                        loginContainer[0].children[0].click();
                     }
-                }
+                };
             `;
         }
         const backButton = showBackForwardButtons ?
