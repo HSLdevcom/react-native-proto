@@ -136,10 +136,12 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     }
     onNavigationStateChange = (navState) => {
         const {url} = navState;
-        // console.log(navState);
+        console.log(navState);
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
-        this.setState({currentUrl: url});
+        if (!url.includes('content-only')) {
+            this.setState({currentUrl: url});
+        }
         // If next url isn't hsl.fi / reittiopas.fi spesific or http:// -> open it in phone browser
         if (
             (url.startsWith('http') && !url.includes('hsl.fi') && !url.includes('reittiopas.fi')) ||
@@ -189,7 +191,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 (
                     (
                         navState.navigationType !== 'click' &&
-                        url.startsWith('https://login.hsl.fi/user')
+                        url.startsWith('https://login.hsl.fi')
                     )
                     ||
                     (
@@ -252,12 +254,16 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         const {cookies, session, uri} = this.props;
         Cookie.get(uri)
         .then((cookie) => {
+            console.log(cookie);
             if (cookie) {
                 return this.checkSessionCookie(cookie);
             }
             return {sessionCookieSet: false};
         })
         .then((result) => {
+            console.log('probablyLogin: ', probablyLogin);
+            console.log(result);
+            console.log(cookies.get('cookie'));
             if (
                 (!probablyLogin && !result.sessionCookieSet && cookies.get('cookie')) ||
                 (!probablyLogin && forceLogout)
@@ -354,11 +360,13 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         } = this.props;
         const {
             backButtonEnabled,
+            currentUrl,
             forwardButtonEnabled,
             loading,
             overrideUri,
         } = this.state;
-        const uri = overrideUri || this.props.uri;
+        let uri = overrideUri || this.props.uri;
+
         let containerHeight = parseInt(screenHeight - 80, 10);
         // TODO: this is not bulletproof "solution" at all...
         // WebView inside ScrollView sucks...
@@ -415,6 +423,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 }, 300);
             `;
         } else if (uri === CITYBIKE_URL && session.get('data') && session.get('data').loggedIn) {
+            if (currentUrl === 'https://www.hsl.fi/citybike/directlogin') {
+                uri = 'https://www.hsl.fi/citybike/directlogin?content-only';
+            }
             /*
             * Try to click the login-button in hsl.fi/citybike to enable "automatic login"
             * Android needs a bit different logic than iOS...
@@ -424,7 +435,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 var ready = function(fn) {
                     if (typeof fn !== 'function') return;
                     if (document.readyState === 'complete') {
-                        return fn();
+                        fn();
                     }
                     document.addEventListener('interactive', fn, false);
                 };
@@ -435,7 +446,24 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                         loginContainer[0].children.length &&
                         loginContainer[0].children[0].href
                     ) {
-                        loginContainer[0].children[0].click();
+                        // loginContainer[0].children[0].click();
+                    } else if (window.location.href.split('content-only').length < 2) {
+                        if (window.location.href.split('#!/').length >= 2) {
+                            window.location.replace(window.location.href.split('#!/')[0] + '?content-only');
+                        } else {
+                            window.location.replace(window.location.href + '?content-only');
+                        }
+                    } else {
+                        var links = document.getElementsByTagName('a');
+                        Object.keys(links).forEach(function(e) {
+                            if (
+                                links[e].href &&
+                                links[e].href.split('hsl.fi').length >= 2 &&
+                                links[e].href.split('content-only').length < 2
+                            ) {
+                                links[e].href = links[e].href + '?content-only';
+                            }
+                        });
                     }
                 });
             ` : `
@@ -448,10 +476,54 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                         loginContainer[0].children[0].href.includes('login')
                     ) {
                         loginContainer[0].children[0].click();
+                    } else if (!window.location.href.includes('content-only')) {
+                        window.location.replace(window.location.href + '?content-only');
+                    } else {
+                        var links = document.getElementsByTagName('a');
+                        Object.keys(links).forEach((e) => {
+                            if (links[e].href.includes('hsl.fi') && !links[e].href.includes('content-only')) {
+                                links[e].href = links[e].href + '?content-only';
+                            }
+                        });
                     }
                 };
             `;
+        } else if (uri === CITYBIKE_URL) {
+            uri = currentUrl === 'https://www.hsl.fi/citybike/login' ?
+                'https://www.hsl.fi/citybike/login?content-only' :
+                `${CITYBIKE_URL}?content-only`;
+            inlineJS += Platform.OS === 'android' ? `
+                var ready = function(fn) {
+                    if (typeof fn !== 'function') return;
+                    if (document.readyState === 'complete') {
+                        fn();
+                    }
+                    document.addEventListener('interactive', fn, false);
+                };
+                ready(function() {
+                    var links = document.getElementsByTagName('a');
+                    Object.keys(links).forEach(function(e) {
+                        if (
+                            links[e].href &&
+                            links[e].href.split('hsl.fi').length >= 2 &&
+                            links[e].href.split('content-only').length < 2
+                        ) {
+                            links[e].href = links[e].href + '?content-only';
+                        }
+                    });
+                });
+            ` : `
+            window.onload = () => {
+                var links = document.getElementsByTagName('a');
+                Object.keys(links).forEach((e) => {
+                    if (links[e].href.includes('hsl.fi') && !links[e].href.includes('content-only')) {
+                        links[e].href = links[e].href + '?content-only';
+                    }
+                });
+            };
+            `;
         }
+        console.log(session.get('data'));
         const backButton = showBackForwardButtons ?
             (
                 <TouchableOpacity
