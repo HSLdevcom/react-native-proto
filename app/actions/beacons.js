@@ -55,7 +55,7 @@ const vehicleBeaconId = (Platform.OS === 'ios') ?
 '20cae8a0-a9cf-11e3-a5e2-0800200c9a66';
 
 const beaconRegion = (Platform.OS === 'ios') ? {
-    identifier: 'OnyxBeacon',
+    identifier: 'RuuviTag',
     uuid: beaconId,
 } : beaconId;
 
@@ -212,7 +212,6 @@ const getData = async function getData(dispatch) {
             dispatch(setBusBeaconData([]));
             // attempts += 1;
         }
-        //if (beaconFound && vehicleBeaconsFound) tryingToFindBeacons = false;
     });
 };
 

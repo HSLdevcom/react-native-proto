@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
     textStyle: {
         fontSize: 70,
         color: colors.brandColor,
+        marginTop: 20,
     },
 });
 
@@ -84,8 +85,14 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
                 <Text style={styles.textStyle}>
                     {vehicleBeacon ? resolveLine(vehicleBeacon.major) : 'Ei linjalla'}
                 </Text>
+                <Text>
+                    Other vehicles close by:
+                </Text>
+                <Text>
+                    {otherVehicles ? otherVehicles[0] : ''}
+                </Text>
                 <Text style={styles.textStyle}>
-                    {resolveStop(stopBeacon.major) || ''}
+                    {resolveStop(stopBeacon.minor) || 'Ei pysäkillä'}
                 </Text>
             </View>
         );
