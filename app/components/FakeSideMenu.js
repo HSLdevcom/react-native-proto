@@ -79,7 +79,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
         }
         // Add some "menu like animation" so this maybe feels more like real menu
         const fadeAnim = new Animated.Value(0);
-        Animated.timing(fadeAnim, {toValue: 1, duration: 500}).start();
+        Animated.timing(fadeAnim, {toValue: 1, duration: 300}).start();
         return (
             <Animated.View
                 style={[styles.container, {
