@@ -415,9 +415,31 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 }, 300);
             `;
         } else if (uri === CITYBIKE_URL && session.get('data') && session.get('data').loggedIn) {
-            // Try to click the login-button in hsl.fi/citybike to enable "automatic login"
-            inlineJS += `
-                window.onload = function() {
+            /*
+            * Try to click the login-button in hsl.fi/citybike to enable "automatic login"
+            * Android needs a bit different logic than iOS...
+            * https://stackoverflow.com/a/37332447/4047536
+            */
+            inlineJS += Platform.OS === 'android' ? `
+                var ready = function(fn) {
+                    if (typeof fn !== 'function') return;
+                    if (document.readyState === 'complete') {
+                        return fn();
+                    }
+                    document.addEventListener('interactive', fn, false);
+                };
+                ready(function() {
+                    var loginContainer = document.getElementsByClassName('saml-login-link');
+                    if (
+                        loginContainer.length &&
+                        loginContainer[0].children.length &&
+                        loginContainer[0].children[0].href
+                    ) {
+                        loginContainer[0].children[0].click();
+                    }
+                });
+            ` : `
+                window.onload = () => {
                     var loginContainer = document.getElementsByClassName('saml-login-link');
                     if (
                         loginContainer.length &&
