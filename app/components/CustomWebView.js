@@ -5,6 +5,7 @@
 
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import {Actions} from 'react-native-router-flux';
 import Cookie from 'react-native-cookie';
 import Immutable from 'immutable';
 import {
@@ -30,7 +31,7 @@ import {
 import colors from '../colors';
 import {REITTIOPAS_URL, REITTIOPAS_MOCK_URL} from './Main';
 import {CITYBIKE_URL} from './CityBikes';
-import {HSL_LOGIN_URL} from './Login';
+import {HSL_LOGIN_URL, HSL_LOGOUT_URL} from './Login';
 
 const screenHeight = Dimensions.get('window').height;
 const screenWidth = Dimensions.get('window').width;
@@ -135,9 +136,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     }
     onNavigationStateChange = (navState) => {
         const {url} = navState;
+        // console.log(navState);
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
-        // console.log(navState);
         this.setState({currentUrl: url});
         // If next url isn't hsl.fi / reittiopas.fi spesific or http:// -> open it in phone browser
         if (
@@ -157,9 +158,14 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             * TODO: there really should be better solution for this
             */
             url.startsWith('https://login.hsl.fi/simplesaml/saml2/idp/SingleLogoutService.php') ||
-            url.startsWith('https://www.hsl.fi/saml/logout')
+            url.startsWith('https://www.hsl.fi/saml/logout') ||
+            url === 'https://login.hsl.fi/user/slo'
         ) {
-            this.maybeLoginOrLogout();
+            if (url.startsWith('https://www.hsl.fi/saml/logout')) {
+                this.maybeLoginOrLogout(false, true);
+            } else {
+                this.maybeLoginOrLogout();
+            }
         } else if (
             /* Handle login flow
             * 1) Check if we are on a page whose url includes (login.)hsl.fi
@@ -177,16 +183,23 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                     url.startsWith('https://login.hsl.fi')
                 )
             ) ||
+            // Android version
             (
-                // Android version
-                url.startsWith('https://login.hsl.fi/user') ||
+                Platform.OS === 'android' &&
                 (
-                    navState.title === 'POST data' &&
-                    url.startsWith('https://www.hsl.fi')
+                    (
+                        navState.navigationType !== 'click' &&
+                        url.startsWith('https://login.hsl.fi/user')
+                    )
+                    ||
+                    (
+                        navState.title === 'POST data' &&
+                        url.startsWith('https://www.hsl.fi')
+                    )
                 )
             )
         ) {
-            this.maybeLoginOrLogout();
+            this.maybeLoginOrLogout(true);
         }
         this.setState({
             backButtonEnabled: navState.canGoBack,
@@ -235,8 +248,8 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         }
     }
 
-    maybeLoginOrLogout = () => {
-        const {cookies, uri} = this.props;
+    maybeLoginOrLogout = (probablyLogin = false, forceLogout = false) => {
+        const {cookies, session, uri} = this.props;
         Cookie.get(uri)
         .then((cookie) => {
             if (cookie) {
@@ -245,26 +258,45 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             return {sessionCookieSet: false};
         })
         .then((result) => {
-            if (!result.sessionCookieSet && cookies.get('cookie')) {
-                this.props.removeCookie();
-                this.props.resetSession();
+            if (
+                (!probablyLogin && !result.sessionCookieSet && cookies.get('cookie')) ||
+                (!probablyLogin && forceLogout)
+            ) {
+                Promise.resolve(this.props.removeCookie())
+                .then(() => this.props.resetSession())
+                .then(() => {
+                    if (uri === HSL_LOGOUT_URL) {
+                        // Open menu after logout
+                        Actions.menuTab();
+                    }
+                })
+                .catch(err => console.log(err));
             } else if (
                 // TODO: if you don't do SSO-login directly via login.hsl.fi (Kirjaudu sisään-view)
                 // there isn't 'HSLSAMLSessionID'-cookie... and this logic doesn't work
                 // use case can be for example hsl.fi/citybike -> login -> redirect
                 // BUT that doesn't happen every time...
+                probablyLogin &&
                 result.sessionCookieSet &&
+                !session.get('data') &&
                  // result.cookie.HSLSAMLSessionID && // do not check HSLSAMLSessionID at this time
                 (
                     !cookies.get('cookie') ||
                     !cookies.get('cookie')[HSLSAMLSessionID]
                 )
             ) {
-                this.props.setCookie(result.cookie);
-                this.props.setSession({
+                Promise.resolve(this.props.setCookie(result.cookie))
+                .then(() => this.props.setSession({
                     loggedIn: true,
                     [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID || 'loggedInViaCitybikes',
-                });
+                }))
+                .then(() => {
+                    if (uri === HSL_LOGIN_URL) {
+                        // Open menu after logout
+                        Actions.menuTab();
+                    }
+                })
+                .catch(err => console.log(err));
             }
         })
         .catch(err => console.log(err));
