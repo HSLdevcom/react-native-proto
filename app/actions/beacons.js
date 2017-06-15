@@ -43,10 +43,13 @@ if (Platform.OS === 'ios') {
 /*
 * Current UUID for OnyxBeacon
 * 20CAE8A0-A9CF-11E3-A5E2-0800200C9A66
+* Stops
+* DFFF7ADA-A48A-4F77-AA9A-3A7943641E6C
 */
+
 const beaconId = (Platform.OS === 'ios') ?
-'20CAE8A0-A9CF-11E3-A5E2-0800200C9A66' :
-'20cae8a0-a9cf-11e3-a5e2-0800200c9a66';
+'DFFF7ADA-A48A-4F77-AA9A-3A7943641E6C' :
+'dfff7ada-a48a-4f77-aa9a-3a7943641e6c';
 const vehicleBeaconId = (Platform.OS === 'ios') ?
 '20CAE8A0-A9CF-11E3-A5E2-0800200C9A66' :
 '20cae8a0-a9cf-11e3-a5e2-0800200c9a66';
@@ -58,8 +61,8 @@ const beaconRegion = (Platform.OS === 'ios') ? {
 
 const vehicleBeaconRegion = (Platform.OS === 'ios') ? {
     identifier: 'OnyxBeacon',
-    uuid: beaconId,
-} : beaconId;
+    uuid: vehicleBeaconId,
+} : vehicleBeaconId;
 
 let beaconFound = false;
 let vehicleBeaconsFound = false;
@@ -167,7 +170,7 @@ const getData = async function getData(dispatch) {
             let closestBeaconIndex = 0;
             let strongestBeaconRSSI = -101;
 
-            const vehicleBeacons = [];
+            let vehicleBeacons = [];
 
             workingBeacons.forEach((beacon, index) => {
                 if (beacon.uuid === beaconId && beacon.rssi > strongestBeaconRSSI) {
@@ -177,7 +180,7 @@ const getData = async function getData(dispatch) {
                 if (beacon.uuid === vehicleBeaconId) {
                     if (vehicleBeacons.filter(b => b.major === beacon.major).length > 0) {
                         vehicleBeacons
-                        .filter(b => b.major === beacon.major)[0].rssi += (100 + beacon.rssi);
+                        .filter(b => b.major === beacon.major)[0].rssi += (200 + beacon.rssi);
                     } else {
                         vehicleBeacons.push(beacon);
                     }
@@ -193,6 +196,12 @@ const getData = async function getData(dispatch) {
             }
 
             if (vehicleBeacons.length > 0) {
+                if (vehicleBeacons.length > 1) {
+                    vehicleBeacons = vehicleBeacons.sort((a, b) => {
+                        if (a.rssi > b.rssi) return -1;
+                        return 1;
+                    });
+                }
                 dispatch(setBusBeaconData(vehicleBeacons));
                 //Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
                 vehicleBeaconsFound = true;

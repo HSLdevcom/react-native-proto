@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
 });
 
 /**
-* A placeholder function for resolving line name based on beacon "major" identifier.
+* A placeholder function for resolving line name based on vehiclebeacon "major" identifier.
 * Should be replaced with DB query in the future.
 */
 const resolveLine = (major) => {
@@ -40,6 +40,27 @@ const resolveLine = (major) => {
     }
 };
 
+/**
+* A placeholder function for resolving bus stop based on stopbeacon "major" identifier.
+* Should be replaced with DB query in the future.
+*/
+const resolveStop = (minor) => {
+    switch (minor) {
+    case 1033:
+        return 'E1033';
+    case 1024:
+        return 'E1024';
+    case 1025:
+        return 'E1025';
+    case 1026:
+        return 'E1026';
+    case 1027:
+        return 'E1027';
+    default:
+        return '';
+    }
+};
+
 class Beacon extends Component { // eslint-disable-line react/prefer-stateless-function
 
     componentWillMount() {
@@ -47,11 +68,24 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
     }
 
     render() {
-        const bData = this.props.beacons.get('beaconData');
+        const stopBeacon = this.props.beacons.get('beaconData');
+        const vehicleBeacon = this.props.beacons.get('vehicleBeaconData').length > 0 ?
+        this.props.beacons.get('vehicleBeaconData')[0] :
+        null;
+        const otherVehicles = (this.props.beacons.get('vehicleBeaconData').length > 1) ?
+        this.props.beacons.get('vehicleBeaconData').filter(b => b.major !== vehicleBeacon.major)
+        .map(b => resolveLine(b.major)) :
+        null;
+
+        console.log(`Other vehicles: ${otherVehicles}`);
+
         return (
             <View style={styles.container}>
                 <Text style={styles.textStyle}>
-                    {resolveLine(bData.major) || 'Ei linjalla'}
+                    {vehicleBeacon ? resolveLine(vehicleBeacon.major) : 'Ei linjalla'}
+                </Text>
+                <Text style={styles.textStyle}>
+                    {resolveStop(stopBeacon.major) || ''}
                 </Text>
             </View>
         );
