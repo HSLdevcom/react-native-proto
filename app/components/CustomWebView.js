@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
 });
 
 const HSLSAMLSessionID = 'HSLSAMLSessionID';
+const whitelistUrls = ['hsl.fi', 'reittiopas.fi', 'jola.louhin'];
 
 class CustomWebView extends Component { // eslint-disable-line react/prefer-stateless-function
     // Inner state is bad but at this point it's easier
@@ -135,22 +136,35 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         this.setState({loading: false});
     }
     onNavigationStateChange = (navState) => {
+        const {session} = this.props;
         const {url} = navState;
         console.log(navState);
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
-        if (!url.includes('content-only')) {
+        if (
+            !url.includes('content-only') &&
+            url !== this.state.currentUrl
+        ) {
             this.setState({currentUrl: url});
         }
         // If next url isn't hsl.fi / reittiopas.fi spesific or http:// -> open it in phone browser
         if (
-            (url.startsWith('http') && !url.includes('hsl.fi') && !url.includes('reittiopas.fi')) ||
+            (url.startsWith('http') && !whitelistUrls.map(v => url.includes(v))) ||
             url.startsWith('http://')
         ) {
             this.webview.stopLoading();
             // force update the view in case webview didn't stopLoading so iOS don't try to load any http://-url
             this.forceUpdate();
             Linking.openURL(url).catch(err => console.log(err));
+        } else if (url.includes('https://www.hsl.fi/saml/drupal_login?returnTo') && !session.get('data').loggedIn) {
+            const returnUrl = url.split('returnTo=');
+            if (returnUrl.length === 2) {
+                Promise.resolve(this.props.setSession({redirect: returnUrl[1]}))
+                .then(() => Actions.login())
+                .catch(e => console.log(e));
+            } else {
+                Actions.login();
+            }
         } else if (
             /* Handle logout flow
             * 1) Check if we are on a page whose url includes SingleLogoutService / "saml/logout"
@@ -159,11 +173,14 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             * 4) If there's no SSESS-cookie, removeCookie and resetSession
             * TODO: there really should be better solution for this
             */
-            url.startsWith('https://login.hsl.fi/simplesaml/saml2/idp/SingleLogoutService.php') ||
             url.startsWith('https://www.hsl.fi/saml/logout') ||
-            url === 'https://login.hsl.fi/user/slo'
+            url === 'https://login.hsl.fi/user/slo' ||
+            url === 'https://login.hsl.fi/user/login?destination=user/slo'
         ) {
-            if (url.startsWith('https://www.hsl.fi/saml/logout')) {
+            if (
+                url.startsWith('https://www.hsl.fi/saml/logout') ||
+                url === 'https://login.hsl.fi/user/login?destination=user/slo'
+            ) {
                 this.maybeLoginOrLogout(false, true);
             } else {
                 this.maybeLoginOrLogout();
@@ -177,29 +194,8 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             * 4) If cookies exists, setCookie and setSession
             * TODO: there really should be better solution for this
             */
-            (
-                // iOS version
-                navState.navigationType === 'formsubmit' &&
-                (
-                    url.startsWith('https://www.hsl.fi') ||
-                    url.startsWith('https://login.hsl.fi')
-                )
-            ) ||
-            // Android version
-            (
-                Platform.OS === 'android' &&
-                (
-                    (
-                        navState.navigationType !== 'click' &&
-                        url.startsWith('https://login.hsl.fi')
-                    )
-                    ||
-                    (
-                        navState.title === 'POST data' &&
-                        url.startsWith('https://www.hsl.fi')
-                    )
-                )
-            )
+                url.includes('https://login.hsl.fi/user') &&
+                !session.get('data').loggedIn
         ) {
             this.maybeLoginOrLogout(true);
         }
@@ -261,15 +257,18 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             return {sessionCookieSet: false};
         })
         .then((result) => {
-            console.log('probablyLogin: ', probablyLogin);
-            console.log(result);
-            console.log(cookies.get('cookie'));
             if (
                 (!probablyLogin && !result.sessionCookieSet && cookies.get('cookie')) ||
                 (!probablyLogin && forceLogout)
             ) {
                 Promise.resolve(this.props.removeCookie())
                 .then(() => this.props.resetSession())
+                .then(() => {
+                    if (uri === HSL_LOGOUT_URL || uri === HSL_LOGIN_URL) {
+                        return Cookie.clear();
+                    }
+                    return true;
+                })
                 .then(() => {
                     if (uri === HSL_LOGOUT_URL) {
                         // Open menu after logout
@@ -284,21 +283,26 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 // BUT that doesn't happen every time...
                 probablyLogin &&
                 result.sessionCookieSet &&
-                !session.get('data') &&
-                 // result.cookie.HSLSAMLSessionID && // do not check HSLSAMLSessionID at this time
+                !session.get('data').loggedIn &&
+                result.cookie.HSLSAMLSessionID &&
                 (
                     !cookies.get('cookie') ||
                     !cookies.get('cookie')[HSLSAMLSessionID]
                 )
             ) {
                 Promise.resolve(this.props.setCookie(result.cookie))
-                .then(() => this.props.setSession({
-                    loggedIn: true,
-                    [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID || 'loggedInViaCitybikes',
-                }))
                 .then(() => {
-                    if (uri === HSL_LOGIN_URL) {
-                        // Open menu after logout
+                    const newSession = Object.assign({}, session.get('data'), {
+                        loggedIn: true,
+                        [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID || 'loggedInViaCitybikes',
+                    });
+                    return this.props.setSession(newSession);
+                })
+                .then((newSession) => {
+                    if (newSession.session.redirect) {
+                        Actions.cityBike();
+                    } else if (uri === HSL_LOGIN_URL) {
+                        // Open menu after login
                         Actions.menuTab();
                     }
                 })
@@ -423,9 +427,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 }, 300);
             `;
         } else if (uri === CITYBIKE_URL && session.get('data') && session.get('data').loggedIn) {
-            if (currentUrl === 'https://www.hsl.fi/citybike/directlogin') {
-                uri = 'https://www.hsl.fi/citybike/directlogin?content-only';
-            }
+            // if (currentUrl === 'https://www.hsl.fi/citybike/directlogin') {
+            //     uri = 'https://www.hsl.fi/citybike/directlogin?content-only';
+            // }
             /*
             * Try to click the login-button in hsl.fi/citybike to enable "automatic login"
             * Android needs a bit different logic than iOS...
@@ -446,10 +450,13 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                         loginContainer[0].children.length &&
                         loginContainer[0].children[0].href
                     ) {
-                        // loginContainer[0].children[0].click();
-                    } else if (window.location.href.split('content-only').length < 2) {
-                        if (window.location.href.split('#!/').length >= 2) {
-                            window.location.replace(window.location.href.split('#!/')[0] + '?content-only');
+                        loginContainer[0].children[0].click();
+                    } else if (
+                        window.location.href.split('content-only').length < 2 &&
+                        window.location.href.split('login').length < 2
+                    ) {
+                        if (window.location.href === 'https://www.hsl.fi/citybike/dashboard#!/') {
+                            window.location.replace('https://www.hsl.fi/citybike/dashboard/?content-only');
                         } else {
                             window.location.replace(window.location.href + '?content-only');
                         }
@@ -476,8 +483,12 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                         loginContainer[0].children[0].href.includes('login')
                     ) {
                         loginContainer[0].children[0].click();
-                    } else if (!window.location.href.includes('content-only')) {
-                        window.location.replace(window.location.href + '?content-only');
+                    } else if (!window.location.href.includes('login') && !window.location.href.includes('content-only')) {
+                        if (window.location.href.includes('#!/')) {
+                            window.location.replace(window.location.href.split('#!/')[0] + '?content-only');
+                        } else {
+                            window.location.replace(window.location.href + '?content-only');
+                        }
                     } else {
                         var links = document.getElementsByTagName('a');
                         Object.keys(links).forEach((e) => {
@@ -489,9 +500,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 };
             `;
         } else if (uri === CITYBIKE_URL) {
-            uri = currentUrl === 'https://www.hsl.fi/citybike/login' ?
-                'https://www.hsl.fi/citybike/login?content-only' :
-                `${CITYBIKE_URL}?content-only`;
+            uri = `${CITYBIKE_URL}?content-only`;
             inlineJS += Platform.OS === 'android' ? `
                 var ready = function(fn) {
                     if (typeof fn !== 'function') return;
@@ -501,25 +510,40 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                     document.addEventListener('interactive', fn, false);
                 };
                 ready(function() {
+                    if (
+                        window.location.href.split('content-only').length < 2
+                    ) {
+                        window.location.replace(window.location.href + '?content-only');
+                    } else {
+                        var links = document.getElementsByTagName('a');
+                        Object.keys(links).forEach(function(e) {
+                            if (
+                                links[e].href &&
+                                links[e].href.split('hsl.fi').length >= 2 &&
+                                links[e].href.split('drupal_login').length < 2 &&
+                                links[e].href.split('content-only').length < 2
+                            ) {
+                                links[e].href = links[e].href + '?content-only';
+                            }
+                        });
+                    }
+                });
+            ` : `
+            window.onload = () => {
+                if (!window.location.href.includes('content-only')) {
+                    window.location.replace(window.location.href + '?content-only');
+                } else {
                     var links = document.getElementsByTagName('a');
-                    Object.keys(links).forEach(function(e) {
+                    Object.keys(links).forEach((e) => {
                         if (
-                            links[e].href &&
-                            links[e].href.split('hsl.fi').length >= 2 &&
-                            links[e].href.split('content-only').length < 2
+                            !links[e].href.includes('drupal_login') &&
+                            links[e].href.includes('hsl.fi') &&
+                            !links[e].href.includes('content-only')
                         ) {
                             links[e].href = links[e].href + '?content-only';
                         }
                     });
-                });
-            ` : `
-            window.onload = () => {
-                var links = document.getElementsByTagName('a');
-                Object.keys(links).forEach((e) => {
-                    if (links[e].href.includes('hsl.fi') && !links[e].href.includes('content-only')) {
-                        links[e].href = links[e].href + '?content-only';
-                    }
-                });
+                }
             };
             `;
         }
@@ -548,7 +572,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 </TouchableOpacity>
             ) :
             null;
-
+        console.log('currentUrl: ', currentUrl);
         return (
             <View
                 style={[styles.container, {height: containerHeight}]}
