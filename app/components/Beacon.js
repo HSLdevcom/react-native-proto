@@ -42,7 +42,7 @@ const resolveLine = (major) => {
 };
 
 /**
-* A placeholder function for resolving bus stop based on stopbeacon "major" identifier.
+* A placeholder function for resolving bus stop based on stopbeacon "minor" identifier.
 * Should be replaced with DB query in the future.
 */
 const resolveStop = (minor) => {
@@ -62,6 +62,8 @@ const resolveStop = (minor) => {
     }
 };
 
+let displayBeacon = null;
+
 class Beacon extends Component { // eslint-disable-line react/prefer-stateless-function
 
     componentWillMount() {
@@ -70,18 +72,28 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
 
     render() {
         const stopBeacon = this.props.beacons.get('beaconData');
-        const vehicleBeacon = (this.props.beacons.get('vehicleBeaconData').vehicles.length > 0) ?
+        const vehicleBeacon = (this.props.beacons.get('vehicleBeaconData').vehicles
+        && this.props.beacons.get('vehicleBeaconData').vehicles.length > 0) ?
         this.props.beacons.get('vehicleBeaconData').vehicles[0] :
         null;
-        const otherVehicles = (this.props.beacons.get('vehicleBeaconData').vehicles.length > 1) ?
-        this.props.beacons.get('vehicleBeaconData').vehicles.filter(b => b.major !== vehicleBeacon.major)
+        const otherVehicles = (this.props.beacons.get('vehicleBeaconData').vehicles
+        && this.props.beacons.get('vehicleBeaconData').vehicles.length > 1
+        && displayBeacon) ?
+        this.props.beacons.get('vehicleBeaconData').vehicles.filter(b => b.major !== displayBeacon.major)
         .map(b => resolveLine(b.major)) :
         null;
+        if (this.props.beacons.get('vehicleBeaconData').confidence > 0.5) {
+            displayBeacon = vehicleBeacon;
+        }
+        if (this.props.beacons.get('vehicleBeaconData').confidence === 0) {
+            displayBeacon = null;
+        }
+
 
         return (
             <View style={styles.container}>
                 <Text style={styles.textStyle}>
-                    {vehicleBeacon ? resolveLine(vehicleBeacon.major) : 'Ei linjalla'}
+                    {displayBeacon ? resolveLine(displayBeacon.major) : 'Ei linjalla'}
                 </Text>
                 <Text>
                     Other vehicles close by:
