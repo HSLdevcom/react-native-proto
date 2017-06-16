@@ -291,10 +291,10 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 .then(() => {
                     const newSession = session.get('data') ? Object.assign({}, session.get('data'), {
                         loggedIn: true,
-                        [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID || 'loggedInViaCitybikes',
+                        [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID,
                     }) : {
                         loggedIn: true,
-                        [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID || 'loggedInViaCitybikes',
+                        [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID,
                     };
                     return this.props.setSession(newSession);
                 })
