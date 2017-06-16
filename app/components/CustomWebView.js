@@ -138,7 +138,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     onNavigationStateChange = (navState) => {
         const {session} = this.props;
         const {url} = navState;
-        console.log(navState);
+        // console.log(navState);
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
         if (
@@ -175,11 +175,13 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             */
             url.startsWith('https://www.hsl.fi/saml/logout') ||
             url === 'https://login.hsl.fi/user/slo' ||
-            url === 'https://login.hsl.fi/user/login?destination=user/slo'
+            url === 'https://login.hsl.fi/user/login?destination=user/slo' ||
+            url.includes('login.hsl.fi/simplesaml/module.php/core/idp/resumelogout.php')
         ) {
             if (
                 url.startsWith('https://www.hsl.fi/saml/logout') ||
-                url === 'https://login.hsl.fi/user/login?destination=user/slo'
+                url === 'https://login.hsl.fi/user/login?destination=user/slo' ||
+                url.includes('login.hsl.fi/simplesaml/module.php/core/idp/resumelogout.php')
             ) {
                 this.maybeLoginOrLogout(false, true);
             } else {
@@ -250,7 +252,6 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         const {cookies, session, uri} = this.props;
         Cookie.get(uri)
         .then((cookie) => {
-            console.log(cookie);
             if (cookie) {
                 return this.checkSessionCookie(cookie);
             }
@@ -284,18 +285,17 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 probablyLogin &&
                 result.sessionCookieSet &&
                 !session.get('data').loggedIn &&
-                result.cookie.HSLSAMLSessionID &&
-                (
-                    !cookies.get('cookie') ||
-                    !cookies.get('cookie')[HSLSAMLSessionID]
-                )
+                result.cookie.HSLSAMLSessionID
             ) {
                 Promise.resolve(this.props.setCookie(result.cookie))
                 .then(() => {
-                    const newSession = Object.assign({}, session.get('data'), {
+                    const newSession = session.get('data') ? Object.assign({}, session.get('data'), {
                         loggedIn: true,
                         [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID || 'loggedInViaCitybikes',
-                    });
+                    }) : {
+                        loggedIn: true,
+                        [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID || 'loggedInViaCitybikes',
+                    };
                     return this.props.setSession(newSession);
                 })
                 .then((newSession) => {
@@ -364,7 +364,6 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         } = this.props;
         const {
             backButtonEnabled,
-            currentUrl,
             forwardButtonEnabled,
             loading,
             overrideUri,
@@ -547,7 +546,6 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             };
             `;
         }
-        console.log(session.get('data'));
         const backButton = showBackForwardButtons ?
             (
                 <TouchableOpacity
@@ -572,7 +570,6 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 </TouchableOpacity>
             ) :
             null;
-        console.log('currentUrl: ', currentUrl);
         return (
             <View
                 style={[styles.container, {height: containerHeight}]}
