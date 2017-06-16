@@ -69,16 +69,19 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
     }
 
     render() {
+        // console.log('====================================');
+        // console.log(this.props.beacons.get('vehicleBeaconData'));
+        // console.log('====================================');
         const stopBeacon = this.props.beacons.get('beaconData');
-        const vehicleBeacon = this.props.beacons.get('vehicleBeaconData').length > 0 ?
-        this.props.beacons.get('vehicleBeaconData')[0] :
+        const vehicleBeacon = (this.props.beacons.get('vehicleBeaconData').vehicles.length > 0) ?
+        this.props.beacons.get('vehicleBeaconData').vehicles[0] :
         null;
-        const otherVehicles = (this.props.beacons.get('vehicleBeaconData').length > 1) ?
-        this.props.beacons.get('vehicleBeaconData').filter(b => b.major !== vehicleBeacon.major)
+        const otherVehicles = (this.props.beacons.get('vehicleBeaconData').vehicles.length > 1) ?
+        this.props.beacons.get('vehicleBeaconData').vehicles.filter(b => b.major !== vehicleBeacon.major)
         .map(b => resolveLine(b.major)) :
         null;
 
-        console.log(`Other vehicles: ${otherVehicles}`);
+        // console.log(`Other vehicles: ${otherVehicles}`);
 
         return (
             <View style={styles.container}>

@@ -70,6 +70,9 @@ let vehicleBeaconsFound = false;
 let tryingToFindBeacons = false;
 let attempts = 0;
 
+const PREVIOUS_LIMIT = 10;
+let previousVehicles = []; //eslint-disable-line
+
 export const setBeaconData = function setBeaconData(beaconData) {
     return {
         type: SET_BEACON_DATA,
@@ -78,9 +81,10 @@ export const setBeaconData = function setBeaconData(beaconData) {
     };
 };
 
-export const setBusBeaconData = function setBusBeaconData(beaconData) {
+export const setBusBeaconData = function setBusBeaconData(confidence, beaconData) {
     return {
         type: SET_VEHICLE_BEACON_DATA,
+        confidence,
         beaconData,
         gettingVehicleBeaconData: false,
     };
@@ -144,22 +148,22 @@ const getData = async function getData(dispatch) {
     }
 
     DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
-        if (attempts === ATTEMPT_LIMIT) {
-            // Beacons.stopRangingBeaconsInRegion(beaconRegion);
-            // Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
-            if (!beaconFound) {
-                dispatch(beaconError(
-                `Beacon not found within the attempt limit (${ATTEMPT_LIMIT})`
-            ));
-            }
-            if (!vehicleBeaconsFound) {
-                dispatch(vehicleBeaconError(
-                `Beacon not found within the attempt limit (${ATTEMPT_LIMIT})`
-            ));
-            }
-            tryingToFindBeacons = false;
-            return;
-        }
+        // if (attempts === ATTEMPT_LIMIT) {
+        //     // Beacons.stopRangingBeaconsInRegion(beaconRegion);
+        //     // Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
+        //     if (!beaconFound) {
+        //         dispatch(beaconError(
+        //         `Beacon not found within the attempt limit (${ATTEMPT_LIMIT})`
+        //     ));
+        //     }
+        //     if (!vehicleBeaconsFound) {
+        //         dispatch(vehicleBeaconError(
+        //         `Beacon not found within the attempt limit (${ATTEMPT_LIMIT})`
+        //     ));
+        //     }
+        //     tryingToFindBeacons = false;
+        //     return;
+        // }
 
         const workingBeacons = data.beacons.filter(b =>
         (b.rssi < 0 && (b.uuid === beaconId || b.uuid === vehicleBeaconId)));
@@ -202,14 +206,26 @@ const getData = async function getData(dispatch) {
                         return 1;
                     });
                 }
-                dispatch(setBusBeaconData(vehicleBeacons));
+                previousVehicles.push(vehicleBeacons[0]);
+                if (previousVehicles.length > PREVIOUS_LIMIT) {
+                    previousVehicles.shift();
+                }
+                // previousVehicles.forEach(v => console.log(`PREV: ${v.major}`));
+                const conf = previousVehicles.length > 0 ?
+                previousVehicles.filter(m => m.major === vehicleBeacons[0].major)
+                .length / previousVehicles.length :
+                0;
+                dispatch(setBusBeaconData(
+                    conf,
+                    vehicleBeacons,
+                ));
                 //Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
                 vehicleBeaconsFound = true;
             }
         } else {
             //No beacons found, empty the store
             dispatch(setBeaconData({}));
-            dispatch(setBusBeaconData([]));
+            dispatch(setBusBeaconData(0, []));
             // attempts += 1;
         }
     });

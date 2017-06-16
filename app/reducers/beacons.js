@@ -12,7 +12,10 @@ import {
 
 export const initialState = fromJS({
     beaconData: {},
-    vehicleBeaconData: [],
+    vehicleBeaconData: {
+        confidence: 0,
+        vehicles: [],
+    },
     beaconError: null,
     vehicleBeaconError: null,
     gettingBeaconData: false,
@@ -27,7 +30,7 @@ const beacons = (state = initialState, action) => {
 
     case SET_VEHICLE_BEACON_DATA:
 
-        return state.set('vehicleBeaconData', action.beaconData).set('gettingVehicleBeaconData', action.gettingVehicleBeaconData);
+        return state.set('vehicleBeaconData', {confidence: action.confidence, vehicles: action.beaconData}).set('gettingVehicleBeaconData', action.gettingVehicleBeaconData);
 
     case REQUEST_BEACON_DATA:
 

@@ -35,8 +35,11 @@ class WebSurvey extends Component { // eslint-disable-line react/prefer-stateles
     }
 
     render() {
-        const bData = this.props.beacons.get('beaconData');
-        const SURVEY_URL = `https://jola.louhin.com/surveys/fill?id=404207&accessKey=3441f854-5502-456b-ade7-d457eba2c851&answers[%27linja%27]=${resolveLine(bData.major)}`;
+        const stopBeacon = this.props.beacons.get('beaconData');
+        const vehicleBeacon = (this.props.beacons.get('vehicleBeaconData').vehicles.length > 0) ?
+        this.props.beacons.get('vehicleBeaconData').vehicles[0] :
+        null;
+        const SURVEY_URL = `https://jola.louhin.com/surveys/fill?id=404207&accessKey=3441f854-5502-456b-ade7-d457eba2c851&answers[%27linja%27]=${vehicleBeacon ? resolveLine(vehicleBeacon.major) : ''}`;
         return (
             <CustomWebView uri={SURVEY_URL} />
         );
