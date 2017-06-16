@@ -41,8 +41,6 @@ const vehicleBeaconRegion = {
     uuid: vehicleBeaconId,
 };
 
-let counter = 0;
-
 class Main extends Component { // eslint-disable-line react/prefer-stateless-function
 
     state = {
@@ -64,54 +62,15 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
             (data) => {
                 console.log('MONITORING - regionDidEnter data: ', data);
                 this.props.getBeaconData();
-                // if (Platform.OS === 'android') {
-                //     Beacons.startRangingBeaconsInRegion(beaconId);
-                //     Beacons.startRangingBeaconsInRegion(vehicleBeaconId);
-                // } else {
-                //     Beacons.startRangingBeaconsInRegion(beaconRegion);
-                //     Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
-                // }
             }
         );
         DeviceEventEmitter.addListener(
             'regionDidExit',
             (data) => {
                 console.log('MONITORING - regionDidExit data: ', data);
-                counter += 1;
-                // Beacons.stopRangingBeaconsInRegion(beaconId);
-                // Beacons.stopRangingBeaconsInRegion(vehicleBeaconId);
             }
         );
     }
-
-    // componentDidMount() {
-    //     AppState.addEventListener('change', this.handleAppStateChange);
-    // }
-
-    componentWillUnmount() {
-        // AppState.removeEventListener('change', this.handleAppStateChange);
-    }
-
-    // handleAppStateChange = (nextAppState) => {
-    //     if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
-    //         this.props.getBeaconData();
-    //     }
-    //     this.setState({appState: nextAppState});
-    // }
-
-    // if (props.news.get('activeSingleNews')) {
-    //     const data = props.news.get('data');
-    //     const singleNews = data.find(item =>
-    // item.get('nid') === props.news.get('activeSingleNews'));
-    //     return <SingleNews hide={props.hideSingleNews} singleNews={singleNews} />;
-    // }
-    // return (
-    //     <ScrollView contentContainerStyle={styles.scrollView} style={styles.container}>
-    //         <CustomWebView uri="https://reittiopas.fi/" />
-    //         {/* <CustomWebView uri="http://192.168.1.124:8080/" /> */}
-    //         <NewsFeed />
-    //     </ScrollView>
-    // );
 
     // TODO: add options view and define there if user wants to use this with "?mock"?
     render() {

@@ -15,8 +15,6 @@ export const REQUESTING_DATA = 'REQUESTING_DATA';
 const FOREGROUND_SCAN_PERIOD = 1000;
 const BACKGROUND_SCAN_PERIOD = 1000;
 
-const ATTEMPT_LIMIT = 30;
-
 if (Platform.OS === 'ios') {
     Beacons.requestAlwaysAuthorization();
 } else {
@@ -46,7 +44,6 @@ if (Platform.OS === 'ios') {
 * Stops
 * DFFF7ADA-A48A-4F77-AA9A-3A7943641E6C
 */
-
 const beaconId = (Platform.OS === 'ios') ?
 'DFFF7ADA-A48A-4F77-AA9A-3A7943641E6C' :
 'dfff7ada-a48a-4f77-aa9a-3a7943641e6c';
@@ -68,7 +65,6 @@ let beaconFound = false;
 let vehicleBeaconsFound = false;
 
 let tryingToFindBeacons = false;
-let attempts = 0;
 
 const PREVIOUS_LIMIT = 10;
 let previousVehicles = []; //eslint-disable-line
@@ -131,9 +127,6 @@ if (Platform.OS === 'android') {
     Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
 }
 const getData = async function getData(dispatch) {
-    //Beacons.startMonitoringForRegion(beaconRegion);
-    //Beacons.startMonitoringForRegion(vehicleBeaconRegion);
-
     try {
         await Beacons.startRangingBeaconsInRegion(beaconRegion);
         await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
@@ -147,24 +140,10 @@ const getData = async function getData(dispatch) {
         return;
     }
 
+    /**
+     * Handle all detected beacons
+     */
     DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
-        // if (attempts === ATTEMPT_LIMIT) {
-        //     // Beacons.stopRangingBeaconsInRegion(beaconRegion);
-        //     // Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
-        //     if (!beaconFound) {
-        //         dispatch(beaconError(
-        //         `Beacon not found within the attempt limit (${ATTEMPT_LIMIT})`
-        //     ));
-        //     }
-        //     if (!vehicleBeaconsFound) {
-        //         dispatch(vehicleBeaconError(
-        //         `Beacon not found within the attempt limit (${ATTEMPT_LIMIT})`
-        //     ));
-        //     }
-        //     tryingToFindBeacons = false;
-        //     return;
-        // }
-
         const workingBeacons = data.beacons.filter(b =>
         (b.rssi < 0 && (b.uuid === beaconId || b.uuid === vehicleBeaconId)));
         console.log(`BEACONS: ${data.beacons
@@ -177,10 +156,19 @@ const getData = async function getData(dispatch) {
             let vehicleBeacons = [];
 
             workingBeacons.forEach((beacon, index) => {
+                /**
+                 * Handle stop beacons:
+                 * Simple comparison of the strongest signal
+                 */
                 if (beacon.uuid === beaconId && beacon.rssi > strongestBeaconRSSI) {
                     closestBeaconIndex = index;
                     strongestBeaconRSSI = beacon.rssi;
                 }
+                /**
+                 * Handle vehicle beacons:
+                 * Combine the signals of beacons belonging to the same vehicle.
+                 * Favorst multiple weaker beacons over a single stronger one.
+                 */
                 if (beacon.uuid === vehicleBeaconId) {
                     if (vehicleBeacons.filter(b => b.major === beacon.major).length > 0) {
                         vehicleBeacons
@@ -195,22 +183,32 @@ const getData = async function getData(dispatch) {
 
             if (beaconData && beaconData.uuid === beaconId) {
                 dispatch(setBeaconData(beaconData));
-                //Beacons.stopRangingBeaconsInRegion(beaconRegion);
                 beaconFound = true;
             }
 
             if (vehicleBeacons.length > 0) {
+                /**
+                 * The beacon data closest to the user
+                 * is sorted to be always first in the array.
+                 */
                 if (vehicleBeacons.length > 1) {
                     vehicleBeacons = vehicleBeacons.sort((a, b) => {
                         if (a.rssi > b.rssi) return -1;
                         return 1;
                     });
                 }
+                /**
+                 * Saving the beacons that were previously considered the strongest
+                 * in a single scan. PREVIOUS_LIMIT limits the number of beacons saved.
+                 *
+                 * Confidence of the strongest beacon in this scan actually being closest
+                 * is calculated by checking how many times the same vehicle
+                 * occurs in previous scans.
+                 */
                 previousVehicles.push(vehicleBeacons[0]);
                 if (previousVehicles.length > PREVIOUS_LIMIT) {
                     previousVehicles.shift();
                 }
-                // previousVehicles.forEach(v => console.log(`PREV: ${v.major}`));
                 const conf = previousVehicles.length > 0 ?
                 previousVehicles.filter(m => m.major === vehicleBeacons[0].major)
                 .length / previousVehicles.length :
@@ -219,14 +217,12 @@ const getData = async function getData(dispatch) {
                     conf,
                     vehicleBeacons,
                 ));
-                //Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
                 vehicleBeaconsFound = true;
             }
         } else {
             //No beacons found, empty the store
             dispatch(setBeaconData({}));
             dispatch(setBusBeaconData(0, []));
-            // attempts += 1;
         }
     });
 };
@@ -234,8 +230,6 @@ const getData = async function getData(dispatch) {
 export const getBeaconData = function getBeaconData() {
     if (!tryingToFindBeacons) {
         tryingToFindBeacons = true;
-
-        attempts = 0;
         beaconFound = false;
         vehicleBeaconsFound = false;
 

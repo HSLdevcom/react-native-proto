@@ -3,7 +3,6 @@
  * @flow
  */
 import React, {Component} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import {getBeaconData} from '../actions/beacons';
@@ -35,7 +34,6 @@ class WebSurvey extends Component { // eslint-disable-line react/prefer-stateles
     }
 
     render() {
-        const stopBeacon = this.props.beacons.get('beaconData');
         const vehicleBeacon = (this.props.beacons.get('vehicleBeaconData').vehicles.length > 0) ?
         this.props.beacons.get('vehicleBeaconData').vehicles[0] :
         null;
