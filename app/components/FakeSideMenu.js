@@ -74,7 +74,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
             // and save it to the state
             // then show "logout" or "login" based on that
             return (
-                <Login loggedIn={!!session.get('data')} />
+                <Login loggedIn={!!session.get('data').loggedIn} />
             );
         }
         // Add some "menu like animation" so this maybe feels more like real menu
@@ -83,7 +83,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
         return (
             <Animated.View
                 style={[styles.container, {
-                    marginLeft: fadeAnim.interpolate({
+                    marginLeft: __DEV__ ? 0 : fadeAnim.interpolate({
                         inputRange: [0, 1],
                         outputRange: [1000, 0],
                     }),
