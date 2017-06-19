@@ -148,17 +148,21 @@ const getData = async function getData(dispatch) {
         || (Platform.OS === 'android' && data.identifier === beaconRegion)) {
             const workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === beaconId)));
-            console.log(`BEACONS: ${data.beacons
-                .map(b => `\n ${b.major}-${b.minor} || strength: ${b.rssi} accuracy: ${b.accuracy} uuid: ${b.uuid} proximity: ${b.proximity}\n`)}`);
+            console.log(`STOPBEACONS: ${data.beacons
+                .map(b => `\n
+                ${b.major}-${b.minor} :
+                 uuid: ${b.uuid}
+                 strength: ${b.rssi}
+                 accuracy: ${b.accuracy} \n`)}`);
             if (workingBeacons.length > 0) {
                 let closestBeaconIndex = 0;
                 let strongestBeaconRSSI = -101;
 
                 workingBeacons.forEach((beacon, index) => {
-                /**
-                 * Handle stop beacons:
-                 * Simple comparison of the strongest signal
-                 */
+                    /**
+                     * Handle stop beacons:
+                     * Simple comparison of the strongest signal
+                     */
                     if (beacon.uuid === beaconId && beacon.rssi > strongestBeaconRSSI) {
                         closestBeaconIndex = index;
                         strongestBeaconRSSI = beacon.rssi;
@@ -180,9 +184,12 @@ const getData = async function getData(dispatch) {
         || (Platform.OS === 'android' && data.identifier === vehicleBeaconRegion)) {
             const workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === vehicleBeaconId)));
-            console.log(`BEACONS: ${data.beacons
-                .map(b => `\n ${b.major}-${b.minor} || strength: ${b.rssi} accuracy: ${b.accuracy} uuid: ${b.uuid} proximity: ${b.proximity}\n`)}`);
-
+            console.log(`VEHICLEBEACONS: ${data.beacons
+                .map(b => `\n ${b.major}-${b.minor} :
+                 strength: ${b.rssi}
+                 accuracy: ${b.accuracy}
+                 uuid: ${b.uuid}
+                 proximity: ${b.proximity}\n`)}`);
             if (workingBeacons.length > 0) {
                 let vehicleBeacons = [];
 
@@ -203,24 +210,24 @@ const getData = async function getData(dispatch) {
                 });
 
                 if (vehicleBeacons.length > 0) {
-                /**
-                 * The beacon data closest to the user
-                 * is sorted to be always first in the array.
-                 */
+                    /**
+                     * The beacon data closest to the user
+                     * is sorted to be always first in the array.
+                     */
                     if (vehicleBeacons.length > 1) {
                         vehicleBeacons = vehicleBeacons.sort((a, b) => {
                             if (a.rssi > b.rssi) return -1;
                             return 1;
                         });
                     }
-                /**
-                 * Saving the beacons that were previously considered the strongest
-                 * in a single scan. PREVIOUS_LIMIT limits the number of beacons saved.
-                 *
-                 * Confidence of the strongest beacon in this scan actually being closest
-                 * is calculated by checking how many times the same vehicle
-                 * occurs in previous scans.
-                 */
+                    /**
+                     * Saving the beacons that were previously considered the strongest
+                     * in a single scan. PREVIOUS_LIMIT limits the number of beacons saved.
+                     *
+                     * Confidence of the strongest beacon in this scan actually being closest
+                     * is calculated by checking how many times the same vehicle
+                     * occurs in previous scans.
+                     */
                     previousVehicles.push(vehicleBeacons[0]);
                     if (previousVehicles.length > PREVIOUS_LIMIT) {
                         previousVehicles.shift();
@@ -236,12 +243,13 @@ const getData = async function getData(dispatch) {
                     vehicleBeaconsFound = true;
                 }
             } else {
-            //No beacons found, empty the store
+                //No beacons found, empty the store
                 previousVehicles.shift();
                 dispatch(setBusBeaconData(0, []));
             }
-            previousVehicles.forEach(v => console.log(`prev ${v.major}`));
+            console.log(previousVehicles.map(v => v.major));
         }
+        console.log('--------------');
     });
 };
 
