@@ -30,6 +30,9 @@ const beaconId = (Platform.OS === 'ios') ?
 const vehicleBeaconId = (Platform.OS === 'ios') ?
 '20CAE8A0-A9CF-11E3-A5E2-0800200C9A66' :
 '20cae8a0-a9cf-11e3-a5e2-0800200c9a66';
+const testBeaconId = (Platform.OS === 'ios') ?
+'7D7AFDB9-14A3-EECC-A67D-DBD798A33C25' :
+'7d7afdb9-14a3-eecc-a67d-dbd798a33c25';
 
 const beaconRegion = {
     identifier: 'OnyxBeacon',
@@ -40,6 +43,10 @@ const vehicleBeaconRegion = {
     identifier: 'OnyxBeacon',
     uuid: vehicleBeaconId,
 };
+const testBeaconRegion = (Platform.OS === 'ios') ? {
+    identifier: 'Livi',
+    uuid: testBeaconId,
+} : testBeaconId;
 
 class Main extends Component { // eslint-disable-line react/prefer-stateless-function
 
@@ -53,6 +60,7 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
         }
         Beacons.startMonitoringForRegion(beaconRegion);
         Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+        Beacons.startMonitoringForRegion(testBeaconRegion);
         if (Platform.OS === 'ios') {
             Beacons.startUpdatingLocation();
         }
