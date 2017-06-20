@@ -184,14 +184,13 @@ const getData = async function getData(dispatch) {
                     if (tempBeaconData) {
                         if (tempBeaconData.rssi < beaconData.rssi) {
                             dispatch(setBeaconData(beaconData));
+                            tempBeaconData = null;
                         } else {
                             dispatch(setBeaconData(tempBeaconData));
+                            tempBeaconData = null;
                         }
                         beaconFound = true;
                     } else {
-                        console.log('====================================');
-                        console.log('setting temp');
-                        console.log('====================================');
                         tempBeaconData = beaconData;
                     }
                 }
