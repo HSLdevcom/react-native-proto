@@ -142,8 +142,8 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
         // so we can open the last used page when component is rendered
         if (
-            !url.includes('content-only') &&
-            url !== this.state.currentUrl
+            url !== this.state.currentUrl &&
+            url.includes('http')
         ) {
             this.setState({currentUrl: url});
         }
