@@ -482,7 +482,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                         loginContainer[0].children[0].href.includes('login')
                     ) {
                         loginContainer[0].children[0].click();
-                    } else if (!window.location.href.includes('login') && !window.location.href.includes('content-only')) {
+                    } else if (!window.location.href.includes('content-only')) {
                         if (window.location.href.includes('#!/')) {
                             window.location.replace(window.location.href.split('#!/')[0] + '?content-only');
                         } else {
