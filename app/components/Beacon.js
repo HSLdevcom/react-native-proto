@@ -10,6 +10,8 @@ import Immutable from 'immutable';
 import {getBeaconData} from '../actions/beacons';
 import colors from '../colors';
 
+const beaconConfig = require('../../beaconconfig');
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -53,16 +55,16 @@ const styles = StyleSheet.create({
 * bb198f26-4a2f-4b7f-bd7c-9fc09d6d5b2b
 */
 const beaconId = (Platform.OS === 'ios') ?
-'20CAE8A0-A9CF-11E3-A5E2-0800200C9A66' :
-'20cae8a0-a9cf-11e3-a5e2-0800200c9a66';
+beaconConfig.beaconId.ios :
+beaconConfig.beaconId.android;
 
 const vehicleBeaconId = (Platform.OS === 'ios') ?
-'BB198F26-4A2F-4B7F-BD7C-9FC09D6D5B2B' :
-'bb198f26-4a2f-4b7f-bd7c-9fc09d6d5b2b';
+beaconConfig.vehicleBeaconId.ios :
+beaconConfig.vehicleBeaconId.android;
 
 const liviBeaconId = (Platform.OS === 'ios') ?
-'7D7AFDB9-14A3-EECC-A67D-DBD798A33C25' :
-'7d7afdb9-14a3-eecc-a67d-dbd798a33c25';
+beaconConfig.liviBeaconId.ios :
+beaconConfig.liviBeaconId.android;
 
 /**
 * A placeholder function for resolving line name based on vehiclebeacon "major" identifier.

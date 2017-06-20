@@ -12,6 +12,8 @@ export const VEHICLE_BEACON_ERROR = 'VEHICLE_BEACON_ERROR';
 export const REQUEST_BEACON_DATA = 'REQUEST_BEACON_DATA';
 export const REQUESTING_DATA = 'REQUESTING_DATA';
 
+const beaconConfig = require('../../beaconconfig');
+
 const FOREGROUND_SCAN_PERIOD = 1000;
 const BACKGROUND_SCAN_PERIOD = 1000;
 
@@ -38,53 +40,30 @@ if (Platform.OS === 'ios') {
     }
 }
 
-/*
-* OnyxBeacon default
-* 20CAE8A0-A9CF-11E3-A5E2-0800200C9A66
-* 20cae8a0-a9cf-11e3-a5e2-0800200c9a66
-*
-* Stops
-* DFFF7ADA-A48A-4F77-AA9A-3A7943641E6C
-* 'dfff7ada-a48a-4f77-aa9a-3a7943641e6c'
-*
-* Livi
-* 7D7AFDB9-14A3-EECC-A67D-DBD798A33C25
-* 7d7afdb9-14a3-eecc-a67d-dbd798a33c25
-*
-* Incorrect stopId (same as Onyx)
-* 20CAE8A0-A9CF-11E3-A5E2-0800200C9A66
-* 20cae8a0-a9cf-11e3-a5e2-0800200c9a66
-*
-* New vehicle UUID
-* BB198F26-4A2F-4B7F-BD7C-9FC09D6D5B2B
-* bb198f26-4a2f-4b7f-bd7c-9fc09d6d5b2b
-*/
+
 const beaconId = (Platform.OS === 'ios') ?
-'20CAE8A0-A9CF-11E3-A5E2-0800200C9A66' :
-'20cae8a0-a9cf-11e3-a5e2-0800200c9a66';
+beaconConfig.beaconId.ios :
+beaconConfig.beaconId.android;
 
 const vehicleBeaconId = (Platform.OS === 'ios') ?
-'BB198F26-4A2F-4B7F-BD7C-9FC09D6D5B2B' :
-'bb198f26-4a2f-4b7f-bd7c-9fc09d6d5b2b';
+beaconConfig.vehicleBeaconId.ios :
+beaconConfig.vehicleBeaconId.android;
 
 const liviBeaconId = (Platform.OS === 'ios') ?
-'7D7AFDB9-14A3-EECC-A67D-DBD798A33C25' :
-'7d7afdb9-14a3-eecc-a67d-dbd798a33c25';
+beaconConfig.liviBeaconId.ios :
+beaconConfig.liviBeaconId.android;
 
-const beaconRegion = (Platform.OS === 'ios') ? {
-    identifier: 'RuuviTag',
-    uuid: beaconId,
-} : beaconId;
+const beaconRegion = (Platform.OS === 'ios') ?
+beaconConfig.beaconRegion.ios :
+beaconConfig.beaconRegion.android;
 
-const vehicleBeaconRegion = (Platform.OS === 'ios') ? {
-    identifier: 'OnyxBeacon',
-    uuid: vehicleBeaconId,
-} : vehicleBeaconId;
+const vehicleBeaconRegion = (Platform.OS === 'ios') ?
+beaconConfig.vehicleBeaconRegion.ios :
+beaconConfig.vehicleBeaconRegion.android;
 
-const liviBeaconRegion = (Platform.OS === 'ios') ? {
-    identifier: 'Livi',
-    uuid: liviBeaconId,
-} : liviBeaconId;
+const liviBeaconRegion = (Platform.OS === 'ios') ?
+beaconConfig.liviBeaconRegion.ios :
+beaconConfig.liviBeaconRegion.android;
 
 let beaconFound = false;
 let vehicleBeaconsFound = false;
@@ -93,6 +72,8 @@ let tryingToFindBeacons = false;
 
 const PREVIOUS_LIMIT = 5;
 let previousVehicles = []; //eslint-disable-line
+
+let tempBeaconData = null;
 
 export const setBeaconData = function setBeaconData(beaconData) {
     return {
@@ -153,8 +134,8 @@ if (Platform.OS === 'android') {
 }
 const getData = async function getData(dispatch) {
     try {
-        await Beacons.startRangingBeaconsInRegion(beaconRegion);
         await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
+        await Beacons.startRangingBeaconsInRegion(beaconRegion);
         await Beacons.startRangingBeaconsInRegion(liviBeaconRegion);
     } catch (error) {
         Beacons.stopRangingBeaconsInRegion(beaconRegion);
@@ -168,6 +149,7 @@ const getData = async function getData(dispatch) {
 
     /**
      * Handle all detected beacons
+     * Fires once for every region being listened (during one second)
      */
     DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
         if ((Platform.OS === 'ios' && (data.region.uuid === beaconRegion.uuid || data.region.uuid === liviBeaconRegion.uuid))
@@ -189,17 +171,29 @@ const getData = async function getData(dispatch) {
                      * Handle stop beacons:
                      * Simple comparison of the strongest signal
                      */
-                    if ((beacon.rssi > strongestBeaconRSSI) && (beacon.uuid === beaconId || beacon.uuid === liviBeaconId)) {
+                    if ((beacon.rssi > strongestBeaconRSSI)
+                    && (beacon.uuid === beaconId || beacon.uuid === liviBeaconId)) {
                         closestBeaconIndex = index;
                         strongestBeaconRSSI = beacon.rssi;
                     }
                 });
 
                 const beaconData = workingBeacons[closestBeaconIndex];
-
-                if (beaconData && (beaconData.uuid === beaconId || beaconData.uuid === liviBeaconId)) {
-                    dispatch(setBeaconData(beaconData));
-                    beaconFound = true;
+                if (beaconData
+                && (beaconData.uuid === beaconId || beaconData.uuid === liviBeaconId)) {
+                    if (tempBeaconData) {
+                        if (tempBeaconData.rssi < beaconData.rssi) {
+                            dispatch(setBeaconData(beaconData));
+                        } else {
+                            dispatch(setBeaconData(tempBeaconData));
+                        }
+                        beaconFound = true;
+                    } else {
+                        console.log('====================================');
+                        console.log('setting temp');
+                        console.log('====================================');
+                        tempBeaconData = beaconData;
+                    }
                 }
             } else {
                 //No beacons found, empty the store

@@ -14,39 +14,34 @@ import {connect} from 'react-redux';
 import CustomWebView from './CustomWebView';
 import {getBeaconData} from '../actions/beacons';
 
+const beaconConfig = require('../../beaconconfig');
+
 export const REITTIOPAS_MOCK_URL = 'https://reittiopas.fi/?mock';
 export const REITTIOPAS_URL = 'https://reittiopas.fi';
 
-
-/*
-* Current UUID for OnyxBeacon
-* 20CAE8A0-A9CF-11E3-A5E2-0800200C9A66
-* Stops
-* DFFF7ADA-A48A-4F77-AA9A-3A7943641E6C
-*/
 const beaconId = (Platform.OS === 'ios') ?
-'DFFF7ADA-A48A-4F77-AA9A-3A7943641E6C' :
-'dfff7ada-a48a-4f77-aa9a-3a7943641e6c';
+beaconConfig.beaconId.ios :
+beaconConfig.beaconId.android;
+
 const vehicleBeaconId = (Platform.OS === 'ios') ?
-'20CAE8A0-A9CF-11E3-A5E2-0800200C9A66' :
-'20cae8a0-a9cf-11e3-a5e2-0800200c9a66';
-const testBeaconId = (Platform.OS === 'ios') ?
-'7D7AFDB9-14A3-EECC-A67D-DBD798A33C25' :
-'7d7afdb9-14a3-eecc-a67d-dbd798a33c25';
+beaconConfig.vehicleBeaconId.ios :
+beaconConfig.vehicleBeaconId.android;
 
-const beaconRegion = {
-    identifier: 'OnyxBeacon',
-    uuid: beaconId,
-};
+const liviBeaconId = (Platform.OS === 'ios') ?
+beaconConfig.liviBeaconId.ios :
+beaconConfig.liviBeaconId.android;
 
-const vehicleBeaconRegion = {
-    identifier: 'OnyxBeacon',
-    uuid: vehicleBeaconId,
-};
-const testBeaconRegion = (Platform.OS === 'ios') ? {
-    identifier: 'Livi',
-    uuid: testBeaconId,
-} : testBeaconId;
+const beaconRegion = (Platform.OS === 'ios') ?
+beaconConfig.beaconRegion.ios :
+beaconConfig.beaconRegion.android;
+
+const vehicleBeaconRegion = (Platform.OS === 'ios') ?
+beaconConfig.vehicleBeaconRegion.ios :
+beaconConfig.vehicleBeaconRegion.android;
+
+const liviBeaconRegion = (Platform.OS === 'ios') ?
+beaconConfig.liviBeaconRegion.ios :
+beaconConfig.liviBeaconRegion.android;
 
 class Main extends Component { // eslint-disable-line react/prefer-stateless-function
 
@@ -60,7 +55,7 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
         }
         Beacons.startMonitoringForRegion(beaconRegion);
         Beacons.startMonitoringForRegion(vehicleBeaconRegion);
-        Beacons.startMonitoringForRegion(testBeaconRegion);
+        Beacons.startMonitoringForRegion(liviBeaconRegion);
         if (Platform.OS === 'ios') {
             Beacons.startUpdatingLocation();
         }
