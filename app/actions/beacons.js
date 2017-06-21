@@ -5,6 +5,12 @@ import {
     PermissionsAndroid,
 } from 'react-native';
 
+import * as beaconConfig from '../../beaconconfig';
+
+import stations from '../../stations.json';
+import placement from '../../placement.json';
+import prefixes from '../../municipalityprefixes.json';
+
 export const SET_BEACON_DATA = 'SET_BEACON_DATA';
 export const SET_VEHICLE_BEACON_DATA = 'SET_VEHICLE_BEACON_DATA';
 export const BEACON_ERROR = 'BEACON_ERROR';
@@ -12,10 +18,10 @@ export const VEHICLE_BEACON_ERROR = 'VEHICLE_BEACON_ERROR';
 export const REQUEST_BEACON_DATA = 'REQUEST_BEACON_DATA';
 export const REQUESTING_DATA = 'REQUESTING_DATA';
 
-const beaconConfig = require('../../beaconconfig');
-
 const FOREGROUND_SCAN_PERIOD = 1000;
 const BACKGROUND_SCAN_PERIOD = 1000;
+
+const PREVIOUS_LIMIT = 8;
 
 if (Platform.OS === 'ios') {
     Beacons.requestAlwaysAuthorization();
@@ -70,7 +76,6 @@ let vehicleBeaconsFound = false;
 
 let tryingToFindBeacons = false;
 
-const PREVIOUS_LIMIT = 5;
 let previousVehicles = []; //eslint-disable-line
 
 let tempBeaconData = null;
@@ -150,44 +155,24 @@ const resolveLine = (major) => {
 */
 const resolveStop = (uuid, major, minor) => {
     if (uuid === beaconId) {
-        if (major === 49) {
-            switch (minor) {
-            case 1033:
-                return 'E1033';
-            case 1024:
-                return 'E1024';
-            case 1025:
-                return 'E1025';
-            case 1026:
-                return 'E1026';
-            case 1027:
-                return 'E1027';
-            default:
-                return null;
-            }
+        const matchingStop = prefixes.filter(s => s.code === major);
+        if (matchingStop.length > 0) {
+            return `${matchingStop[0].prefix}${minor}`;
         }
+        return null;
     }
     if (uuid === liviBeaconId) {
         let returnString = '';
-        switch (major) {
-        case 1:
-            returnString += 'Helsinki ';
-            break;
-        case 68:
-            returnString += 'Leppävaara ';
-            break;
-        default:
-            return null;
+        const matchingStation = stations.filter(s => s.stationUICCode === major);
+        if (matchingStation.length > 0) {
+            returnString += `${matchingStation[0].stationName} - `;
         }
         const platform = minor >>> 11; //eslint-disable-line
-        if (platform > 0 && platform < 32) returnString += `Liikennepaikan ${platform}. laituri `;
-        switch (minor & 63) { //eslint-disable-line
-        case 41:
-            returnString += 'Alikulkutunneli';
-            break;
-        case 42:
-            returnString += 'Alikulkutunneli';
-            break;
+        if (platform > 0 && platform < 32) returnString += `Liikennepaikan ${platform}. laituri - `;
+        const placementBits = minor & 63 //eslint-disable-line
+        const matchingPlacement = placement.filter(p => p.id === placementBits);
+        if (matchingPlacement.length > 0) {
+            returnString += matchingPlacement[0].description;
         }
         return returnString.length > 0 ? returnString : null;
     }
