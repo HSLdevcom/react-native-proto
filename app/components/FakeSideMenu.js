@@ -79,9 +79,6 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                 <CityBikes />
             );
         } else if (name === 'login') {
-            // TODO: somehow check if there is active login session in WebView
-            // and save it to the state
-            // then show "logout" or "login" based on that
             return (
                 <Login loggedIn={!!session.get('data')} />
             );
