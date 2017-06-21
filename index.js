@@ -4,13 +4,15 @@
  * @flow
  */
 import React, {Component} from 'react';
-import {ActivityIndicator, AppRegistry, AsyncStorage, Platform, StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, AppRegistry, AppState, AsyncStorage, DeviceEventEmitter, Platform, StyleSheet, Text, View} from 'react-native';
 import {persistStore} from 'redux-persist';
 import {connect, Provider} from 'react-redux';
 import {Router, Scene} from 'react-native-router-flux';
 import immutableTransform from 'redux-persist-transform-immutable';
 import Icon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Beacons from 'react-native-beacons-manager';
+import BackgroundJob from 'react-native-background-job';
 import store from './app/store';
 import colors from './app/colors';
 import Main from './app/components/Main';
@@ -19,8 +21,70 @@ import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
 import Beacon from './app/components/Beacon';
 // import Test from './app/components/Test';
-import CityBikesData from './app/components/CityBikesData';
+const beaconConfig = require('./beaconconfig');
 
+// How many times backgroundJob is called during this "session"
+let backgroundRuns = 0;
+
+const test = () => {
+    console.log('Running in background');
+    console.log(new Date());
+    console.log('AppState.currentState: ', AppState.currentState);
+    console.log('backgroundRuns: ', backgroundRuns);
+    /*
+    * This is compromise that tries to add region eventlisteners only once while screen is open
+    * and background task is looping
+    * AppState.currentState is background when phone is in use but this app isn't open
+    * AppState.currentState is uninitialized OR active when phone is waked up from sleep and
+    * that is the case we want to handle(?)
+    * It seems that Android 7 is not stopping monitoring at all even if phone is sleeping
+    */
+    if (backgroundRuns === 0 && AppState.currentState !== 'background') {
+        Beacons.stopMonitoringForRegion(beaconConfig.vehicleBeaconRegion.ios);
+        Beacons.detectIBeacons();
+        Beacons.startMonitoringForRegion(beaconConfig.vehicleBeaconRegion.ios)
+        .then(() => console.log('startMonitoringForRegion vehicleBeaconRegion'))
+        .catch(e => console.log(e));
+        DeviceEventEmitter.addListener(
+            'regionDidEnter',
+            (data) => {
+                console.log('MONITORING - regionDidEnter data: ', data);
+            }
+        );
+        DeviceEventEmitter.addListener(
+            'regionDidExit',
+            (data) => {
+                console.log('MONITORING - regionDidExit data: ', data);
+            }
+        );
+    }
+    backgroundRuns += 1;
+};
+
+const handleAppStateChange = (nextAppState) => {
+    console.log('nextAppState: ', nextAppState);
+    if (nextAppState === 'background') {
+        const backgroundSchedule = {
+            jobKey: 'testBackgroundJob',
+            timeout: 60000,
+            period: 15000, //android sdk version affects how this time is handled
+        };
+        console.log('schedule gogo!');
+        BackgroundJob.schedule(backgroundSchedule);
+    } else if (nextAppState === 'active') {
+        BackgroundJob.cancelAll();
+    }
+};
+
+if (Platform.OS === 'android') {
+    const backgroundJob = {
+        jobKey: 'testBackgroundJob',
+        job: () => test(),
+    };
+
+    BackgroundJob.register(backgroundJob);
+    AppState.addEventListener('change', handleAppStateChange);
+}
 console.log('Starting');
 console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
 console.log(`__DEV__: ${__DEV__}`);
@@ -131,9 +195,6 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                     <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
                         <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                     </Scene>
-                    <Scene iconName="user" key="sessionTab" title="CityBikesData" icon={TabIcon}>
-                        <Scene key="session" component={CityBikesData} title="CityBikesData" />
-                    </Scene>
                     <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                         <Scene hideNavBar key="camera" title="Kamera" />
                         <Scene key="microphone" title="Äänitys" />
@@ -157,9 +218,6 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                     </Scene>
                     <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
                         <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
-                    </Scene>
-                    <Scene iconName="user" key="sessionTab" title="CityBikesData" icon={TabIcon}>
-                        <Scene key="session" component={CityBikesData} title="CityBikesData" />
                     </Scene>
                     <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                         <Scene hideNavBar key="camera" title="Kamera" />
