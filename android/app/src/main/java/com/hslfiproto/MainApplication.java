@@ -3,6 +3,7 @@ package com.hslfiproto;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.pilloxa.backgroundjob.BackgroundJobPackage;
 import com.mackentoch.beaconsandroid.BeaconsAndroidPackage;
 import com.oblongmana.webviewfileuploadandroid.AndroidWebViewPackage;
 import es.tiarg.nfcndefreactnative.NfcNdefReactNativePackage;
@@ -34,6 +35,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new BackgroundJobPackage(),
             new BeaconsAndroidPackage(),
             new AndroidWebViewPackage(),
             new NfcNdefReactNativePackage(),
