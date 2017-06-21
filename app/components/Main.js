@@ -48,7 +48,7 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
     state = {
         appState: AppState.currentState,
     }
-
+    // TODO: check if app can use bluetooth: checkTransmissionSupported(): promise
     componentWillMount = () => {
         if (Platform.OS === 'android') {
             Beacons.detectIBeacons();
