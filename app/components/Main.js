@@ -31,17 +31,9 @@ const liviBeaconId = (Platform.OS === 'ios') ?
 beaconConfig.liviBeaconId.ios :
 beaconConfig.liviBeaconId.android;
 
-const beaconRegion = (Platform.OS === 'ios') ?
-beaconConfig.beaconRegion.ios :
-beaconConfig.beaconRegion.android;
-
-const vehicleBeaconRegion = (Platform.OS === 'ios') ?
-beaconConfig.vehicleBeaconRegion.ios :
-beaconConfig.vehicleBeaconRegion.android;
-
-const liviBeaconRegion = (Platform.OS === 'ios') ?
-beaconConfig.liviBeaconRegion.ios :
-beaconConfig.liviBeaconRegion.android;
+const beaconRegion = beaconConfig.beaconRegion.ios;
+const vehicleBeaconRegion = beaconConfig.vehicleBeaconRegion.ios;
+const liviBeaconRegion = beaconConfig.liviBeaconRegion.ios;
 
 class Main extends Component { // eslint-disable-line react/prefer-stateless-function
 
