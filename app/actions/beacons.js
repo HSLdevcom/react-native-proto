@@ -127,6 +127,74 @@ export const vehicleBeaconError = function vehicleBeaconError(error) {
 * .accuracy - The accuracy of a beacon
 **/
 
+/**
+* A placeholder function for resolving line name based on vehiclebeacon "major" identifier.
+* Should be replaced with DB query in the future.
+*/
+const resolveLine = (major) => {
+    switch (major) {
+    case 234:
+        return '102T';
+    case 235:
+        return '103';
+    case 1:
+        return '9';
+    default:
+        return '';
+    }
+};
+
+/**
+* A placeholder function for resolving bus stop based on stopbeacon "minor" identifier.
+* Should be replaced with DB query in the future.
+*/
+const resolveStop = (uuid, major, minor) => {
+    if (uuid === beaconId) {
+        if (major === 49) {
+            switch (minor) {
+            case 1033:
+                return 'E1033';
+            case 1024:
+                return 'E1024';
+            case 1025:
+                return 'E1025';
+            case 1026:
+                return 'E1026';
+            case 1027:
+                return 'E1027';
+            default:
+                return null;
+            }
+        }
+    }
+    if (uuid === liviBeaconId) {
+        let returnString = '';
+        switch (major) {
+        case 1:
+            returnString += 'Helsinki ';
+            break;
+        case 68:
+            returnString += 'Leppävaara ';
+            break;
+        default:
+            return null;
+        }
+        const platform = minor >>> 11; //eslint-disable-line
+        if (platform > 0 && platform < 32) returnString += `Liikennepaikan ${platform}. laituri `;
+        switch (minor & 63) { //eslint-disable-line
+        case 41:
+            returnString += 'Alikulkutunneli';
+            break;
+        case 42:
+            returnString += 'Alikulkutunneli';
+            break;
+        }
+        return returnString.length > 0 ? returnString : null;
+    }
+    return 'Lookup error (livi)';
+};
+
+
 if (Platform.OS === 'android') {
     Beacons.detectIBeacons();
     Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
@@ -183,9 +251,19 @@ const getData = async function getData(dispatch) {
                 && (beaconData.uuid === beaconId || beaconData.uuid === liviBeaconId)) {
                     if (tempBeaconData) {
                         if (tempBeaconData.rssi < beaconData.rssi) {
+                            beaconData.stop = resolveStop(
+                                beaconData.uuid,
+                                beaconData.major,
+                                beaconData.minor
+                            );
                             dispatch(setBeaconData(beaconData));
                             tempBeaconData = null;
                         } else {
+                            tempBeaconData.stop = resolveStop(
+                                tempBeaconData.uuid,
+                                tempBeaconData.major,
+                                tempBeaconData.minor
+                            );
                             dispatch(setBeaconData(tempBeaconData));
                             tempBeaconData = null;
                         }
@@ -239,6 +317,9 @@ const getData = async function getData(dispatch) {
                             return 1;
                         });
                     }
+                    vehicleBeacons.forEach(function (vehicleBeaconData)  { //eslint-disable-line
+                        vehicleBeaconData.line = resolveLine(vehicleBeaconData.major); //eslint-disable-line
+                    });
                     /**
                      * Saving the beacons that were previously considered the strongest
                      * in a single scan. PREVIOUS_LIMIT limits the number of beacons saved.
@@ -252,13 +333,13 @@ const getData = async function getData(dispatch) {
                         previousVehicles.shift();
                     }
                     const conf = previousVehicles.length > 0 ?
-                previousVehicles.filter(m => m.major === vehicleBeacons[0].major)
-                .length / previousVehicles.length :
-                0;
+                    previousVehicles.filter(m => m.major === vehicleBeacons[0].major)
+                    .length / previousVehicles.length :
+                    0;
                     dispatch(setBusBeaconData(
                     conf,
                     vehicleBeacons,
-                ));
+                    ));
                     vehicleBeaconsFound = true;
                 }
             } else {
