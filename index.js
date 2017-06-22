@@ -62,6 +62,9 @@ const test = () => {
 const handleAppStateChange = (nextAppState) => {
     console.log('nextAppState: ', nextAppState);
     if (nextAppState === 'background') {
+        // NOTICE: https://github.com/vikeri/react-native-background-job/issues/17
+        // At the moment you get every now and then
+        // error like "Tried to start task xxx while in foreground"
         const backgroundSchedule = {
             jobKey: 'testBackgroundJob',
             timeout: 60000,
