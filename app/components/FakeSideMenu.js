@@ -95,7 +95,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
         } else if (name === 'beacons') {
             return <Beacon />;
         }
-        const nfcElement = Platform.OS === 'android' ?
+        const nfcElement = Platform.OS === 'android_THIS_IS_DISABLED_NOW' ?
             (
                 <TouchableOpacity style={styles.wrapper} onPress={this.showNFC}>
                     <MaterialIcon style={styles.icon} size={26} name="nfc" />

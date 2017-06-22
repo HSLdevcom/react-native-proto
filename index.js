@@ -230,7 +230,7 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                 </View>
             );
         }
-        const scenes = Platform.OS === 'android' ?
+        const scenes = Platform.OS === 'android_THIS_IS_DISABLED_NOW' ?
             (
                 <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
                     <Scene HSLIcon iconName="reittiopas" key="homeTab" title="Reittiopas" icon={TabIcon}>
