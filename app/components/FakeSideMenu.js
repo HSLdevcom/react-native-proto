@@ -6,14 +6,21 @@
  */
 
 import React, {Component} from 'react';
-import {Animated, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {Animated, StyleSheet, Text, TouchableOpacity, Image} from 'react-native';
+import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import Immutable from 'immutable';
 import Icon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import About from './About';
+import Beacon from './Beacon';
 import CityBikes from './CityBikes';
+import Camera from './Camera';
+import Microphone from './Microphone';
+import NFCTest from './NFCTest';
 import Login from './Login';
+import WebSurvey from './WebSurvey';
 import colors from '../colors';
 
 const styles = StyleSheet.create({
@@ -62,6 +69,12 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
     }
     showCityBikes = () => Actions.cityBike();
     showLogin = () => Actions.login({title: this.getLoginTitle()});
+    showCamera = () => Actions.camera();
+    showMicrophone = () => Actions.microphone();
+    showNFC = () => Actions.nfc();
+    showForm = () => Actions.form();
+    showBeacons = () => Actions.beacons();
+    showAbout = () => Actions.about();
     render() {
         const {name, session} = this.props;
         const loginViewTitle = this.getLoginTitle();
@@ -70,31 +83,54 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                 <CityBikes />
             );
         } else if (name === 'login') {
-            // TODO: somehow check if there is active login session in WebView
-            // and save it to the state
-            // then show "logout" or "login" based on that
             return (
-                <Login loggedIn={!!session.get('data')} />
+                <Login loggedIn={!!session.get('data').loggedIn} />
             );
+        } else if (name === 'camera') {
+            return <Camera />;
+        } else if (name === 'microphone') {
+            return <Microphone />;
+        } else if (name === 'nfc') {
+            return <NFCTest />;
+        } else if (name === 'form') {
+            return <WebSurvey />;
+        } else if (name === 'beacons') {
+            return <Beacon />;
+        } else if (name === 'about') {
+            return <About />;
         }
         // Add some "menu like animation" so this maybe feels more like real menu
         const fadeAnim = new Animated.Value(0);
-        Animated.timing(fadeAnim, {toValue: 1, duration: 500}).start();
+        Animated.timing(fadeAnim, {toValue: 1, duration: 300}).start();
         return (
             <Animated.View
                 style={[styles.container, {
-                    marginLeft: fadeAnim.interpolate({
+                    marginLeft: __DEV__ ? 0 : fadeAnim.interpolate({
                         inputRange: [0, 1],
                         outputRange: [1000, 0],
                     }),
                 }]}
             >
                 <TouchableOpacity style={styles.wrapper} onPress={this.showCityBikes}>
-                    <MaterialIcon style={styles.icon} size={26} name="bike" />
+                    <Image
+                        style={{width: 28, height: 19, marginRight: 10}}
+                        source={require('../img/icon-citybike.png')} //eslint-disable-line global-require
+                    />
                     <Text style={styles.buttonText}>Kaupunkipyörät</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.wrapper} onPress={this.showAbout}>
+                    <Icon style={styles.icon} size={26} name="info" />
+                    <Text style={styles.buttonText}>Tietoa sovelluksesta</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.wrapper} onPress={this.showBeacons}>
+                    <Icon style={styles.icon} size={26} name="code" />
+                    <Text style={styles.buttonText}>Beacon</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.wrapper} onPress={this.showLogin}>
-                    <Icon style={styles.icon} size={26} name="login" />
+                    <Image
+                        style={{width: 18, height: 22, marginRight: 10}}
+                        source={require('../img/icon-login.png')} //eslint-disable-line global-require
+                    />
                     <Text style={styles.buttonText}>{loginViewTitle}</Text>
                 </TouchableOpacity>
             </Animated.View>
@@ -103,9 +139,15 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
 }
 
 FakeSideMenu.propTypes = {
-    name: React.PropTypes.string.isRequired,
-    routes: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    session: React.PropTypes.instanceOf(Immutable.Map).isRequired,
+    name: PropTypes.string.isRequired,
+    routes: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
+    session: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
 };
 
 function mapStateToProps(state) {

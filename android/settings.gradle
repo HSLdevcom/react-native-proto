@@ -1,6 +1,22 @@
 rootProject.name = 'HSLProto'
 include ':react-native-fcm'
 project(':react-native-fcm').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-fcm/android')
+include ':react-native-background-job'
+project(':react-native-background-job').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-background-job/android')
+include ':react-native-webview-file-upload-android'
+project(':react-native-webview-file-upload-android').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-webview-file-upload-android/android')
+include ':react-native-beacons-manager'
+project(':react-native-beacons-manager').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-beacons-manager/android')
+include ':nfc-ndef-react-native'
+project(':nfc-ndef-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/nfc-ndef-react-native/android')
+include ':react-native-sound'
+project(':react-native-sound').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sound/android')
+include ':react-native-audio'
+project(':react-native-audio').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-audio/android')
+include ':react-native-camera'
+project(':react-native-camera').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-camera/android')
+include ':react-native-nfc'
+project(':react-native-nfc').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-nfc/android')
 include ':react-native-cookie'
 project(':react-native-cookie').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-cookie/android')
 include ':react-native-vector-icons'

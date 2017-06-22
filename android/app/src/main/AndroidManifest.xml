@@ -9,12 +9,15 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.RECORD_VIDEO"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- These permissions are added implicitly by android-jsc, see https://github.com/facebook/android-jsc/pull/12 -->
     <!-- The following lines can be removed after android-jsc is updated in react-native -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="remove"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove"/>
     <uses-sdk
         android:minSdkVersion="16"
         android:targetSdkVersion="22" />
@@ -41,7 +44,8 @@
         android:label="@string/app_name"
         android:launchMode="singleTop"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-        android:windowSoftInputMode="adjustResize">
+        android:windowSoftInputMode="adjustResize"
+        android:launchMode="singleTask" >
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
@@ -50,6 +54,14 @@
             <action android:name="fcm.ACTION.HELLO" />
             <category android:name="android.intent.category.DEFAULT" />
         </intent-filter>
+        <intent-filter>
+            <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+        </intent-filter>
+        <intent-filter>
+            <action android:name="android.nfc.action.TECH_DISCOVERED"/>
+        </intent-filter>
+        <meta-data android:name="android.nfc.action.TECH_DISCOVERED" android:resource="@xml/nfc_tech_filter" />
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
       <receiver android:name="com.evollu.react.fcm.FIRLocalMessagingPublisher"/>
@@ -62,5 +74,4 @@
         </intent-filter>
       </receiver>
     </application>
-
 </manifest>

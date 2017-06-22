@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, Animated, Platform, RefreshControl, StyleSheet, View} from 'react-native';
-import FCM, {FCMEvent, RemoteNotificationResult, WillPresentNotificationResult, NotificationType} from 'react-native-fcm';
+import {ActivityIndicator, Animated, Platform, RefreshControl, StyleSheet, View, Text} from 'react-native';
+import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import {
@@ -36,15 +36,6 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         refreshing: false,
     };
     componentDidMount() {
-        FCM.presentLocalNotification({
-            id: '345gfdgsrstrt534', // (optional for instant notification)
-            title: 'Newsfeed Notification',  // as FCM payload
-            body: 'Test Local notification', // as FCM payload (required)
-            sound: 'default', // as FCM payload
-            priority: 'high', // as FCM payload
-            icon: 'ic_launcher', // as FCM payload, you can relace this with custom icon you put in mipmap
-            show_in_foreground: true, // notification when app is in foreground (local & remote)
-        });
         const {news} = this.props;
         const data = news.get('data');
         if (!data) {
@@ -72,8 +63,16 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         const {news} = this.props;
         let singleNewsComponent = null;
         const data = news.get('data');
-        if (news.get('fetching')) {
+        if (news.get('fetching') && !news.get('error')) {
             return <View style={styles.container}><ActivityIndicator style={{marginTop: 30}} size="large" /></View>;
+        } else if (news.get('error')) {
+            return (
+                <View style={styles.container}>
+                    <Text style={{color: 'red', fontSize: 40, marginTop: 30}} size="large">
+                        {news.get('error')}
+                    </Text>
+                </View>
+            );
         }
         if (news.get('activeSingleNews')) {
             const singleNews = data.find(item => item.get('nid') === news.get('activeSingleNews'));
@@ -84,7 +83,7 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         let newsList = null;
         if (data && data.count() > 0) {
             // TODO: don't use reverse, get the data in desc order (when it's possible)
-            newsList = data.reverse().map(item =>
+            newsList = data.valueSeq().reverse().map(item =>
                 <NewsFeedItem key={item.get('nid')} data={item} showSingle={this.showSingle} />
             );
         }
@@ -108,10 +107,13 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
 }
 
 NewsFeed.propTypes = {
-    fetchNewsData: React.PropTypes.func.isRequired,
-    hideSingleNews: React.PropTypes.func.isRequired,
-    news: React.PropTypes.instanceOf(Immutable.Map).isRequired,
-    showSingleNews: React.PropTypes.func.isRequired,
+    fetchNewsData: PropTypes.func.isRequired,
+    hideSingleNews: PropTypes.func.isRequired,
+    news: PropTypes.oneOfType([
+        PropTypes.instanceOf(Object),
+        PropTypes.instanceOf(Immutable.Map)],
+    ).isRequired,
+    showSingleNews: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
