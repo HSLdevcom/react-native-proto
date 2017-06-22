@@ -17,6 +17,8 @@ import Main from './app/components/Main';
 import FakeSideMenu from './app/components/FakeSideMenu';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
+import Notifications from './app/components/Notifications';
+
 // import Test from './app/components/Test';
 
 console.log('Starting');
@@ -129,6 +131,9 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                         </Scene>
                         <Scene iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
                             <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                        </Scene>
+                        <Scene iconName="new" key="notificationsTab" title="Push" icon={TabIcon}>
+                            <Scene key="notifications" component={Notifications} title="Notifications" />
                         </Scene>
                         <Scene iconName="menu" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                             <Scene key="cityBike" title="Kaupunkipyörät" />
