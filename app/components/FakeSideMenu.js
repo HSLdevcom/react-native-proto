@@ -11,8 +11,9 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import Immutable from 'immutable';
-// import Icon from 'react-native-vector-icons/Entypo';
+import Icon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Beacon from './Beacon';
 import CityBikes from './CityBikes';
 import Camera from './Camera';
 import Microphone from './Microphone';
@@ -71,6 +72,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
     showMicrophone = () => Actions.microphone();
     showNFC = () => Actions.nfc();
     showForm = () => Actions.form();
+    showBeacons = () => Actions.beacons();
     render() {
         const {name, session} = this.props;
         const loginViewTitle = this.getLoginTitle();
@@ -90,6 +92,8 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
             return <NFCTest />;
         } else if (name === 'form') {
             return <WebSurvey />;
+        } else if (name === 'beacons') {
+            return <Beacon />;
         }
         const nfcElement = Platform.OS === 'android' ?
             (
@@ -129,6 +133,10 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                 <TouchableOpacity style={styles.wrapper} onPress={this.showForm}>
                     <MaterialIcon style={styles.icon} size={26} name="file-document" />
                     <Text style={styles.buttonText}>Pikapalaute</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.wrapper} onPress={this.showBeacons}>
+                    <Icon style={styles.icon} size={26} name="code" />
+                    <Text style={styles.buttonText}>Beacon</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.wrapper} onPress={this.showLogin}>
                     <Image
