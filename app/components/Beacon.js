@@ -4,7 +4,7 @@
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Linking} from 'react-native';
+import {StyleSheet, Text, View, Linking, Button} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import {getBeaconData} from '../actions/beacons';
@@ -80,9 +80,13 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
                 <Text style={styles.subtextStyle}>
                     {stopBeacon.stop || 'Ei pysäkillä'}
                 </Text>
-                <Text onPress={() => this.openLink(stopBeacon.link)}>
-                    {stopBeacon.link || '-'}
-                </Text>
+                <Button
+                    onPress={() => this.openLink(stopBeacon.link)}
+                    title={stopBeacon.link ? 'Avaa aikataulu' : 'Aikataulua ei saatavilla'}
+                    color="#841584"
+                    accessibilityLabel="Avaa pysäkin aikataulu"
+                    disabled={!stopBeacon.link}
+                />
             </View>
         );
     }
