@@ -18,7 +18,6 @@ import Main from './app/components/Main';
 import FakeSideMenu from './app/components/FakeSideMenu';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
-import Beacon from './app/components/Beacon';
 // import Test from './app/components/Test';
 const beaconConfig = require('./beaconconfig');
 
