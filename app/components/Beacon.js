@@ -14,14 +14,22 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'flex-start',
+        backgroundColor: 'white',
+    },
+    subcontainer: {
+        paddingLeft: 30,
+        paddingTop: 30,
+        paddingBottom: 30,
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
         backgroundColor: 'white',
     },
     textStyle: {
         fontSize: 70,
         color: colors.brandColor,
-        marginTop: 20,
-        marginBottom: 50,
+        marginTop: 5,
+        marginBottom: 5,
     },
     subtextStyle: {
         fontSize: 30,
@@ -65,28 +73,32 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
 
         return (
             <View style={styles.container}>
-                <Text style={styles.textStyle}>
-                    {displayBeacon && displayBeacon.line ? displayBeacon.line : 'Ei linjalla'}
-                </Text>
-                <Text>
-                    Muut ajoneuvot lähelläsi:
-                </Text>
-                <Text>
-                    {otherVehicles ? otherVehicles[0] : 'Ei muita'}
-                </Text>
-                <Text style={styles.subtextStyle}>
-                    Pysäkki:
-                </Text>
-                <Text style={styles.subtextStyle}>
-                    {stopBeacon.stop || 'Ei pysäkillä'}
-                </Text>
-                <Button
-                    onPress={() => this.openLink(stopBeacon.link)}
-                    title={stopBeacon.link ? 'Avaa aikataulu' : 'Aikataulua ei saatavilla'}
-                    color="#841584"
-                    accessibilityLabel="Avaa pysäkin aikataulu"
-                    disabled={!stopBeacon.link}
-                />
+                <View style={styles.subcontainer}>
+                    <Text style={styles.textStyle}>
+                        {displayBeacon && displayBeacon.line ? displayBeacon.line : 'Ei linjalla'}
+                    </Text>
+                    <Text>
+                        Muut ajoneuvot lähelläsi:
+                    </Text>
+                    <Text>
+                        {otherVehicles ? otherVehicles[0] : 'Ei muita'}
+                    </Text>
+                </View>
+                <View style={styles.subcontainer}>
+                    <Text style={styles.subtextStyle}>
+                        Pysäkki:
+                    </Text>
+                    <Text style={styles.subtextStyle}>
+                        {stopBeacon.stop || 'Ei pysäkillä'}
+                    </Text>
+                    <Button
+                        onPress={() => this.openLink(stopBeacon.link)}
+                        title={stopBeacon.link ? 'Avaa aikataulu' : 'Aikataulua ei saatavilla'}
+                        color="#841584"
+                        accessibilityLabel="Avaa pysäkin aikataulu"
+                        disabled={!stopBeacon.link}
+                    />
+                </View>
             </View>
         );
     }
