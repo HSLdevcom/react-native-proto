@@ -1,0 +1,12 @@
+[
+    {"code": 91, "city": "Helsinki", "prefix": ""},
+    {"code": 92, "city": "Vantaa", "prefix": "V"},
+    {"code": 49, "city": "Espoo", "prefix": "E"},
+    {"code": 235, "city": "Kauniainen", "prefix": "Ka"},
+    {"code": 245, "city": "Kerava", "prefix": "Ke"},
+    {"code": 257, "city": "Kirkkonummi", "prefix": "Ki"},
+    {"code": 753, "city": "Sipoo", "prefix": "Si"},
+    {"code": 837, "city": "Tampere", "prefix": "Ta"},
+    {"code": 853, "city": "Turku", "prefix": "Tu"},
+    {"code": 564, "city": "Oulu", "prefix": "Oulu"}
+]

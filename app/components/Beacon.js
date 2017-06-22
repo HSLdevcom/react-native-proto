@@ -4,7 +4,7 @@
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, Linking} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import {getBeaconData} from '../actions/beacons';
@@ -39,6 +39,11 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
         this.props.getBeaconData();
     }
 
+    openLink = (url) => {
+        if (url) Linking.openURL(url).catch(err => console.error('An error occurred', err));
+        else console.log("Can't open url");
+    }
+
     render() {
         const stopBeacon = this.props.beacons.get('beaconData');
         const vehicleBeacon = (this.props.beacons.get('vehicleBeaconData').vehicles
@@ -58,7 +63,6 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
             displayBeacon = null;
         }
 
-
         return (
             <View style={styles.container}>
                 <Text style={styles.textStyle}>
@@ -75,6 +79,9 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
                 </Text>
                 <Text style={styles.subtextStyle}>
                     {stopBeacon.stop || 'Ei pysäkillä'}
+                </Text>
+                <Text onPress={() => this.openLink(stopBeacon.link)}>
+                    {stopBeacon.link || '-'}
                 </Text>
             </View>
         );

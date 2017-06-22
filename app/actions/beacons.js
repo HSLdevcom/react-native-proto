@@ -5,6 +5,13 @@ import {
     PermissionsAndroid,
 } from 'react-native';
 
+import * as beaconConfig from '../../beaconconfig';
+
+import stations from '../../stations.json';
+import placement from '../../placement.json';
+import prefixes from '../../municipalityprefixes.json';
+import stops from '../../stops.json';
+
 export const SET_BEACON_DATA = 'SET_BEACON_DATA';
 export const SET_VEHICLE_BEACON_DATA = 'SET_VEHICLE_BEACON_DATA';
 export const BEACON_ERROR = 'BEACON_ERROR';
@@ -12,10 +19,12 @@ export const VEHICLE_BEACON_ERROR = 'VEHICLE_BEACON_ERROR';
 export const REQUEST_BEACON_DATA = 'REQUEST_BEACON_DATA';
 export const REQUESTING_DATA = 'REQUESTING_DATA';
 
-const beaconConfig = require('../../beaconconfig');
+const TIMETABLE_URL = 'https://www.reittiopas.fi/pysakit/';
 
 const FOREGROUND_SCAN_PERIOD = 1000;
 const BACKGROUND_SCAN_PERIOD = 1000;
+
+const PREVIOUS_LIMIT = 8;
 
 if (Platform.OS === 'ios') {
     Beacons.requestAlwaysAuthorization();
@@ -70,7 +79,6 @@ let vehicleBeaconsFound = false;
 
 let tryingToFindBeacons = false;
 
-const PREVIOUS_LIMIT = 5;
 let previousVehicles = []; //eslint-disable-line
 
 let tempBeaconData = null;
@@ -145,55 +153,41 @@ const resolveLine = (major) => {
 };
 
 /**
-* A placeholder function for resolving bus stop based on stopbeacon "minor" identifier.
-* Should be replaced with DB query in the future.
+* A function for resolving bus stop based on stopbeacon "uuid", "minor" and "major" attributes
 */
 const resolveStop = (uuid, major, minor) => {
     if (uuid === beaconId) {
-        if (major === 49) {
-            switch (minor) {
-            case 1033:
-                return 'E1033';
-            case 1024:
-                return 'E1024';
-            case 1025:
-                return 'E1025';
-            case 1026:
-                return 'E1026';
-            case 1027:
-                return 'E1027';
-            default:
-                return null;
-            }
+        const matchingStop = prefixes.filter(s => s.code === major);
+        if (matchingStop.length > 0) {
+            return `${matchingStop[0].prefix}${minor}`;
         }
+        return null;
     }
     if (uuid === liviBeaconId) {
         let returnString = '';
-        switch (major) {
-        case 1:
-            returnString += 'Helsinki ';
-            break;
-        case 68:
-            returnString += 'Leppävaara ';
-            break;
-        default:
-            return null;
+        const matchingStation = stations.filter(s => s.stationUICCode === major);
+        if (matchingStation.length > 0) {
+            returnString += `${matchingStation[0].stationName} - `;
         }
         const platform = minor >>> 11; //eslint-disable-line
-        if (platform > 0 && platform < 32) returnString += `Liikennepaikan ${platform}. laituri `;
-        switch (minor & 63) { //eslint-disable-line
-        case 41:
-            returnString += 'Alikulkutunneli';
-            break;
-        case 42:
-            returnString += 'Alikulkutunneli';
-            break;
+        if (platform > 0 && platform < 32) returnString += `Liikennepaikan ${platform}. laituri - `;
+        const placementBits = minor & 63 //eslint-disable-line
+        const matchingPlacement = placement.filter(p => p.id === placementBits);
+        if (matchingPlacement.length > 0) {
+            returnString += matchingPlacement[0].description;
         }
         return returnString.length > 0 ? returnString : null;
     }
-    return 'Lookup error (livi)';
+    return null;
 };
 
+const resolveTimetableLink = (stop) => {
+    const matchingCode = stops.filter(s => s.code === stop);
+    if (matchingCode.length > 0) {
+        return `${TIMETABLE_URL}${matchingCode[0].gtfsId}`;
+    }
+    return null;
+};
 
 if (Platform.OS === 'android') {
     Beacons.detectIBeacons();
@@ -211,7 +205,6 @@ const getData = async function getData(dispatch) {
         if (!beaconFound) dispatch(beaconError("Beacon didn't start ranging"));
         if (!vehicleBeaconsFound) dispatch(vehicleBeaconError("Beacon didn't start ranging"));
         tryingToFindBeacons = false;
-
         return;
     }
 
@@ -220,6 +213,10 @@ const getData = async function getData(dispatch) {
      * Fires once for every region being listened (during one second)
      */
     DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
+         /**
+         * Handle stop beacons:
+         * Simple comparison of the strongest signal
+         */
         if ((Platform.OS === 'ios' && (data.region.uuid === beaconRegion.uuid || data.region.uuid === liviBeaconRegion.uuid))
         || (Platform.OS === 'android' && (data.identifier === beaconRegion || data.identifier === liviBeaconRegion))) {
             const workingBeacons = data.beacons.filter(b =>
@@ -235,10 +232,6 @@ const getData = async function getData(dispatch) {
                 let strongestBeaconRSSI = -101;
 
                 workingBeacons.forEach((beacon, index) => {
-                    /**
-                     * Handle stop beacons:
-                     * Simple comparison of the strongest signal
-                     */
                     if ((beacon.rssi > strongestBeaconRSSI)
                     && (beacon.uuid === beaconId || beacon.uuid === liviBeaconId)) {
                         closestBeaconIndex = index;
@@ -246,27 +239,23 @@ const getData = async function getData(dispatch) {
                     }
                 });
 
-                const beaconData = workingBeacons[closestBeaconIndex];
+                let beaconData = workingBeacons[closestBeaconIndex];
                 if (beaconData
                 && (beaconData.uuid === beaconId || beaconData.uuid === liviBeaconId)) {
                     if (tempBeaconData) {
-                        if (tempBeaconData.rssi < beaconData.rssi) {
-                            beaconData.stop = resolveStop(
-                                beaconData.uuid,
-                                beaconData.major,
-                                beaconData.minor
-                            );
-                            dispatch(setBeaconData(beaconData));
-                            tempBeaconData = null;
-                        } else {
-                            tempBeaconData.stop = resolveStop(
-                                tempBeaconData.uuid,
-                                tempBeaconData.major,
-                                tempBeaconData.minor
-                            );
-                            dispatch(setBeaconData(tempBeaconData));
-                            tempBeaconData = null;
+                        beaconData = (tempBeaconData.rssi < beaconData.rssi) ?
+                        beaconData : tempBeaconData;
+                        beaconData.stop = resolveStop(
+                            beaconData.uuid,
+                            beaconData.major,
+                            beaconData.minor
+                        );
+                        // Inserting the timetable link to HSL stop beacons
+                        if (beaconData.uuid === beaconId && beaconData.stop) {
+                            beaconData.link = resolveTimetableLink(beaconData.stop);
                         }
+                        dispatch(setBeaconData(beaconData));
+                        tempBeaconData = null;
                         beaconFound = true;
                     } else {
                         tempBeaconData = beaconData;
@@ -277,6 +266,12 @@ const getData = async function getData(dispatch) {
                 dispatch(setBeaconData({}));
             }
         }
+
+        /**
+         * Handle vehicle beacons:
+         * Combine the signals of beacons belonging to the same vehicle.
+         * Favorst multiple weaker beacons over a single stronger one.
+         */
         if ((Platform.OS === 'ios' && data.region.uuid === vehicleBeaconRegion.uuid)
         || (Platform.OS === 'android' && data.identifier === vehicleBeaconRegion)) {
             const workingBeacons = data.beacons.filter(b =>
@@ -291,11 +286,6 @@ const getData = async function getData(dispatch) {
                 let vehicleBeacons = [];
 
                 workingBeacons.forEach((beacon) => {
-                    /**
-                     * Handle vehicle beacons:
-                     * Combine the signals of beacons belonging to the same vehicle.
-                     * Favorst multiple weaker beacons over a single stronger one.
-                     */
                     if (beacon.uuid === vehicleBeaconId) {
                         if (vehicleBeacons.filter(b => b.major === beacon.major).length > 0) {
                             vehicleBeacons
