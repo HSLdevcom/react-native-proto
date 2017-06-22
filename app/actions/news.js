@@ -83,13 +83,16 @@ export function fetchNewsData() {
           }`
         )
         .then((result) => {
+            if (!result || !result.data) {
+                throw result;
+            }
             // TODO: some error handling maybe?
             dispatch(fetchNewsDone(result.data.nodeQuery));
         })
         .catch((err) => {
             // TODO: show error in app
-            console.error('err:', err);
-            fetchNewsError(err);
+            console.log('err:', err.message);
+            dispatch(fetchNewsError(err.message));
         });
     };
 }
