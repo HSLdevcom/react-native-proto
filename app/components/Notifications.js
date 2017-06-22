@@ -26,23 +26,27 @@ const styles = StyleSheet.create({
 class Notifications extends Component { // eslint-disable-line react/prefer-stateless-function
 
     componentDidMount() {
+
+    }
+
+    showLocalNotification = () => {
         FCM.presentLocalNotification({
             id: '345gfdgsrstrt534', // (optional for instant notification)
             title: 'Notification',  // as FCM payload
-            body: 'Test componentDidMount', // as FCM payload (required)
+            body: 'Test Button', // as FCM payload (required)
             sound: 'default', // as FCM payload
             priority: 'high', // as FCM payload
             icon: 'ic_launcher', // as FCM payload, you can relace this with custom icon you put in mipmap
             show_in_foreground: true, // notification when app is in foreground (local & remote)
         });
     }
-
     render() {
         return (
             <View style={styles.container}>
                 <View style={styles.childContainer}>
                     <Button
-                        title="Testbutton"
+                        title="Test Local"
+                        onPress={() => this.showLocalNotification()}
                     />
                 </View>
             </View>
