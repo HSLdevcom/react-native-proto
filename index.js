@@ -84,7 +84,10 @@ if (Platform.OS === 'android') {
     };
 
     BackgroundJob.register(backgroundJob);
-    AppState.addEventListener('change', handleAppStateChange);
+    if (AppState.currentState === 'active') {
+        // Disable this for now, see handleAppStateChange() NOTICE
+        // AppState.addEventListener('change', handleAppStateChange);
+    }
 }
 console.log('Starting');
 console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
