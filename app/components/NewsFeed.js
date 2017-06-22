@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, Animated, Platform, RefreshControl, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, Animated, Platform, RefreshControl, StyleSheet, View, Text} from 'react-native';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
@@ -63,8 +63,16 @@ class NewsFeed extends Component { // eslint-disable-line react/prefer-stateless
         const {news} = this.props;
         let singleNewsComponent = null;
         const data = news.get('data');
-        if (news.get('fetching')) {
+        if (news.get('fetching') && !news.get('error')) {
             return <View style={styles.container}><ActivityIndicator style={{marginTop: 30}} size="large" /></View>;
+        } else if (news.get('error')) {
+            return (
+                <View style={styles.container}>
+                    <Text style={{color: 'red', fontSize: 40, marginTop: 30}} size="large">
+                        {news.get('error')}
+                    </Text>
+                </View>
+            );
         }
         if (news.get('activeSingleNews')) {
             const singleNews = data.find(item => item.get('nid') === news.get('activeSingleNews'));

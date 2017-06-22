@@ -6,12 +6,12 @@
  */
 
 import React, {Component} from 'react';
-import {Animated, Platform, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {Animated, Platform, StyleSheet, Text, TouchableOpacity, Image} from 'react-native';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import Immutable from 'immutable';
-import Icon from 'react-native-vector-icons/Entypo';
+// import Icon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CityBikes from './CityBikes';
 import Camera from './Camera';
@@ -80,7 +80,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
             );
         } else if (name === 'login') {
             return (
-                <Login loggedIn={!!session.get('data')} />
+                <Login loggedIn={!!session.get('data').loggedIn} />
             );
         } else if (name === 'camera') {
             return <Camera />;
@@ -100,18 +100,21 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
             ) : null;
         // Add some "menu like animation" so this maybe feels more like real menu
         const fadeAnim = new Animated.Value(0);
-        Animated.timing(fadeAnim, {toValue: 1, duration: 500}).start();
+        Animated.timing(fadeAnim, {toValue: 1, duration: 300}).start();
         return (
             <Animated.View
                 style={[styles.container, {
-                    marginLeft: fadeAnim.interpolate({
+                    marginLeft: __DEV__ ? 0 : fadeAnim.interpolate({
                         inputRange: [0, 1],
                         outputRange: [1000, 0],
                     }),
                 }]}
             >
                 <TouchableOpacity style={styles.wrapper} onPress={this.showCityBikes}>
-                    <MaterialIcon style={styles.icon} size={26} name="bike" />
+                    <Image
+                        style={{width: 28, height: 19, marginRight: 10}}
+                        source={require('../img/icon-citybike.png')} //eslint-disable-line global-require
+                    />
                     <Text style={styles.buttonText}>Kaupunkipyörät</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.wrapper} onPress={this.showCamera}>
@@ -128,7 +131,10 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                     <Text style={styles.buttonText}>Pikapalaute</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.wrapper} onPress={this.showLogin}>
-                    <Icon style={styles.icon} size={26} name="login" />
+                    <Image
+                        style={{width: 18, height: 22, marginRight: 10}}
+                        source={require('../img/icon-login.png')} //eslint-disable-line global-require
+                    />
                     <Text style={styles.buttonText}>{loginViewTitle}</Text>
                 </TouchableOpacity>
             </Animated.View>
