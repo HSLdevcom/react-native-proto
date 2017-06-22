@@ -6,13 +6,14 @@
  */
 
 import React, {Component} from 'react';
-import {Animated, Platform, StyleSheet, Text, TouchableOpacity, Image} from 'react-native';
+import {Animated, StyleSheet, Text, TouchableOpacity, Image} from 'react-native';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import Immutable from 'immutable';
 import Icon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import About from './About';
 import Beacon from './Beacon';
 import CityBikes from './CityBikes';
 import Camera from './Camera';
@@ -73,6 +74,7 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
     showNFC = () => Actions.nfc();
     showForm = () => Actions.form();
     showBeacons = () => Actions.beacons();
+    showAbout = () => Actions.about();
     render() {
         const {name, session} = this.props;
         const loginViewTitle = this.getLoginTitle();
@@ -94,14 +96,9 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
             return <WebSurvey />;
         } else if (name === 'beacons') {
             return <Beacon />;
+        } else if (name === 'about') {
+            return <About />;
         }
-        const nfcElement = Platform.OS === 'android_THIS_IS_DISABLED_NOW' ?
-            (
-                <TouchableOpacity style={styles.wrapper} onPress={this.showNFC}>
-                    <MaterialIcon style={styles.icon} size={26} name="nfc" />
-                    <Text style={styles.buttonText}>NFC</Text>
-                </TouchableOpacity>
-            ) : null;
         // Add some "menu like animation" so this maybe feels more like real menu
         const fadeAnim = new Animated.Value(0);
         Animated.timing(fadeAnim, {toValue: 1, duration: 300}).start();
@@ -121,18 +118,9 @@ class FakeSideMenu extends Component { // eslint-disable-line react/prefer-state
                     />
                     <Text style={styles.buttonText}>Kaupunkipyörät</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.wrapper} onPress={this.showCamera}>
-                    <MaterialIcon style={styles.icon} size={26} name="camera" />
-                    <Text style={styles.buttonText}>Kamera</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.wrapper} onPress={this.showMicrophone}>
-                    <MaterialIcon style={styles.icon} size={26} name="microphone" />
-                    <Text style={styles.buttonText}>Äänitys</Text>
-                </TouchableOpacity>
-                {nfcElement}
-                <TouchableOpacity style={styles.wrapper} onPress={this.showForm}>
-                    <MaterialIcon style={styles.icon} size={26} name="file-document" />
-                    <Text style={styles.buttonText}>Pikapalaute</Text>
+                <TouchableOpacity style={styles.wrapper} onPress={this.showAbout}>
+                    <Icon style={styles.icon} size={26} name="info" />
+                    <Text style={styles.buttonText}>Tietoa sovelluksesta</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.wrapper} onPress={this.showBeacons}>
                     <Icon style={styles.icon} size={26} name="code" />

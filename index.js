@@ -269,6 +269,7 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                         <Scene key="microphone" title="Äänitys" />
                         <Scene key="form" title="Pikapalaute" />
                         <Scene key="cityBike" title="Kaupunkipyörät" />
+                        <Scene key="about" title="Tietoa sovelluksesta" />
                         <Scene key="beacons" title="Beacon" />
                         <Scene key="login" title="Kirjaudu sisään" />
                     </Scene>
