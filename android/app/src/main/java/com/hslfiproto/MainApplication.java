@@ -7,11 +7,11 @@ import com.evollu.react.fcm.FIRMessagingPackage;
 import com.pilloxa.backgroundjob.BackgroundJobPackage;
 import com.mackentoch.beaconsandroid.BeaconsAndroidPackage;
 import com.oblongmana.webviewfileuploadandroid.AndroidWebViewPackage;
-import es.tiarg.nfcndefreactnative.NfcNdefReactNativePackage;
+// import es.tiarg.nfcndefreactnative.NfcNdefReactNativePackage;
 import com.zmxv.RNSound.RNSoundPackage;
 import com.rnim.rn.audio.ReactNativeAudioPackage;
 import com.lwansbrough.RCTCamera.RCTCameraPackage;
-import com.novadart.reactnativenfc.ReactNativeNFCPackage;
+//import com.novadart.reactnativenfc.ReactNativeNFCPackage;
 import im.shimo.react.cookie.CookieManagerPackage;
 import com.hslfiproto.BuildConfig;
 import com.oblador.vectoricons.VectorIconsPackage;
@@ -40,11 +40,11 @@ public class MainApplication extends Application implements ReactApplication {
             new BackgroundJobPackage(),
             new BeaconsAndroidPackage(),
             new AndroidWebViewPackage(),
-            new NfcNdefReactNativePackage(),
+            //new NfcNdefReactNativePackage(),
             new RNSoundPackage(),
             new ReactNativeAudioPackage(),
             new RCTCameraPackage(),
-            new ReactNativeNFCPackage(),
+            // new ReactNativeNFCPackage(),
             new CookieManagerPackage(),
             new VectorIconsPackage(),
             new RNDeviceInfo()
