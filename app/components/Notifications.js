@@ -1,6 +1,17 @@
 import React, {Component} from 'react';
-import {Platform, View, Button, StyleSheet} from 'react-native';
-import FCM, {FCMEvent, RemoteNotificationResult, WillPresentNotificationResult, NotificationType} from 'react-native-fcm';
+import {
+    Platform,
+    View,
+    Button,
+    StyleSheet,
+    DeviceEventEmitter,
+} from 'react-native';
+import FCM, {
+    FCMEvent,
+    RemoteNotificationResult,
+    WillPresentNotificationResult,
+    NotificationType,
+} from 'react-native-fcm';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
 import colors from '../colors';
@@ -24,24 +35,37 @@ const styles = StyleSheet.create({
     },
 });
 
+const showLocalNotification = (title, body) => {
+    FCM.presentLocalNotification({
+        id: '349753945345345968', // (optional for instant notification)
+        title,  // as FCM payload
+        body, // as FCM payload (required)
+        sound: 'default', // as FCM payload
+        priority: 'high', // as FCM payload
+        click_action: 'ACTION',
+        icon: 'ic_launcher', // as FCM payload, you can relace this with custom icon you put in mipmap
+        show_in_foreground: true, // notification when app is in foreground (local & remote)
+    });
+};
+
 class Notifications extends Component { // eslint-disable-line react/prefer-stateless-function
 
+
     componentDidMount() {
-
+        DeviceEventEmitter.addListener(
+            'regionDidEnter',
+            (data) => {
+                showLocalNotification('Enter', 'Device entered a beacon region');
+            }
+        );
+        DeviceEventEmitter.addListener(
+            'regionDidExit',
+            (data) => {
+                showLocalNotification('Exit', 'Device exited a beacon region');
+            }
+        );
     }
 
-    showLocalNotification = () => {
-        FCM.presentLocalNotification({
-            id: '349753945345345968', // (optional for instant notification)
-            title: 'Notification',  // as FCM payload
-            body: 'Test Button', // as FCM payload (required)
-            sound: 'default', // as FCM payload
-            priority: 'high', // as FCM payload
-            click_action: 'ACTION',
-            icon: 'ic_launcher', // as FCM payload, you can relace this with custom icon you put in mipmap
-            show_in_foreground: true, // notification when app is in foreground (local & remote)
-        });
-    }
 
     removeNotifications = () => {
         FCM.removeAllDeliveredNotifications();
@@ -54,7 +78,7 @@ class Notifications extends Component { // eslint-disable-line react/prefer-stat
                 <View style={styles.childContainer}>
                     <Button
                         title="Test Local"
-                        onPress={() => this.showLocalNotification()}
+                        onPress={() => showLocalNotification('Test', 'Testing local notification')}
                     />
                     <Button
                         title="Remove Badges (iOS)"

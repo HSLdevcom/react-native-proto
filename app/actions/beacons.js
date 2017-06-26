@@ -191,8 +191,8 @@ const resolveTimetableLink = (stop) => {
 
 if (Platform.OS === 'android') {
     Beacons.detectIBeacons();
-    Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
-    Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
+    // Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
+    // Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
 }
 const getData = async function getData(dispatch) {
     try {
