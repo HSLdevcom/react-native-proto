@@ -140,7 +140,6 @@ dependencies {
     compile project(':react-native-background-job')
     compile project(':react-native-webview-file-upload-android')
     compile project(':react-native-beacons-manager')
-    compile project(':nfc-ndef-react-native')
     compile project(':react-native-sound')
     compile project(':react-native-audio')
     compile project(':react-native-camera')

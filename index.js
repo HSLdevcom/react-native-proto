@@ -86,7 +86,7 @@ if (Platform.OS === 'android') {
     BackgroundJob.register(backgroundJob);
     if (AppState.currentState === 'active') {
         // Disable this for now, see handleAppStateChange() NOTICE
-        // AppState.addEventListener('change', handleAppStateChange);
+        AppState.addEventListener('change', handleAppStateChange);
     }
 }
 console.log('Starting');
