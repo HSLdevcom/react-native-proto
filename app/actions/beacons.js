@@ -221,12 +221,12 @@ const getData = async function getData(dispatch) {
         || (Platform.OS === 'android' && (data.identifier === beaconRegion || data.identifier === liviBeaconRegion))) {
             const workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === beaconId || b.uuid === liviBeaconId)));
-            console.log(`STOPBEACONS: ${data.beacons
-                .map(b => `\n
-                ${b.major}-${b.minor} :
-                 uuid: ${b.uuid}
-                 strength: ${b.rssi}
-                 accuracy: ${b.accuracy} \n`)}`);
+            // console.log(`STOPBEACONS: ${data.beacons
+            //     .map(b => `\n
+            //     ${b.major}-${b.minor} :
+            //      uuid: ${b.uuid}
+            //      strength: ${b.rssi}
+            //      accuracy: ${b.accuracy} \n`)}`);
             if (workingBeacons.length > 0) {
                 let closestBeaconIndex = 0;
                 let strongestBeaconRSSI = -101;
@@ -276,12 +276,12 @@ const getData = async function getData(dispatch) {
         || (Platform.OS === 'android' && data.identifier === vehicleBeaconRegion)) {
             const workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === vehicleBeaconId)));
-            console.log(`VEHICLEBEACONS: ${data.beacons
-                .map(b => `\n ${b.major}-${b.minor} :
-                 strength: ${b.rssi}
-                 accuracy: ${b.accuracy}
-                 uuid: ${b.uuid}
-                 proximity: ${b.proximity}\n`)}`);
+            // console.log(`VEHICLEBEACONS: ${data.beacons
+            //     .map(b => `\n ${b.major}-${b.minor} :
+            //      strength: ${b.rssi}
+            //      accuracy: ${b.accuracy}
+            //      uuid: ${b.uuid}
+            //      proximity: ${b.proximity}\n`)}`);
             if (workingBeacons.length > 0) {
                 let vehicleBeacons = [];
 
@@ -337,9 +337,9 @@ const getData = async function getData(dispatch) {
                 previousVehicles.shift();
                 dispatch(setBusBeaconData(0, []));
             }
-            console.log(previousVehicles.map(v => v.major));
+            // console.log(previousVehicles.map(v => v.major));
         }
-        console.log('--------------');
+        // console.log('--------------');
     });
 };
 

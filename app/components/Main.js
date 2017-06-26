@@ -80,6 +80,9 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
             // notif.data contains data payload
             if (notif.local_notification) {
                 //this is a local notification
+                console.log('====================================');
+                console.log('Local Notification');
+                console.log('====================================');
             }
             if (notif.opened_from_tray) {
                 //app is open/resumed because user clicked banner
@@ -127,7 +130,6 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
 
     componentWillUnmount() {
         // stop listening for events
-        if (Platform.OS === 'ios') FCM.setBadgeNumber(0);
         this.notificationListener.remove();
         this.refreshTokenListener.remove();
     }
