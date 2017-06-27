@@ -1,5 +1,8 @@
 /**
- * Main component
+ * NFCTest component
+ * react-native-nfc isn't working "alone",
+ * if you install and link nfc-ndef-react-native NFC.addListener starts to work
+ * nfc-ndef-react-native causes other problems though (app crashing on start for example)
  * @flow
  */
 
