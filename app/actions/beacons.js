@@ -194,17 +194,30 @@ if (Platform.OS === 'android') {
     Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
     Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
 }
+
+export const stopRanging = () => {
+    console.log('stopRanging');
+    Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
+    // Beacons.stopRangingBeaconsInRegion(beaconRegion);
+    // Beacons.stopRangingBeaconsInRegion(liviBeaconRegion);
+    tryingToFindBeacons = false;
+};
+
+let workingVehicleBeacons;
+let workingBeacons;
+
+export const getWorkingBeacons = () => workingBeacons;
+export const getWorkingVehicleBeacons = () => workingVehicleBeacons;
+
 const getData = async function getData(dispatch) {
     try {
         await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
-        await Beacons.startRangingBeaconsInRegion(beaconRegion);
-        await Beacons.startRangingBeaconsInRegion(liviBeaconRegion);
+        // await Beacons.startRangingBeaconsInRegion(beaconRegion);
+        // await Beacons.startRangingBeaconsInRegion(liviBeaconRegion);
     } catch (error) {
-        Beacons.stopRangingBeaconsInRegion(beaconRegion);
-        Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
+        stopRanging();
         if (!beaconFound) dispatch(beaconError("Beacon didn't start ranging"));
         if (!vehicleBeaconsFound) dispatch(vehicleBeaconError("Beacon didn't start ranging"));
-        tryingToFindBeacons = false;
         return;
     }
 
@@ -219,15 +232,15 @@ const getData = async function getData(dispatch) {
          */
         if ((Platform.OS === 'ios' && (data.region.uuid === beaconRegion.uuid || data.region.uuid === liviBeaconRegion.uuid))
         || (Platform.OS === 'android' && (data.identifier === beaconRegion || data.identifier === liviBeaconRegion))) {
-            const workingBeacons = data.beacons.filter(b =>
+            workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === beaconId || b.uuid === liviBeaconId)));
-            console.log(`STOPBEACONS: ${data.beacons
-                .map(b => `\n
-                ${b.major}-${b.minor} :
-                 uuid: ${b.uuid}
-                 strength: ${b.rssi}
-                 accuracy: ${b.accuracy} \n`)}`);
-            if (workingBeacons.length > 0) {
+            // console.log(`STOPBEACONS: ${data.beacons
+            //     .map(b => `\n
+            //     ${b.major}-${b.minor} :
+            //      uuid: ${b.uuid}
+            //      strength: ${b.rssi}
+            //      accuracy: ${b.accuracy} \n`)}`);
+            if (!workingBeacons.length > 0) {
                 let closestBeaconIndex = 0;
                 let strongestBeaconRSSI = -101;
 
@@ -274,18 +287,18 @@ const getData = async function getData(dispatch) {
          */
         if ((Platform.OS === 'ios' && data.region.uuid === vehicleBeaconRegion.uuid)
         || (Platform.OS === 'android' && data.identifier === vehicleBeaconRegion)) {
-            const workingBeacons = data.beacons.filter(b =>
+            workingVehicleBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === vehicleBeaconId)));
-            console.log(`VEHICLEBEACONS: ${data.beacons
-                .map(b => `\n ${b.major}-${b.minor} :
-                 strength: ${b.rssi}
-                 accuracy: ${b.accuracy}
-                 uuid: ${b.uuid}
-                 proximity: ${b.proximity}\n`)}`);
-            if (workingBeacons.length > 0) {
+            // console.log(`VEHICLEBEACONS: ${data.beacons
+            //     .map(b => `\n ${b.major}-${b.minor} :
+            //      strength: ${b.rssi}
+            //      accuracy: ${b.accuracy}
+            //      uuid: ${b.uuid}
+            //      proximity: ${b.proximity}\n`)}`);
+            if (workingVehicleBeacons.length > 0) {
                 let vehicleBeacons = [];
 
-                workingBeacons.forEach((beacon) => {
+                workingVehicleBeacons.forEach((beacon) => {
                     if (beacon.uuid === vehicleBeaconId) {
                         if (vehicleBeacons.filter(b => b.major === beacon.major).length > 0) {
                             vehicleBeacons
@@ -339,11 +352,11 @@ const getData = async function getData(dispatch) {
             }
             console.log(previousVehicles.map(v => v.major));
         }
-        console.log('--------------');
+        // console.log('--------------');
     });
 };
 
-export const getBeaconData = function getBeaconData() {
+export const getBeaconData = () => {
     if (!tryingToFindBeacons) {
         tryingToFindBeacons = true;
         beaconFound = false;
@@ -357,4 +370,3 @@ export const getBeaconData = function getBeaconData() {
 
     return {type: REQUESTING_DATA};
 };
-

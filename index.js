@@ -14,12 +14,34 @@ import Beacons from 'react-native-beacons-manager';
 import BackgroundJob from 'react-native-background-job';
 import store from './app/store';
 import colors from './app/colors';
+import {getBeaconData, getWorkingBeacons, getWorkingVehicleBeacons, stopRanging} from './app/actions/beacons';
 import Main from './app/components/Main';
 import FakeSideMenu from './app/components/FakeSideMenu';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
 // import Test from './app/components/Test';
 const beaconConfig = require('./beaconconfig');
+
+const beaconRegion = beaconConfig.beaconRegion.ios;
+const vehicleBeaconRegion = beaconConfig.vehicleBeaconRegion.ios;
+const liviBeaconRegion = beaconConfig.liviBeaconRegion.ios;
+let rangingStopped = false;
+
+const regionDidExitHandler = (data) => {
+    console.log('MONITORING ACTION - regionDidExit data: ', data);
+    const beacons = getWorkingBeacons();
+    console.log('getWorkingBeacons: ', beacons);
+    console.log('getWorkingVehicleBeacons: ', getWorkingVehicleBeacons());
+    if (getWorkingVehicleBeacons().length === 0 && (!beacons || !beacons.length)) {
+        rangingStopped = true;
+        stopRanging();
+    }
+};
+const regionDidEnterHandler = (data) => {
+    console.log('MONITORING ACTION - regionDidEnter data: ', data);
+    rangingStopped = false;
+    store.dispatch(getBeaconData());
+};
 
 // How many times backgroundJob is called during this "session"
 let backgroundRuns = 0;
@@ -29,6 +51,7 @@ const test = () => {
     console.log(new Date());
     console.log('AppState.currentState: ', AppState.currentState);
     console.log('backgroundRuns: ', backgroundRuns);
+    console.log('rangingStopped: ', rangingStopped);
     /*
     * This is compromise that tries to add region eventlisteners only once while screen is open
     * and background task is looping
@@ -37,24 +60,25 @@ const test = () => {
     * that is the case we want to handle(?)
     * It seems that Android 7 is not stopping monitoring at all even if phone is sleeping
     */
-    if (backgroundRuns === 0 && AppState.currentState !== 'background') {
-        Beacons.stopMonitoringForRegion(beaconConfig.vehicleBeaconRegion.ios);
+    if (rangingStopped) {
+        store.dispatch(getBeaconData());
+        rangingStopped = false;
         Beacons.detectIBeacons();
-        Beacons.startMonitoringForRegion(beaconConfig.vehicleBeaconRegion.ios)
-        .then(() => console.log('startMonitoringForRegion vehicleBeaconRegion'))
-        .catch(e => console.log(e));
-        DeviceEventEmitter.addListener(
-            'regionDidEnter',
-            (data) => {
-                console.log('MONITORING - regionDidEnter data: ', data);
-            }
-        );
-        DeviceEventEmitter.addListener(
-            'regionDidExit',
-            (data) => {
-                console.log('MONITORING - regionDidExit data: ', data);
-            }
-        );
+        Beacons.startMonitoringForRegion(beaconRegion);
+        Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+        Beacons.startMonitoringForRegion(liviBeaconRegion);
+        // DeviceEventEmitter.addListener(
+        //     'regionDidEnter',
+        //     (data) => {
+        //         regionDidEnterHandler(data);
+        //     }
+        // );
+        // DeviceEventEmitter.addListener(
+        //     'regionDidExit',
+        //     (data) => {
+        //         regionDidExitHandler(data);
+        //     }
+        // );
     }
     backgroundRuns += 1;
 };
@@ -81,11 +105,9 @@ if (Platform.OS === 'android') {
     };
 
     BackgroundJob.register(backgroundJob);
-    if (AppState.currentState === 'active') {
-        // Disable this for now, see handleAppStateChange() NOTICE
-        AppState.addEventListener('change', handleAppStateChange);
-    }
+    AppState.addEventListener('change', handleAppStateChange);
 }
+
 console.log('Starting');
 console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
 console.log(`__DEV__: ${__DEV__}`);
@@ -217,6 +239,29 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
         }, () => {
             this.setState({rehydrated: true});
         });
+
+        if (Platform.OS === 'android') {
+            Beacons.detectIBeacons();
+        }
+        Beacons.startMonitoringForRegion(beaconRegion);
+        Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+        Beacons.startMonitoringForRegion(liviBeaconRegion);
+        if (Platform.OS === 'ios') {
+            Beacons.startUpdatingLocation();
+        }
+        store.dispatch(getBeaconData());
+        DeviceEventEmitter.addListener(
+            'regionDidEnter',
+            (data) => {
+                regionDidEnterHandler(data);
+            }
+        );
+        DeviceEventEmitter.addListener(
+            'regionDidExit',
+            (data) => {
+                regionDidExitHandler(data);
+            }
+        );
     }
     render() {
         if (!this.state.rehydrated) {

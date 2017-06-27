@@ -4,6 +4,7 @@
  */
 
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {
     AppState,
     DeviceEventEmitter,
@@ -12,7 +13,7 @@ import {
 import Beacons from 'react-native-beacons-manager';
 import {connect} from 'react-redux';
 import CustomWebView from './CustomWebView';
-import {getBeaconData} from '../actions/beacons';
+import {getBeaconData, getWorkingBeacons, getWorkingVehicleBeacons, stopRanging} from '../actions/beacons';
 
 const beaconConfig = require('../../beaconconfig');
 
@@ -41,31 +42,38 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
         appState: AppState.currentState,
     }
     // TODO: check if app can use bluetooth: checkTransmissionSupported(): promise
-    componentWillMount = () => {
-        if (Platform.OS === 'android') {
-            Beacons.detectIBeacons();
-        }
-        Beacons.startMonitoringForRegion(beaconRegion);
-        Beacons.startMonitoringForRegion(vehicleBeaconRegion);
-        Beacons.startMonitoringForRegion(liviBeaconRegion);
-        if (Platform.OS === 'ios') {
-            Beacons.startUpdatingLocation();
-        }
-        this.props.getBeaconData();
-        DeviceEventEmitter.addListener(
-            'regionDidEnter',
-            (data) => {
-                console.log('MONITORING - regionDidEnter data: ', data);
-                this.props.getBeaconData();
-            }
-        );
-        DeviceEventEmitter.addListener(
-            'regionDidExit',
-            (data) => {
-                console.log('MONITORING - regionDidExit data: ', data);
-            }
-        );
-    }
+    // componentWillMount = () => {
+    //     if (Platform.OS === 'android') {
+    //         Beacons.detectIBeacons();
+    //     }
+    //     Beacons.startMonitoringForRegion(beaconRegion);
+    //     Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+    //     Beacons.startMonitoringForRegion(liviBeaconRegion);
+    //     if (Platform.OS === 'ios') {
+    //         Beacons.startUpdatingLocation();
+    //     }
+    //     this.props.getBeaconData();
+    //     DeviceEventEmitter.addListener(
+    //         'regionDidEnter',
+    //         (data) => {
+    //             console.log('MONITORING - regionDidEnter data: ', data);
+    //             console.log('this.props.getBeaconData()');
+    //             this.props.getBeaconData();
+    //         }
+    //     );
+    //     DeviceEventEmitter.addListener(
+    //         'regionDidExit',
+    //         (data) => {
+    //             console.log('MONITORING - regionDidExit data: ', data);
+    //             const beacons = getWorkingBeacons();
+    //             console.log('getWorkingBeacons: ', beacons);
+    //             if (getWorkingVehicleBeacons().length === 0 && !beacons.length) {
+    //                 stopRanging();
+    //             }
+    //         }
+    //     );
+    // }
+
 
     // TODO: add options view and define there if user wants to use this with "?mock"?
     render() {
@@ -76,13 +84,11 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
 }
 
 Main.propTypes = {
-    getBeaconData: React.PropTypes.func.isRequired,
+    getBeaconData: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
-    return {
-
-    };
+    return {};
 }
 function mapDispatchToProps(dispatch) {
     return {
