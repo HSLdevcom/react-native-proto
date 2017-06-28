@@ -75,15 +75,15 @@ const handleAppStateChange = (nextAppState) => {
 };
 
 if (Platform.OS === 'android') {
-    const backgroundJob = {
-        jobKey: 'testBackgroundJob',
-        job: () => test(),
-    };
-
-    BackgroundJob.register(backgroundJob);
+    // const backgroundJob = {
+    //     jobKey: 'testBackgroundJob',
+    //     job: () => test(),
+    // };
+    //
+    // BackgroundJob.register(backgroundJob);
     if (AppState.currentState === 'active') {
         // Disable this for now, see handleAppStateChange() NOTICE
-        AppState.addEventListener('change', handleAppStateChange);
+        // AppState.addEventListener('change', handleAppStateChange);
     }
 }
 console.log('Starting');
