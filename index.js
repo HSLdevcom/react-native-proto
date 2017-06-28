@@ -26,13 +26,16 @@ const beaconRegion = beaconConfig.beaconRegion.ios;
 const vehicleBeaconRegion = beaconConfig.vehicleBeaconRegion.ios;
 const liviBeaconRegion = beaconConfig.liviBeaconRegion.ios;
 let rangingStopped = false;
+// How many times backgroundJob is called during this "session"
+let backgroundRuns = 0;
 
 const regionDidExitHandler = (data) => {
     console.log('MONITORING ACTION - regionDidExit data: ', data);
     const beacons = getWorkingBeacons();
+    const vehicleBeacons = getWorkingVehicleBeacons();
     console.log('getWorkingBeacons: ', beacons);
-    console.log('getWorkingVehicleBeacons: ', getWorkingVehicleBeacons());
-    if (getWorkingVehicleBeacons().length === 0 && (!beacons || !beacons.length)) {
+    console.log('getWorkingVehicleBeacons: ', vehicleBeacons);
+    if ((!vehicleBeacons || !vehicleBeacons.length) && (!beacons || !beacons.length)) {
         rangingStopped = true;
         stopRanging();
     }
@@ -42,45 +45,53 @@ const regionDidEnterHandler = (data) => {
     rangingStopped = false;
     store.dispatch(getBeaconData());
 };
-
-// How many times backgroundJob is called during this "session"
-let backgroundRuns = 0;
-
+const detectAndStartMonitoring = () => {
+    Beacons.detectIBeacons();
+    Beacons.startMonitoringForRegion(beaconRegion);
+    Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+    Beacons.startMonitoringForRegion(liviBeaconRegion);
+};
 const test = () => {
     console.log('Running in background');
     console.log(new Date());
     console.log('AppState.currentState: ', AppState.currentState);
-    console.log('backgroundRuns: ', backgroundRuns);
     console.log('rangingStopped: ', rangingStopped);
+    console.log('backgroundRuns: ', backgroundRuns);
     /*
-    * This is compromise that tries to add region eventlisteners only once while screen is open
-    * and background task is looping
-    * AppState.currentState is background when phone is in use but this app isn't open
+    * This is tries to add region event listeners only when there isn't one already defined
+    * AppState.currentState is background when phone is in use
+    * but this app isn't open (in Android 5.x but not in >= 6.x)
     * AppState.currentState is uninitialized OR active when phone is waked up from sleep and
-    * that is the case we want to handle(?)
-    * It seems that Android 7 is not stopping monitoring at all even if phone is sleeping
+    * that is the case we want to handle(?) (this is not the case in Android >= 6.x)
+    * It seems that Android 6 and 7 is not stopping monitoring at all even if phone is sleeping
     */
-    if (rangingStopped) {
+    if (
+        DeviceEventEmitter._subscriber._subscriptionsForType.appStateDidChange[0] && // eslint-disable-line
+        !DeviceEventEmitter._subscriber._subscriptionsForType.appStateDidChange[0].subscriber._subscriptionsForType.regionDidExit // eslint-disable-line
+    ) {
+        // We assume that regionDidEnter is also undefined if regionDidExit is
+        // It seems that this situation comes only with Android 5.x
+        DeviceEventEmitter.addListener(
+            'regionDidEnter',
+            (data) => {
+                regionDidEnterHandler(data);
+            }
+        );
+        DeviceEventEmitter.addListener(
+            'regionDidExit',
+            (data) => {
+                regionDidExitHandler(data);
+            }
+        );
+        detectAndStartMonitoring();
+        // Just in case run getBeaconData
         store.dispatch(getBeaconData());
+        backgroundRuns += 1;
+    } else if (rangingStopped && backgroundRuns === 0) {
         rangingStopped = false;
-        Beacons.detectIBeacons();
-        Beacons.startMonitoringForRegion(beaconRegion);
-        Beacons.startMonitoringForRegion(vehicleBeaconRegion);
-        Beacons.startMonitoringForRegion(liviBeaconRegion);
-        // DeviceEventEmitter.addListener(
-        //     'regionDidEnter',
-        //     (data) => {
-        //         regionDidEnterHandler(data);
-        //     }
-        // );
-        // DeviceEventEmitter.addListener(
-        //     'regionDidExit',
-        //     (data) => {
-        //         regionDidExitHandler(data);
-        //     }
-        // );
+        detectAndStartMonitoring();
+        backgroundRuns += 1;
     }
-    backgroundRuns += 1;
 };
 
 const handleAppStateChange = (nextAppState) => {
@@ -89,7 +100,7 @@ const handleAppStateChange = (nextAppState) => {
         const backgroundSchedule = {
             jobKey: 'testBackgroundJob',
             timeout: 60000,
-            period: 15000, //android sdk version affects how this time is handled
+            period: 10000, //android sdk version affects how this time is handled
         };
         console.log('schedule gogo!');
         BackgroundJob.schedule(backgroundSchedule);
