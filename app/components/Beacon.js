@@ -53,7 +53,10 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
     }
 
     render() {
-        const stopBeacon = this.props.beacons.get('beaconData');
+        const stopBeacon = (this.props.beacons.get('beaconData')
+        && this.props.beacons.get('beaconData').length > 0) ?
+        this.props.beacons.get('beaconData')[0] :
+        null;
         const vehicleBeacon = (this.props.beacons.get('vehicleBeaconData').vehicles
         && this.props.beacons.get('vehicleBeaconData').vehicles.length > 0) ?
         this.props.beacons.get('vehicleBeaconData').vehicles[0] :
@@ -89,14 +92,14 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
                         Pysäkki:
                     </Text>
                     <Text style={styles.subtextStyle}>
-                        {stopBeacon.stop || 'Ei pysäkillä'}
+                        {stopBeacon && stopBeacon.stop ? stopBeacon.stop : 'Ei pysäkillä'}
                     </Text>
                     <Button
                         onPress={() => this.openLink(stopBeacon.link)}
-                        title={stopBeacon.link ? 'Avaa aikataulu' : 'Aikataulua ei saatavilla'}
+                        title={stopBeacon && stopBeacon.link ? 'Avaa aikataulu' : 'Aikataulua ei saatavilla'}
                         color="#841584"
                         accessibilityLabel="Avaa pysäkin aikataulu"
-                        disabled={!stopBeacon.link}
+                        disabled={!(stopBeacon && stopBeacon.link)}
                     />
                 </View>
             </View>

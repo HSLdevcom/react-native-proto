@@ -11,7 +11,7 @@ import {
 } from '../actions/beacons';
 
 export const initialState = fromJS({
-    beaconData: {},
+    beaconData: [],
     vehicleBeaconData: {
         confidence: 0,
         vehicles: [],

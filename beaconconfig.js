@@ -22,8 +22,8 @@
     */
 
     export const beaconId = {
-        ios: '20CAE8A0-A9CF-11E3-A5E2-0800200C9A66',
-        android: '20cae8a0-a9cf-11e3-a5e2-0800200c9a66',
+        ios: 'DFFF7ADA-A48A-4F77-AA9A-3A7943641E6C',
+        android: 'dfff7ada-a48a-4f77-aa9a-3a7943641e6c',
     };
 
     export const vehicleBeaconId = {
@@ -39,9 +39,9 @@
     export const beaconRegion = {
         ios: {
             identifier: 'RuuviTag',
-            uuid: '20CAE8A0-A9CF-11E3-A5E2-0800200C9A66',
+            uuid: 'DFFF7ADA-A48A-4F77-AA9A-3A7943641E6C',
         },
-        android: '20cae8a0-a9cf-11e3-a5e2-0800200c9a66',
+        android: 'dfff7ada-a48a-4f77-aa9a-3a7943641e6c',
     };
 
     export const vehicleBeaconRegion = {

@@ -4,6 +4,7 @@ import {
     Platform,
     PermissionsAndroid,
 } from 'react-native';
+import moment from 'moment';
 
 import * as beaconConfig from '../../beaconconfig';
 
@@ -11,6 +12,8 @@ import stations from '../../stations.json';
 import placement from '../../placement.json';
 import prefixes from '../../municipalityprefixes.json';
 import stops from '../../stops.json';
+
+const _ = require('lodash');
 
 export const SET_BEACON_DATA = 'SET_BEACON_DATA';
 export const SET_VEHICLE_BEACON_DATA = 'SET_VEHICLE_BEACON_DATA';
@@ -81,7 +84,10 @@ let tryingToFindBeacons = false;
 
 let previousVehicles = []; //eslint-disable-line
 
-let tempBeaconData = null;
+const tempBeaconData = null;
+
+const combinedStopBeaconRegions = [beaconRegion, liviBeaconRegion];
+let scannedStopBeacons = [];
 
 export const setBeaconData = function setBeaconData(beaconData) {
     return {
@@ -171,6 +177,34 @@ const resolveStop = (uuid, major, minor) => {
         }
         const platform = minor >>> 11; //eslint-disable-line
         if (platform > 0 && platform < 32) returnString += `Liikennepaikan ${platform}. laituri - `;
+        let departingTrains = null; //eslint-disable-line
+        // try {
+        //     fetch(
+        //     'https://rata.digitraffic.fi/api/v1/live-trains?station=' +
+        // matchingStation[0].stationShortCode +
+        // '&minutes_before_departure=180' +
+        // '&minutes_after_departure=0' +
+        // '&minutes_before_arrival=0' +
+        // '&minutes_after_arrival=0'
+        // )
+        //     .then(response => response.json()).then((responseJson) => {
+        //         responseJson.forEach((x) => {
+        //             _.remove(
+            // x.timeTableRows, y => y.stationShortCode !== matchingStation[0].stationShortCode
+        //                 || y.type !== 'DEPARTURE' || y.commercialTrack !== platform.toString()
+    // );
+        //         });
+        //         _.remove(responseJson, train => train.timeTableRows.length < 1
+                        // || train.trainCategory !== 'Commuter');
+        //         const sorted = _.sortBy(responseJson, t => t.timeTableRows[0].scheduledTime);
+        //         // console.log('====================================');
+        //         // console.log(sorted);
+        //         // console.log('====================================');
+        //         departingTrains = _.take(sorted, 5);
+        //     });
+        // } catch (error) {
+        //     console.log(error);
+        // }
         const placementBits = minor & 63 //eslint-disable-line
         const matchingPlacement = placement.filter(p => p.id === placementBits);
         if (matchingPlacement.length > 0) {
@@ -191,14 +225,16 @@ const resolveTimetableLink = (stop) => {
 
 if (Platform.OS === 'android') {
     Beacons.detectIBeacons();
-    Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
-    Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
+    // Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
+    // Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
 }
 const getData = async function getData(dispatch) {
     try {
         await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
-        await Beacons.startRangingBeaconsInRegion(beaconRegion);
-        await Beacons.startRangingBeaconsInRegion(liviBeaconRegion);
+        console.log(combinedStopBeaconRegions);
+        await combinedStopBeaconRegions.forEach((region) => {
+            Beacons.startRangingBeaconsInRegion(region);
+        }, this);
     } catch (error) {
         Beacons.stopRangingBeaconsInRegion(beaconRegion);
         Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
@@ -217,6 +253,9 @@ const getData = async function getData(dispatch) {
          * Handle stop beacons:
          * Simple comparison of the strongest signal
          */
+        console.log('====================================');
+        console.log(`REGION: ${data.region.uuid} index: ${_.findIndex(combinedStopBeaconRegions, o => o.uuid === data.region.uuid)}`);
+        console.log('====================================');
         if ((Platform.OS === 'ios' && (data.region.uuid === beaconRegion.uuid || data.region.uuid === liviBeaconRegion.uuid))
         || (Platform.OS === 'android' && (data.identifier === beaconRegion || data.identifier === liviBeaconRegion))) {
             const workingBeacons = data.beacons.filter(b =>
@@ -239,33 +278,31 @@ const getData = async function getData(dispatch) {
                     }
                 });
 
-                let beaconData = workingBeacons[closestBeaconIndex];
+                const beaconData = workingBeacons[closestBeaconIndex];
                 if (beaconData
                 && (beaconData.uuid === beaconId || beaconData.uuid === liviBeaconId)) {
-                    if (tempBeaconData) {
-                        beaconData = (tempBeaconData.rssi < beaconData.rssi) ?
-                        beaconData : tempBeaconData;
-                        beaconData.stop = resolveStop(
-                            beaconData.uuid,
-                            beaconData.major,
-                            beaconData.minor
-                        );
-                        // Inserting the timetable link to HSL stop beacons
-                        if (beaconData.uuid === beaconId && beaconData.stop) {
-                            beaconData.link = resolveTimetableLink(beaconData.stop);
-                        }
-                        dispatch(setBeaconData(beaconData));
-                        tempBeaconData = null;
-                        beaconFound = true;
-                    } else {
-                        tempBeaconData = beaconData;
+                    beaconData.stop = resolveStop(
+                        beaconData.uuid,
+                        beaconData.major,
+                        beaconData.minor
+                    );
+                    // Inserting the timetable link to HSL stop beacons
+                    if (beaconData.uuid === beaconId && beaconData.stop) {
+                        beaconData.link = resolveTimetableLink(beaconData.stop);
                     }
+                    scannedStopBeacons = _.concat(scannedStopBeacons, beaconData);
                 }
-            } else {
-                //No beacons found, empty the store
-                dispatch(setBeaconData({}));
+            }
+            if (_.findIndex(combinedStopBeaconRegions, o => o.uuid === data.region.uuid)
+                >= combinedStopBeaconRegions.length - 1) {
+                const found = scannedStopBeacons.length > 0 ?
+                    _.sortBy(scannedStopBeacons, b => -b.rssi) :
+                    [];
+                dispatch(setBeaconData(found));
+                scannedStopBeacons = [];
             }
         }
+
 
         /**
          * Handle vehicle beacons:
@@ -337,9 +374,9 @@ const getData = async function getData(dispatch) {
                 previousVehicles.shift();
                 dispatch(setBusBeaconData(0, []));
             }
-            console.log(previousVehicles.map(v => v.major));
+            // console.log(previousVehicles.map(v => v.major));
         }
-        console.log('--------------');
+        // console.log('--------------');
     });
 };
 
