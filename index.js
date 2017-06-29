@@ -31,13 +31,17 @@ let backgroundRuns = 0;
 
 const regionDidExitHandler = (data) => {
     console.log('MONITORING ACTION - regionDidExit data: ', data);
-    const beacons = getWorkingBeacons();
+    const stopBeacons = getWorkingBeacons();
     const vehicleBeacons = getWorkingVehicleBeacons();
-    console.log('getWorkingBeacons: ', beacons);
+    console.log('getWorkingBeacons: ', stopBeacons);
     console.log('getWorkingVehicleBeacons: ', vehicleBeacons);
-    if ((!vehicleBeacons || !vehicleBeacons.length) && (!beacons || !beacons.length)) {
+    if ((!vehicleBeacons || !vehicleBeacons.length) && (!stopBeacons || !stopBeacons.length)) {
         rangingStopped = true;
         stopRanging();
+    } else if (!vehicleBeacons || !vehicleBeacons.length) {
+        stopRanging(true);
+    } else if (!stopBeacons || !stopBeacons.length) {
+        stopRanging(false, true);
     }
 };
 const regionDidEnterHandler = (data) => {
@@ -87,7 +91,7 @@ const test = () => {
         // Just in case run getBeaconData
         store.dispatch(getBeaconData());
         backgroundRuns += 1;
-    } else if (rangingStopped && backgroundRuns === 0) {
+    } else if (rangingStopped) {
         rangingStopped = false;
         detectAndStartMonitoring();
         backgroundRuns += 1;
