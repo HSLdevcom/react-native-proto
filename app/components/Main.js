@@ -5,7 +5,6 @@
 
 import React, {Component} from 'react';
 import {
-    AppState,
     DeviceEventEmitter,
     Platform,
 } from 'react-native';
@@ -19,27 +18,11 @@ const beaconConfig = require('../../beaconconfig');
 export const REITTIOPAS_MOCK_URL = 'https://reittiopas.fi/?mock';
 export const REITTIOPAS_URL = 'https://reittiopas.fi';
 
-const beaconId = (Platform.OS === 'ios') ?
-beaconConfig.beaconId.ios :
-beaconConfig.beaconId.android;
-
-const vehicleBeaconId = (Platform.OS === 'ios') ?
-beaconConfig.vehicleBeaconId.ios :
-beaconConfig.vehicleBeaconId.android;
-
-const liviBeaconId = (Platform.OS === 'ios') ?
-beaconConfig.liviBeaconId.ios :
-beaconConfig.liviBeaconId.android;
-
 const beaconRegion = beaconConfig.beaconRegion.ios;
 const vehicleBeaconRegion = beaconConfig.vehicleBeaconRegion.ios;
 const liviBeaconRegion = beaconConfig.liviBeaconRegion.ios;
 
 class Main extends Component { // eslint-disable-line react/prefer-stateless-function
-
-    state = {
-        appState: AppState.currentState,
-    }
     // TODO: check if app can use bluetooth: checkTransmissionSupported(): promise
     componentWillMount = () => {
         if (Platform.OS === 'android') {
@@ -79,11 +62,6 @@ Main.propTypes = {
     getBeaconData: React.PropTypes.func.isRequired,
 };
 
-function mapStateToProps(state) {
-    return {
-
-    };
-}
 function mapDispatchToProps(dispatch) {
     return {
         getBeaconData: () => dispatch(getBeaconData()),
@@ -91,6 +69,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(
-     mapStateToProps,
+     null,
      mapDispatchToProps
  )(Main);

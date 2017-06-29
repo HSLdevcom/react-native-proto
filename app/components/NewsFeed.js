@@ -15,13 +15,13 @@ import colors from '../colors';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginBottom: 55,
-        marginTop: (Platform.OS === 'ios') ? 63 : 53,
+        marginBottom: 50,
+        marginTop: (Platform.OS === 'ios') ? 15 : 0,
     },
     childContainer: {
         alignItems: 'flex-start',
         justifyContent: 'center',
-        marginBottom: 50,
+        marginBottom: 40,
         padding: 15,
     },
     text: {

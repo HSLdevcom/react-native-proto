@@ -236,44 +236,44 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
             (
                 <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
                     <Scene HSLIcon iconName="reittiopas" key="homeTab" title="Reittiopas" icon={TabIcon}>
-                        <Scene key="home" component={Main} title="Reittiopas" />
+                        <Scene hideNavBar key="home" component={Main} title="Reittiopas" />
                     </Scene>
                     <Scene HSLIcon iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
-                        <Scene key="news" component={News} title="Ajankohtaista" />
+                        <Scene hideNavBar key="news" component={News} title="Ajankohtaista" />
                     </Scene>
                     <Scene HSLIcon iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
-                        <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                        <Scene hideNavBar key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                     </Scene>
                     <Scene HSLIcon iconName="more" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                         <Scene hideNavBar key="camera" title="Kamera" />
-                        <Scene key="microphone" title="Äänitys" />
-                        <Scene key="nfc" title="NFC" />
-                        <Scene key="form" title="Pikapalaute" />
-                        <Scene key="cityBike" title="Kaupunkipyörät" />
-                        <Scene key="beacons" title="Beacon" />
-                        <Scene key="login" title="Kirjaudu sisään" />
+                        <Scene hideNavBar key="microphone" title="Äänitys" />
+                        <Scene hideNavBar key="nfc" title="NFC" />
+                        <Scene hideNavBar key="form" title="Pikapalaute" />
+                        <Scene hideNavBar key="cityBike" title="Kaupunkipyörät" />
+                        <Scene hideNavBar key="beacons" title="Beacon" />
+                        <Scene hideNavBar key="login" title="Kirjaudu sisään" />
                     </Scene>
                 </Scene>
             ) :
             (
                 <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
                     <Scene HSLIcon iconName="reittiopas" key="homeTab" title="Reittiopas" icon={TabIcon}>
-                        <Scene key="home" component={Main} title="Reittiopas" />
+                        <Scene hideNavBar key="home" component={Main} title="Reittiopas" />
                     </Scene>
                     <Scene HSLIcon iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
-                        <Scene key="news" component={News} title="Ajankohtaista" />
+                        <Scene hideNavBar key="news" component={News} title="Ajankohtaista" />
                     </Scene>
                     <Scene HSLIcon iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
-                        <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                        <Scene hideNavBar key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                     </Scene>
                     <Scene HSLIcon iconName="more" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                         <Scene hideNavBar key="camera" title="Kamera" />
-                        <Scene key="microphone" title="Äänitys" />
-                        <Scene key="form" title="Pikapalaute" />
-                        <Scene key="cityBike" title="Kaupunkipyörät" />
-                        <Scene key="about" title="Tietoa sovelluksesta" />
-                        <Scene key="beacons" title="Beacon" />
-                        <Scene key="login" title="Kirjaudu sisään" />
+                        <Scene hideNavBar key="microphone" title="Äänitys" />
+                        <Scene hideNavBar key="form" title="Pikapalaute" />
+                        <Scene hideNavBar key="cityBike" title="Kaupunkipyörät" />
+                        <Scene hideNavBar key="about" title="Tietoa sovelluksesta" />
+                        <Scene hideNavBar key="beacons" title="Beacon" />
+                        <Scene hideNavBar key="login" title="Kirjaudu sisään" />
                     </Scene>
                 </Scene>
             );
