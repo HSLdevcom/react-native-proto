@@ -27,7 +27,8 @@ const TIMETABLE_URL = 'https://www.reittiopas.fi/pysakit/';
 const FOREGROUND_SCAN_PERIOD = 1000;
 const BACKGROUND_SCAN_PERIOD = 1000;
 
-const PREVIOUS_LIMIT = 8;
+const PREVIOUS_VEHICLES_LIMIT = 8;
+const PREVIOUS_STOPS_LIMIT = 8;
 
 if (Platform.OS === 'ios') {
     Beacons.requestAlwaysAuthorization();
@@ -83,15 +84,15 @@ let vehicleBeaconsFound = false;
 let tryingToFindBeacons = false;
 
 let previousVehicles = []; //eslint-disable-line
-
-const tempBeaconData = null;
+let previousStops = []; //eslint-disable-line
 
 const combinedStopBeaconRegions = [beaconRegion, liviBeaconRegion];
 let scannedStopBeacons = [];
 
-export const setBeaconData = function setBeaconData(beaconData) {
+export const setBeaconData = function setBeaconData(confidence, beaconData) {
     return {
         type: SET_BEACON_DATA,
+        confidence,
         beaconData,
         gettingBeaconData: false,
     };
@@ -253,9 +254,7 @@ const getData = async function getData(dispatch) {
          * Handle stop beacons:
          * Simple comparison of the strongest signal
          */
-        console.log('====================================');
-        console.log(`REGION: ${data.region.uuid} index: ${_.findIndex(combinedStopBeaconRegions, o => o.uuid === data.region.uuid)}`);
-        console.log('====================================');
+        console.log(`REGION: ${data.region.uuid}`);
         if ((Platform.OS === 'ios' && (data.region.uuid === beaconRegion.uuid || data.region.uuid === liviBeaconRegion.uuid))
         || (Platform.OS === 'android' && (data.identifier === beaconRegion || data.identifier === liviBeaconRegion))) {
             const workingBeacons = data.beacons.filter(b =>
@@ -265,6 +264,8 @@ const getData = async function getData(dispatch) {
                 ${b.major}-${b.minor} :
                  uuid: ${b.uuid}
                  strength: ${b.rssi}
+                 proximity: ${b.proximity}
+                 distance: ${b.distance}
                  accuracy: ${b.accuracy} \n`)}`);
             if (workingBeacons.length > 0) {
                 let closestBeaconIndex = 0;
@@ -298,9 +299,32 @@ const getData = async function getData(dispatch) {
                 const found = scannedStopBeacons.length > 0 ?
                     _.sortBy(scannedStopBeacons, b => -b.rssi) :
                     [];
-                dispatch(setBeaconData(found));
+                /**
+                 * Saving the beacons that were previously considered the strongest
+                 * in a single scan. PREVIOUS_STOPS_LIMIT limits the number of beacons saved.
+                 *
+                 * Confidence of the strongest beacon in this scan actually being closest
+                 * is calculated by checking how many times the same stop
+                 * occurs in previous scans.
+                 */
+                if (found.length > 0) previousStops.push(found[0]);
+
+                if (previousStops.length > PREVIOUS_STOPS_LIMIT) {
+                    previousStops.shift();
+                }
+                if (found.length > 0) {
+                    const conf = previousStops.length > 0 ?
+                    previousStops.filter(m => m.major === found[0].major)
+                    .length / previousStops.length :
+                    0;
+                    dispatch(setBeaconData(conf, found));
+                } else {
+                    previousStops.shift();
+                    dispatch(setBeaconData(0, found));
+                }
                 scannedStopBeacons = [];
             }
+            console.log(previousStops.map(stop => stop.stop));
         }
 
 
@@ -315,10 +339,11 @@ const getData = async function getData(dispatch) {
             (b.rssi < 0 && (b.uuid === vehicleBeaconId)));
             console.log(`VEHICLEBEACONS: ${data.beacons
                 .map(b => `\n ${b.major}-${b.minor} :
-                 strength: ${b.rssi}
-                 accuracy: ${b.accuracy}
-                 uuid: ${b.uuid}
-                 proximity: ${b.proximity}\n`)}`);
+                uuid: ${b.uuid}
+                strength: ${b.rssi}
+                proximity: ${b.proximity}
+                distance: ${b.distance}
+                accuracy: ${b.accuracy} \n`)}`);
             if (workingBeacons.length > 0) {
                 let vehicleBeacons = [];
 
@@ -349,14 +374,14 @@ const getData = async function getData(dispatch) {
                     });
                     /**
                      * Saving the beacons that were previously considered the strongest
-                     * in a single scan. PREVIOUS_LIMIT limits the number of beacons saved.
+                     * in a single scan. PREVIOUS_VEHICLES_LIMIT limits the number of beacons saved.
                      *
                      * Confidence of the strongest beacon in this scan actually being closest
                      * is calculated by checking how many times the same vehicle
                      * occurs in previous scans.
                      */
                     previousVehicles.push(vehicleBeacons[0]);
-                    if (previousVehicles.length > PREVIOUS_LIMIT) {
+                    if (previousVehicles.length > PREVIOUS_VEHICLES_LIMIT) {
                         previousVehicles.shift();
                     }
                     const conf = previousVehicles.length > 0 ?

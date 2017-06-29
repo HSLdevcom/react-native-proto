@@ -11,7 +11,10 @@ import {
 } from '../actions/beacons';
 
 export const initialState = fromJS({
-    beaconData: [],
+    beaconData: {
+        confidence: 0,
+        stops: [],
+    },
     vehicleBeaconData: {
         confidence: 0,
         vehicles: [],
@@ -26,7 +29,7 @@ const beacons = (state = initialState, action) => {
     switch (action.type) {
     case SET_BEACON_DATA:
 
-        return state.set('beaconData', action.beaconData).set('gettingBeaconData', action.gettingBeaconData);
+        return state.set('beaconData', {confidence: action.confidence, stops: action.beaconData}).set('gettingBeaconData', action.gettingBeaconData);
 
     case SET_VEHICLE_BEACON_DATA:
 

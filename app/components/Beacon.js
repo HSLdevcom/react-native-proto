@@ -26,20 +26,21 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     textStyle: {
-        fontSize: 70,
+        fontSize: 50,
         color: colors.brandColor,
         marginTop: 5,
         marginBottom: 5,
     },
     subtextStyle: {
-        fontSize: 30,
+        fontSize: 25,
         color: colors.brandColor,
         marginTop: 5,
         marginBottom: 5,
     },
 });
 
-let displayBeacon = null;
+let displayedVehicleBeacon = null;
+let displayedStopBeacon = null;
 
 class Beacon extends Component { // eslint-disable-line react/prefer-stateless-function
 
@@ -53,32 +54,49 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
     }
 
     render() {
-        const stopBeacon = (this.props.beacons.get('beaconData')
-        && this.props.beacons.get('beaconData').length > 0) ?
-        this.props.beacons.get('beaconData')[0] :
+        const stopBeacon = (this.props.beacons.get('beaconData').stops
+        && this.props.beacons.get('beaconData').stops.length > 0) ?
+        this.props.beacons.get('beaconData').stops[0] :
         null;
+
+        const otherStops = (this.props.beacons.get('beaconData').stops
+        && this.props.beacons.get('beaconData').stops.length > 1
+        && displayedStopBeacon) ?
+        this.props.beacons.get('beaconData').stops.filter(b => b.major !== displayedStopBeacon.major)
+        .map(b => b.stop) :
+        null;
+
+        if (this.props.beacons.get('beaconData').confidence > 0.5) {
+            displayedStopBeacon = stopBeacon;
+        }
+        if (this.props.beacons.get('beaconData').confidence === 0) {
+            displayedStopBeacon = null;
+        }
+
         const vehicleBeacon = (this.props.beacons.get('vehicleBeaconData').vehicles
         && this.props.beacons.get('vehicleBeaconData').vehicles.length > 0) ?
         this.props.beacons.get('vehicleBeaconData').vehicles[0] :
         null;
+
         const otherVehicles = (this.props.beacons.get('vehicleBeaconData').vehicles
         && this.props.beacons.get('vehicleBeaconData').vehicles.length > 1
-        && displayBeacon) ?
-        this.props.beacons.get('vehicleBeaconData').vehicles.filter(b => b.major !== displayBeacon.major)
+        && displayedVehicleBeacon) ?
+        this.props.beacons.get('vehicleBeaconData').vehicles.filter(b => b.major !== displayedVehicleBeacon.major)
         .map(b => b.line) :
         null;
+
         if (this.props.beacons.get('vehicleBeaconData').confidence > 0.5) {
-            displayBeacon = vehicleBeacon;
+            displayedVehicleBeacon = vehicleBeacon;
         }
         if (this.props.beacons.get('vehicleBeaconData').confidence === 0) {
-            displayBeacon = null;
+            displayedVehicleBeacon = null;
         }
 
         return (
             <View style={styles.container}>
                 <View style={styles.subcontainer}>
                     <Text style={styles.textStyle}>
-                        {displayBeacon && displayBeacon.line ? displayBeacon.line : 'Ei linjalla'}
+                        {displayedVehicleBeacon && displayedVehicleBeacon.line ? displayedVehicleBeacon.line : 'Ei linjalla'}
                     </Text>
                     <Text>
                         Muut ajoneuvot lähelläsi:
@@ -92,14 +110,14 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
                         Pysäkki:
                     </Text>
                     <Text style={styles.subtextStyle}>
-                        {stopBeacon && stopBeacon.stop ? stopBeacon.stop : 'Ei pysäkillä'}
+                        {displayedStopBeacon && displayedStopBeacon.stop ? displayedStopBeacon.stop : 'Ei pysäkillä'}
                     </Text>
                     <Button
-                        onPress={() => this.openLink(stopBeacon.link)}
-                        title={stopBeacon && stopBeacon.link ? 'Avaa aikataulu' : 'Aikataulua ei saatavilla'}
+                        onPress={() => this.openLink(displayedStopBeacon.link)}
+                        title={displayedStopBeacon && displayedStopBeacon.link ? 'Avaa aikataulu' : 'Aikataulua ei saatavilla'}
                         color="#841584"
                         accessibilityLabel="Avaa pysäkin aikataulu"
-                        disabled={!(stopBeacon && stopBeacon.link)}
+                        disabled={!(displayedStopBeacon && displayedStopBeacon.link)}
                     />
                 </View>
             </View>
