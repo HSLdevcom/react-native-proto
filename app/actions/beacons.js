@@ -1,5 +1,6 @@
 import Beacons from 'react-native-beacons-manager';
 import {
+    AppState,
     DeviceEventEmitter,
     Platform,
     PermissionsAndroid,
@@ -195,22 +196,35 @@ if (Platform.OS === 'android') {
     Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
 }
 
-export const stopRanging = () => {
-    console.log('stopRanging');
-    Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
-    Beacons.stopRangingBeaconsInRegion(beaconRegion);
-    Beacons.stopRangingBeaconsInRegion(liviBeaconRegion);
+export const stopRanging = (onlyVehicleBeacons = false, onlyStopBeacons = false) => {
+    if (onlyVehicleBeacons) {
+        console.log('stopOnlyVehicleBeacons');
+        Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
+    } else if (onlyStopBeacons) {
+        console.log('stopOnlyStopBeacons');
+        Beacons.stopRangingBeaconsInRegion(beaconRegion);
+        Beacons.stopRangingBeaconsInRegion(liviBeaconRegion);
+    } else {
+        console.log('stopAllRanging');
+        Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
+        Beacons.stopRangingBeaconsInRegion(beaconRegion);
+        Beacons.stopRangingBeaconsInRegion(liviBeaconRegion);
+    }
     tryingToFindBeacons = false;
 };
 
 let workingVehicleBeacons;
 let workingBeacons;
+let vehicleBeaconsLastFoundTimestamp = false;
+let firstScanTimestamp = false;
 
 export const getWorkingBeacons = () => workingBeacons;
 export const getWorkingVehicleBeacons = () => workingVehicleBeacons;
 
 const getData = async function getData(dispatch) {
     try {
+        firstScanTimestamp = new Date().getTime();
+        vehicleBeaconsLastFoundTimestamp = false;
         await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
         await Beacons.startRangingBeaconsInRegion(beaconRegion);
         await Beacons.startRangingBeaconsInRegion(liviBeaconRegion);
@@ -234,7 +248,7 @@ const getData = async function getData(dispatch) {
         || (Platform.OS === 'android' && (data.identifier === beaconRegion || data.identifier === liviBeaconRegion))) {
             workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === beaconId || b.uuid === liviBeaconId)));
-            console.log(`STOPBEACONS: ${data.beacons
+            console.log(`STOPBEACONS: ${workingBeacons
                 .map(b => `\n
                 ${b.major}-${b.minor} :
                  uuid: ${b.uuid}
@@ -310,6 +324,7 @@ const getData = async function getData(dispatch) {
                 });
 
                 if (vehicleBeacons.length > 0) {
+                    vehicleBeaconsLastFoundTimestamp = new Date().getTime();
                     /**
                      * The beacon data closest to the user
                      * is sorted to be always first in the array.
@@ -349,12 +364,37 @@ const getData = async function getData(dispatch) {
                 previousVehicles.shift();
                 if (!previousVehicles || previousVehicles.length === 0) {
                     //No beacons found, empty the store
+                    const timestamp = new Date().getTime();
+                    console.log('timestamp - vehicleBeaconsLastFoundTimestamp: ', timestamp - vehicleBeaconsLastFoundTimestamp);
+                    console.log('timestamp - firstScanTimestamp: ', timestamp - firstScanTimestamp);
+                    if (
+                        Platform.OS === 'android' &&
+                        (
+                            AppState.currentState === 'background' ||
+                            AppState.currentState === 'uninitialized'
+                        )
+                        &&
+                        (
+                            (
+                                parseInt(vehicleBeaconsLastFoundTimestamp, 10) > 0 &&
+                                timestamp - vehicleBeaconsLastFoundTimestamp > 20000
+                            ) ||
+                            (
+                                !vehicleBeaconsLastFoundTimestamp &&
+                                parseInt(firstScanTimestamp, 10) > 0 &&
+                                timestamp - firstScanTimestamp > 20000
+                            )
+                        )
+                    ) {
+                        console.log('over 20 sec since we saw last vehicle beacon, just in case stopRanging in vehicleBeaconRegion');
+                        stopRanging(true);
+                    }
                     dispatch(setBusBeaconData(0, []));
                 }
             }
             console.log(previousVehicles.map(v => v.major));
         }
-        console.log('--------------');
+        // console.log('--------------');
     });
 };
 
