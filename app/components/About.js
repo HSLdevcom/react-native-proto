@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.brandColor,
         marginBottom: 50,
-        marginTop: (Platform.OS === 'ios') ? 63 : 53,
+        paddingTop: (Platform.OS === 'ios') ? 15 : 0,
     },
     scrollContainer: {
         alignItems: 'center',

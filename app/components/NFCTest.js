@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     text: {
-        fontSize: 20,
+        fontSize: 18,
         marginTop: 20,
     },
 });
@@ -70,7 +70,7 @@ class NFCTest extends Component { // eslint-disable-line react/prefer-stateless-
         }
         return (
             <View style={styles.container}>
-                <Text style={styles.text}>Read NFC</Text>
+                <Text style={styles.text}>Read NFC (not working at the moment)</Text>
             </View>
         );
     }

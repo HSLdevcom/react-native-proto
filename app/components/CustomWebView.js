@@ -91,9 +91,7 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         height: 50,
     },
-    webView: {
-        marginTop: (Platform.OS === 'ios') ? 63 : 53,
-    },
+    webView: {},
 });
 
 const HSLSAMLSessionID = 'HSLSAMLSessionID';
@@ -376,6 +374,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         let uri = overrideUri || this.props.uri;
 
         let containerHeight = parseInt(screenHeight - 80, 10);
+        const containerBackgroundColor = uri === CITYBIKE_URL ?
+            colors.cityBikes :
+            colors.brandColor;
         // TODO: this is not bulletproof "solution" at all...
         // WebView inside ScrollView sucks...
         if (autoHeightEnabled) {
@@ -384,7 +385,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 (1200 + parseInt(screenHeight - 80, 10));
         }
 
-        let webViewMarginTop = (Platform.OS === 'ios') ? 63 : 53;
+        let webViewMarginTop = (Platform.OS === 'ios') ? 20 : 0;
         if (autoHeightEnabled) webViewMarginTop = 0;
         let inlineJS = onMessageEnabled ? `
             // Workaround to https://github.com/facebook/react-native/issues/10865
@@ -631,7 +632,10 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         />);
         return (
             <View
-                style={[styles.container, {height: containerHeight}]}
+                style={[styles.container, {
+                    backgroundColor: containerBackgroundColor,
+                    height: containerHeight,
+                }]}
             >
                 <ActivityIndicator
                     animating={loading}
@@ -654,7 +658,7 @@ CustomWebView.propTypes = {
         PropTypes.instanceOf(Immutable.Map)],
     ).isRequired,
     onMessageEnabled: PropTypes.bool,
-    removeCityBikeData: PropTypes.func.isRequired,
+    // removeCityBikeData: PropTypes.func.isRequired,
     removeCookie: PropTypes.func.isRequired,
     scrollEnabled: PropTypes.bool,
     session: PropTypes.oneOfType([
