@@ -1,6 +1,5 @@
 import Beacons from 'react-native-beacons-manager';
 import {
-    AppState,
     DeviceEventEmitter,
     Platform,
     PermissionsAndroid,
@@ -221,13 +220,33 @@ let firstScanTimestamp = false;
 export const getWorkingBeacons = () => workingBeacons;
 export const getWorkingVehicleBeacons = () => workingVehicleBeacons;
 
-const getData = async function getData(dispatch) {
+const getData = async function getData(
+    dispatch,
+    onlyBeaconRegion = false,
+    onlyLiviBeaconRegion = false,
+    onlyVehicleBeaconRegion = false,
+) {
     try {
         firstScanTimestamp = new Date().getTime();
         vehicleBeaconsLastFoundTimestamp = false;
-        await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
-        await Beacons.startRangingBeaconsInRegion(beaconRegion);
-        await Beacons.startRangingBeaconsInRegion(liviBeaconRegion);
+        console.log('onlyBeaconRegion: ', onlyBeaconRegion);
+        console.log('onlyLiviBeaconRegion: ', onlyLiviBeaconRegion);
+        console.log('onlyVehicleBeaconRegion: ', onlyVehicleBeaconRegion);
+        if (onlyBeaconRegion) {
+            console.log('start onlyBeaconRegion');
+            await Beacons.startRangingBeaconsInRegion(beaconRegion);
+        } else if (onlyLiviBeaconRegion) {
+            console.log('start onlyLiviBeaconRegion');
+            await Beacons.startRangingBeaconsInRegion(liviBeaconRegion);
+        } else if (onlyVehicleBeaconRegion) {
+            console.log('start onlyVehicleBeaconRegion');
+            await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
+        } else {
+            console.log('start ranging all regions');
+            await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
+            await Beacons.startRangingBeaconsInRegion(beaconRegion);
+            await Beacons.startRangingBeaconsInRegion(liviBeaconRegion);
+        }
     } catch (error) {
         stopRanging();
         if (!beaconFound) dispatch(beaconError("Beacon didn't start ranging"));
@@ -368,22 +387,14 @@ const getData = async function getData(dispatch) {
                     console.log('timestamp - vehicleBeaconsLastFoundTimestamp: ', timestamp - vehicleBeaconsLastFoundTimestamp);
                     console.log('timestamp - firstScanTimestamp: ', timestamp - firstScanTimestamp);
                     if (
-                        Platform.OS === 'android' &&
                         (
-                            AppState.currentState === 'background' ||
-                            AppState.currentState === 'uninitialized'
-                        )
-                        &&
+                            parseInt(vehicleBeaconsLastFoundTimestamp, 10) > 0 &&
+                            timestamp - vehicleBeaconsLastFoundTimestamp > 20000
+                        ) ||
                         (
-                            (
-                                parseInt(vehicleBeaconsLastFoundTimestamp, 10) > 0 &&
-                                timestamp - vehicleBeaconsLastFoundTimestamp > 20000
-                            ) ||
-                            (
-                                !vehicleBeaconsLastFoundTimestamp &&
-                                parseInt(firstScanTimestamp, 10) > 0 &&
-                                timestamp - firstScanTimestamp > 20000
-                            )
+                            !vehicleBeaconsLastFoundTimestamp &&
+                            parseInt(firstScanTimestamp, 10) > 0 &&
+                            timestamp - firstScanTimestamp > 20000
                         )
                     ) {
                         console.log('over 20 sec since we saw last vehicle beacon, just in case stopRanging in vehicleBeaconRegion');
@@ -398,7 +409,11 @@ const getData = async function getData(dispatch) {
     });
 };
 
-export const getBeaconData = () => {
+export const getBeaconData = (
+    onlyBeaconRegion = false,
+    onlyLiviBeaconRegion = false,
+    onlyVehicleBeaconRegion = false,
+) => {
     if (!tryingToFindBeacons) {
         tryingToFindBeacons = true;
         beaconFound = false;
@@ -406,7 +421,7 @@ export const getBeaconData = () => {
 
         return (dispatch) => {
             dispatch(requestBeaconData());
-            getData(dispatch);
+            getData(dispatch, onlyBeaconRegion, onlyLiviBeaconRegion, onlyVehicleBeaconRegion);
         };
     }
 
