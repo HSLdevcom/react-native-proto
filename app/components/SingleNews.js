@@ -100,7 +100,11 @@ class SingleNews extends Component { // eslint-disable-line react/prefer-statele
                     </View>
                     <WebView
                         style={styles.webView}
-                        source={{html: removeMetaFromNewsHtml(singleNews.get('body').get('value'))}}
+                        source={{html: removeMetaFromNewsHtml(
+                            singleNews.get('body') && singleNews.get('body').get('value') ?
+                                singleNews.get('body').get('value') :
+                                ''
+                        )}}
                         ref={(c) => { this.webview = c; }}
                         onNavigationStateChange={this.onNavigationStateChange}
                     />
