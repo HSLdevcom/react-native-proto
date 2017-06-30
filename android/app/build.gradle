@@ -88,10 +88,10 @@ android {
 
     defaultConfig {
         applicationId "com.hslfiproto"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 22
-        versionCode 17
-        versionName "0.1.3"
+        versionCode 21
+        versionName "0.2.0"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -137,9 +137,9 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-background-job')
     compile project(':react-native-webview-file-upload-android')
     compile project(':react-native-beacons-manager')
-    compile project(':nfc-ndef-react-native')
     compile project(':react-native-sound')
     compile project(':react-native-audio')
     compile project(':react-native-camera')

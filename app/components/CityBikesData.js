@@ -99,7 +99,7 @@ CityBikesData.propTypes = {
         PropTypes.instanceOf(Object),
         PropTypes.instanceOf(Immutable.Map)],
     ).isRequired,
-    removeCityBikeData: PropTypes.func.isRequired,
+    // removeCityBikeData: PropTypes.func.isRequired,
     setCityBikesRentalData: PropTypes.func.isRequired,
     setCityBikesUserData: PropTypes.func.isRequired,
 };

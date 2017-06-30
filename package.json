@@ -1,6 +1,6 @@
 {
   "name": "HSLProto",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "scripts": {
     "lint": "eslint --ignore-path .gitignore -- .",
     "lint:staged": "lint-staged",
@@ -23,11 +23,11 @@
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
-    "nfc-ndef-react-native": "^0.2.1",
     "prop-types": "^15.5.10",
     "react": "16.0.0-alpha.6",
     "react-native": "0.44.3",
     "react-native-audio": "^3.2.2",
+    "react-native-background-job": "^1.2.4-0",
     "react-native-beacons-manager": "^1.0.4",
     "react-native-camera": "git+https://github.com/lwansbrough/react-native-camera.git",
     "react-native-clean-form": "^0.4.1",

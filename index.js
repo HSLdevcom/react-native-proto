@@ -4,21 +4,136 @@
  * @flow
  */
 import React, {Component} from 'react';
-import {ActivityIndicator, AppRegistry, AsyncStorage, Platform, StyleSheet, Text, View, Image} from 'react-native';
+import {ActivityIndicator, AppRegistry, AppState, AsyncStorage, DeviceEventEmitter, Image, Platform, StyleSheet, Text, View} from 'react-native';
 import {persistStore} from 'redux-persist';
 import {connect, Provider} from 'react-redux';
 import {Router, Scene} from 'react-native-router-flux';
 import immutableTransform from 'redux-persist-transform-immutable';
 import Icon from 'react-native-vector-icons/Entypo';
+import Beacons from 'react-native-beacons-manager';
+import BackgroundJob from 'react-native-background-job';
 import store from './app/store';
 import colors from './app/colors';
+import {getBeaconData, getWorkingBeacons, getWorkingVehicleBeacons, stopRanging} from './app/actions/beacons';
 import Main from './app/components/Main';
 import FakeSideMenu from './app/components/FakeSideMenu';
 import News from './app/components/NewsFeed';
 import MobileTicket from './app/components/MobileTicket';
-import Beacon from './app/components/Beacon';
 // import Test from './app/components/Test';
-import CityBikesData from './app/components/CityBikesData';
+const beaconConfig = require('./beaconconfig');
+
+const beaconRegion = beaconConfig.beaconRegion;
+const vehicleBeaconRegion = beaconConfig.vehicleBeaconRegion;
+const liviBeaconRegion = beaconConfig.liviBeaconRegion;
+let rangingStopped = false;
+// How many times backgroundJob is called during this "session"
+let backgroundRuns = 0;
+
+const regionDidExitHandler = (data) => {
+    console.log('MONITORING ACTION - regionDidExit data: ', data);
+    const stopBeacons = getWorkingBeacons();
+    const vehicleBeacons = getWorkingVehicleBeacons();
+    /*
+    * If there isn't any beacons in store, stop all ranging
+    * otherwise stop vehicle / stop beacons ranging
+    */
+    if ((!vehicleBeacons || !vehicleBeacons.length) && (!stopBeacons || !stopBeacons.length)) {
+        rangingStopped = true;
+        stopRanging();
+    } else if (!vehicleBeacons || !vehicleBeacons.length) {
+        stopRanging(true);
+    } else if (!stopBeacons || !stopBeacons.length) {
+        stopRanging(false, true);
+    }
+};
+
+const regionDidEnterHandler = (data) => {
+    console.log('MONITORING ACTION - regionDidEnter data: ', data);
+    rangingStopped = false;
+    if (data.uuid.toLowerCase() === beaconRegion.uuid.toLowerCase()) {
+        store.dispatch(getBeaconData(true));
+    } else if (data.uuid.toLowerCase() === liviBeaconRegion.uuid.toLowerCase()) {
+        store.dispatch(getBeaconData(false, true));
+    } else if (data.uuid.toLowerCase() === vehicleBeaconRegion.uuid.toLowerCase()) {
+        store.dispatch(getBeaconData(false, false, true));
+    } else {
+        store.dispatch(getBeaconData());
+    }
+};
+
+const detectAndStartMonitoring = () => {
+    Beacons.detectIBeacons();
+    Beacons.startMonitoringForRegion(beaconRegion);
+    Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+    Beacons.startMonitoringForRegion(liviBeaconRegion);
+};
+
+const androidBackgroundJob = () => {
+    console.log('Running in background');
+    console.log(new Date());
+    console.log('AppState.currentState: ', AppState.currentState);
+    console.log('rangingStopped: ', rangingStopped);
+    console.log('backgroundRuns: ', backgroundRuns);
+    /*
+    * This tries to add region event listeners only when there isn't one already defined.
+    * Otherwise just start to detectIBeacons and region monitoring (at least Android 5.x needs this)
+    * It seems that Android 6 and 7 is not stopping ranging at all even if phone is sleeping
+    * so we might want to do something to that because phone battery is dry very quickly if
+    * ranging is on long time.
+    */
+    if (
+        DeviceEventEmitter._subscriber._subscriptionsForType.appStateDidChange[0] && // eslint-disable-line
+        !DeviceEventEmitter._subscriber._subscriptionsForType.appStateDidChange[0].subscriber._subscriptionsForType.regionDidExit // eslint-disable-line
+    ) {
+        // We assume that regionDidEnter is also undefined if regionDidExit is
+        // It seems that this situation comes only with Android 5.x
+        DeviceEventEmitter.addListener(
+            'regionDidEnter',
+            (data) => {
+                regionDidEnterHandler(data);
+            }
+        );
+        DeviceEventEmitter.addListener(
+            'regionDidExit',
+            (data) => {
+                regionDidExitHandler(data);
+            }
+        );
+        detectAndStartMonitoring();
+        // Just in case run getBeaconData
+        store.dispatch(getBeaconData());
+        backgroundRuns += 1;
+    } else if (rangingStopped) {
+        rangingStopped = false;
+        detectAndStartMonitoring();
+        backgroundRuns += 1;
+    }
+};
+
+const handleAppStateChange = (nextAppState) => {
+    console.log('nextAppState: ', nextAppState);
+    if (nextAppState === 'background') {
+        const backgroundSchedule = {
+            jobKey: 'androidBackgroundJob',
+            timeout: 60000,
+            period: 10000, //android sdk version affects how this time is handled
+        };
+        console.log('schedule gogo!');
+        BackgroundJob.schedule(backgroundSchedule);
+    } else if (nextAppState === 'active') {
+        BackgroundJob.cancelAll();
+    }
+};
+
+if (Platform.OS === 'android') {
+    const backgroundJob = {
+        jobKey: 'androidBackgroundJob',
+        job: () => androidBackgroundJob(),
+    };
+
+    BackgroundJob.register(backgroundJob);
+    AppState.addEventListener('change', handleAppStateChange);
+}
 
 console.log('Starting');
 console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
@@ -151,6 +266,29 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
         }, () => {
             this.setState({rehydrated: true});
         });
+
+        if (Platform.OS === 'android') {
+            Beacons.detectIBeacons();
+        }
+        Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+        Beacons.startMonitoringForRegion(beaconRegion);
+        Beacons.startMonitoringForRegion(liviBeaconRegion);
+        if (Platform.OS === 'ios') {
+            Beacons.startUpdatingLocation();
+        }
+        store.dispatch(getBeaconData());
+        DeviceEventEmitter.addListener(
+            'regionDidEnter',
+            (data) => {
+                regionDidEnterHandler(data);
+            }
+        );
+        DeviceEventEmitter.addListener(
+            'regionDidExit',
+            (data) => {
+                regionDidExitHandler(data);
+            }
+        );
     }
     render() {
         if (!this.state.rehydrated) {
@@ -166,51 +304,48 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                 </View>
             );
         }
-        const scenes = Platform.OS === 'android' ?
+        const scenes = Platform.OS === 'android_THIS_IS_DISABLED_NOW' ?
             (
                 <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
                     <Scene HSLIcon iconName="reittiopas" key="homeTab" title="Reittiopas" icon={TabIcon}>
-                        <Scene key="home" component={Main} title="Reittiopas" />
+                        <Scene hideNavBar key="home" component={Main} title="Reittiopas" />
                     </Scene>
                     <Scene HSLIcon iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
-                        <Scene key="news" component={News} title="Ajankohtaista" />
+                        <Scene hideNavBar key="news" component={News} title="Ajankohtaista" />
                     </Scene>
                     <Scene HSLIcon iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
-                        <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                        <Scene hideNavBar key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                     </Scene>
                     <Scene HSLIcon iconName="more" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                         <Scene hideNavBar key="camera" title="Kamera" />
-                        <Scene key="microphone" title="Äänitys" />
-                        <Scene key="nfc" title="NFC" />
-                        <Scene key="form" title="Pikapalaute" />
-                        <Scene key="cityBike" title="Kaupunkipyörät" />
-                        <Scene key="login" title="Kirjaudu sisään" />
-                    </Scene>
-                    <Scene iconName="code" key="beaconTab" title="Beacon" icon={TabIcon}>
-                        <Scene key="beacons" component={Beacon} title="Beacon" />
+                        <Scene hideNavBar key="microphone" title="Äänitys" />
+                        <Scene hideNavBar key="nfc" title="NFC" />
+                        <Scene hideNavBar key="form" title="Pikapalaute" />
+                        <Scene hideNavBar key="cityBike" title="Kaupunkipyörät" />
+                        <Scene hideNavBar key="beacons" title="Beacon" />
+                        <Scene hideNavBar key="login" title="Kirjaudu sisään" />
                     </Scene>
                 </Scene>
             ) :
             (
                 <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
                     <Scene HSLIcon iconName="reittiopas" key="homeTab" title="Reittiopas" icon={TabIcon}>
-                        <Scene key="home" component={Main} title="Reittiopas" />
+                        <Scene hideNavBar key="home" component={Main} title="Reittiopas" />
                     </Scene>
                     <Scene HSLIcon iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
-                        <Scene key="news" component={News} title="Ajankohtaista" />
+                        <Scene hideNavBar key="news" component={News} title="Ajankohtaista" />
                     </Scene>
                     <Scene HSLIcon iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
-                        <Scene key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                        <Scene hideNavBar key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
                     </Scene>
-                    <Scene HSLIcon iconName="more" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
+                    <Scene hideNavBar HSLIcon iconName="more" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
                         <Scene hideNavBar key="camera" title="Kamera" />
-                        <Scene key="microphone" title="Äänitys" />
-                        <Scene key="form" title="Pikapalaute" />
-                        <Scene key="cityBike" title="Kaupunkipyörät" />
-                        <Scene key="login" title="Kirjaudu sisään" />
-                    </Scene>
-                    <Scene iconName="code" key="beaconTab" title="Beacon" icon={TabIcon}>
-                        <Scene key="beacons" component={Beacon} title="Beacon" />
+                        <Scene hideNavBar key="microphone" title="Äänitys" />
+                        <Scene hideNavBar key="form" title="Pikapalaute" />
+                        <Scene hideNavBar key="cityBike" title="Kaupunkipyörät" />
+                        <Scene hideNavBar key="about" title="Tietoa sovelluksesta" />
+                        <Scene hideNavBar key="beacons" title="Beacon" />
+                        <Scene hideNavBar key="login" title="Kirjaudu sisään" />
                     </Scene>
                 </Scene>
             );

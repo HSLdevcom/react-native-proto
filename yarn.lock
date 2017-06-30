@@ -3521,10 +3521,6 @@ negotiator@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
 
-nfc-ndef-react-native@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/nfc-ndef-react-native/-/nfc-ndef-react-native-0.2.1.tgz#9c4226095d9324108d1d109a070a7a7b74d4fddd"
-
 node-fetch@1.6.3:
   version "1.6.3"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-1.6.3.tgz#dc234edd6489982d58e8f0db4f695029abcd8c04"
@@ -3979,6 +3975,10 @@ react-devtools-core@^2.0.8:
 react-native-audio@^3.2.2:
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/react-native-audio/-/react-native-audio-3.2.2.tgz#0fcbda338c9cc85aabed595f9c762fa6eebbdb88"
+
+react-native-background-job@^1.2.4-0:
+  version "1.2.4-0"
+  resolved "https://registry.yarnpkg.com/react-native-background-job/-/react-native-background-job-1.2.4-0.tgz#b54c4a4ca225cc1e07fd671223971009c488eddf"
 
 react-native-beacons-manager@^1.0.4:
   version "1.0.4"

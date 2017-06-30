@@ -17,3 +17,11 @@
 ## Tests
 * See for example: https://facebook.github.io/jest/docs/tutorial-react-native.html
 * `npm run test`
+
+## Special stuff
+
+At the moment you need to edit `node_modules/nfc-ndef-react-native/android/src/main/java/es/tiarg/nfcndefreactnative/NfcNdefReactNativeModule.java`-file `public static void setupForegroundDispatch`-function and add `if (adapter != null)` to line 258
+```
+if (adapter != null) adapter.enableForegroundDispatch(activity, pendingIntent, null, null);
+```
+otherwise Android phone without NFC support will stop working. TODO: fixthis

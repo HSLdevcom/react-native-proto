@@ -1,5 +1,8 @@
 /**
- * Main component
+ * NFCTest component
+ * react-native-nfc isn't working "alone",
+ * if you install and link nfc-ndef-react-native NFC.addListener starts to work
+ * nfc-ndef-react-native causes other problems though (app crashing on start for example)
  * @flow
  */
 
@@ -14,7 +17,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     text: {
-        fontSize: 20,
+        fontSize: 18,
         marginTop: 20,
     },
 });
@@ -67,7 +70,7 @@ class NFCTest extends Component { // eslint-disable-line react/prefer-stateless-
         }
         return (
             <View style={styles.container}>
-                <Text style={styles.text}>Read NFC</Text>
+                <Text style={styles.text}>Read NFC (not working at the moment)</Text>
             </View>
         );
     }
