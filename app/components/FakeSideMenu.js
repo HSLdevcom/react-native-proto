@@ -12,7 +12,7 @@ import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import Immutable from 'immutable';
 import Icon from 'react-native-vector-icons/Entypo';
-import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+// import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import About from './About';
 import Beacon from './Beacon';
 import CityBikes from './CityBikes';
