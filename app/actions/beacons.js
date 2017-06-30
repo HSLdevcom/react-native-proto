@@ -4,16 +4,13 @@ import {
     Platform,
     PermissionsAndroid,
 } from 'react-native';
-import moment from 'moment';
+import {concat, findIndex, sortBy} from 'lodash';
 
 import * as beaconConfig from '../../beaconconfig';
-
 import stations from '../../stations.json';
 import placement from '../../placement.json';
 import prefixes from '../../municipalityprefixes.json';
 import stops from '../../stops.json';
-
-const _ = require('lodash');
 
 export const SET_BEACON_DATA = 'SET_BEACON_DATA';
 export const SET_VEHICLE_BEACON_DATA = 'SET_VEHICLE_BEACON_DATA';
@@ -162,33 +159,6 @@ const resolveStop = (uuid, major, minor) => {
         const platform = minor >>> 11; //eslint-disable-line
         if (platform > 0 && platform < 32) returnString += `Liikennepaikan ${platform}. laituri - `;
         let departingTrains = null; //eslint-disable-line
-        // try {
-        //     fetch(
-        //     'https://rata.digitraffic.fi/api/v1/live-trains?station=' +
-        // matchingStation[0].stationShortCode +
-        // '&minutes_before_departure=180' +
-        // '&minutes_after_departure=0' +
-        // '&minutes_before_arrival=0' +
-        // '&minutes_after_arrival=0'
-        // )
-        //     .then(response => response.json()).then((responseJson) => {
-        //         responseJson.forEach((x) => {
-        //             _.remove(
-            // x.timeTableRows, y => y.stationShortCode !== matchingStation[0].stationShortCode
-        //                 || y.type !== 'DEPARTURE' || y.commercialTrack !== platform.toString()
-    // );
-        //         });
-        //         _.remove(responseJson, train => train.timeTableRows.length < 1
-                        // || train.trainCategory !== 'Commuter');
-        //         const sorted = _.sortBy(responseJson, t => t.timeTableRows[0].scheduledTime);
-        //         // console.log('====================================');
-        //         // console.log(sorted);
-        //         // console.log('====================================');
-        //         departingTrains = _.take(sorted, 5);
-        //     });
-        // } catch (error) {
-        //     console.log(error);
-        // }
         const placementBits = minor & 63 //eslint-disable-line
         const matchingPlacement = placement.filter(p => p.id === placementBits);
         if (matchingPlacement.length > 0) {
@@ -209,9 +179,9 @@ const resolveTimetableLink = (stop) => {
 
 const findRegionIndex = (data) => {
     if (Platform.OS === 'ios') {
-        return _.findIndex(combinedStopBeaconRegions, o => o.uuid === data.region.uuid);
+        return findIndex(combinedStopBeaconRegions, o => o.uuid === data.region.uuid);
     }
-    return _.findIndex(combinedStopBeaconRegions, o => o.uuid === data.uuid);
+    return findIndex(combinedStopBeaconRegions, o => o.uuid === data.uuid);
 };
 
 if (Platform.OS === 'android') {
@@ -351,14 +321,14 @@ const getData = async function getData(
         || (Platform.OS === 'android' && (data.uuid === beaconRegion.uuid || data.uuid === liviBeaconRegion.uuid))) {
             workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === beaconId || b.uuid === liviBeaconId)));
-            console.log(`STOPBEACONS: ${workingBeacons
-                .map(b => `\n
-                ${b.major}-${b.minor} :
-                 uuid: ${b.uuid}
-                 strength: ${b.rssi}
-                 proximity: ${b.proximity}
-                 distance: ${b.distance}
-                 accuracy: ${b.accuracy} \n`)}`);
+            // console.log(`STOPBEACONS: ${workingBeacons
+            //     .map(b => `\n
+            //     ${b.major}-${b.minor} :
+            //      uuid: ${b.uuid}
+            //      strength: ${b.rssi}
+            //      proximity: ${b.proximity}
+            //      distance: ${b.distance}
+            //      accuracy: ${b.accuracy} \n`)}`);
             if (workingBeacons.length > 0) {
                 let closestBeaconIndex = 0;
                 let strongestBeaconRSSI = -101;
@@ -383,13 +353,13 @@ const getData = async function getData(
                     if (beaconData.uuid === beaconId && beaconData.stop) {
                         beaconData.link = resolveTimetableLink(beaconData.stop);
                     }
-                    scannedStopBeacons = _.concat(scannedStopBeacons, beaconData);
+                    scannedStopBeacons = concat(scannedStopBeacons, beaconData);
                 }
             }
             if (findRegionIndex(data)
                 >= combinedStopBeaconRegions.length - 1) {
                 const found = scannedStopBeacons.length > 0 ?
-                    _.sortBy(scannedStopBeacons, b => -b.rssi) :
+                    sortBy(scannedStopBeacons, b => -b.rssi) :
                     [];
                 /**
                  * Saving the beacons that were previously considered the strongest
@@ -429,13 +399,13 @@ const getData = async function getData(
         || (Platform.OS === 'android' && data.uuid === vehicleBeaconRegion.uuid)) {
             workingVehicleBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === vehicleBeaconId)));
-            console.log(`VEHICLEBEACONS: ${workingVehicleBeacons
-                .map(b => `\n ${b.major}-${b.minor} :
-                uuid: ${b.uuid}
-                strength: ${b.rssi}
-                proximity: ${b.proximity}
-                distance: ${b.distance}
-                accuracy: ${b.accuracy} \n`)}`);
+            // console.log(`VEHICLEBEACONS: ${workingVehicleBeacons
+            //     .map(b => `\n ${b.major}-${b.minor} :
+            //     uuid: ${b.uuid}
+            //     strength: ${b.rssi}
+            //     proximity: ${b.proximity}
+            //     distance: ${b.distance}
+            //     accuracy: ${b.accuracy} \n`)}`);
             if (workingVehicleBeacons.length > 0) {
                 let vehicleBeacons = [];
 
@@ -514,7 +484,7 @@ const getData = async function getData(
             }
             // console.log(previousVehicles.map(v => v.major));
         }
-        console.log('--------------');
+        // console.log('--------------');
     });
 };
 
