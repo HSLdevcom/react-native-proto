@@ -220,6 +220,13 @@ let firstScanTimestamp = false;
 export const getWorkingBeacons = () => workingBeacons;
 export const getWorkingVehicleBeacons = () => workingVehicleBeacons;
 
+/**
+* Start ranging and add beaconsDidRange event listener
+* @param {function} dispatch
+* @param {bool} onlyBeaconRegion
+* @param {bool} onlyLiviBeaconRegion
+* @param {bool} onlyVehicleBeaconRegion
+*/
 const getData = async function getData(
     dispatch,
     onlyBeaconRegion = false,
@@ -229,9 +236,6 @@ const getData = async function getData(
     try {
         firstScanTimestamp = new Date().getTime();
         vehicleBeaconsLastFoundTimestamp = false;
-        console.log('onlyBeaconRegion: ', onlyBeaconRegion);
-        console.log('onlyLiviBeaconRegion: ', onlyLiviBeaconRegion);
-        console.log('onlyVehicleBeaconRegion: ', onlyVehicleBeaconRegion);
         if (onlyBeaconRegion) {
             console.log('start onlyBeaconRegion');
             await Beacons.startRangingBeaconsInRegion(beaconRegion);
@@ -409,6 +413,12 @@ const getData = async function getData(
     });
 };
 
+/**
+* Get beacon data
+* @param {bool} onlyBeaconRegion
+* @param {bool} onlyLiviBeaconRegion
+* @param {bool} onlyVehicleBeaconRegion
+*/
 export const getBeaconData = (
     onlyBeaconRegion = false,
     onlyLiviBeaconRegion = false,
