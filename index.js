@@ -33,8 +33,10 @@ const regionDidExitHandler = (data) => {
     console.log('MONITORING ACTION - regionDidExit data: ', data);
     const stopBeacons = getWorkingBeacons();
     const vehicleBeacons = getWorkingVehicleBeacons();
-    console.log('getWorkingBeacons: ', stopBeacons);
-    console.log('getWorkingVehicleBeacons: ', vehicleBeacons);
+    /*
+    * If there isn't any beacons in store, stop all ranging
+    * otherwise stop vehicle / stop beacons ranging
+    */
     if ((!vehicleBeacons || !vehicleBeacons.length) && (!stopBeacons || !stopBeacons.length)) {
         rangingStopped = true;
         stopRanging();
@@ -44,30 +46,40 @@ const regionDidExitHandler = (data) => {
         stopRanging(false, true);
     }
 };
+
 const regionDidEnterHandler = (data) => {
     console.log('MONITORING ACTION - regionDidEnter data: ', data);
     rangingStopped = false;
-    store.dispatch(getBeaconData());
+    if (data.uuid.toLowerCase() === beaconRegion.uuid.toLowerCase()) {
+        store.dispatch(getBeaconData(true));
+    } else if (data.uuid.toLowerCase() === liviBeaconRegion.uuid.toLowerCase()) {
+        store.dispatch(getBeaconData(false, true));
+    } else if (data.uuid.toLowerCase() === vehicleBeaconRegion.uuid.toLowerCase()) {
+        store.dispatch(getBeaconData(false, false, true));
+    } else {
+        store.dispatch(getBeaconData());
+    }
 };
+
 const detectAndStartMonitoring = () => {
     Beacons.detectIBeacons();
     Beacons.startMonitoringForRegion(beaconRegion);
     Beacons.startMonitoringForRegion(vehicleBeaconRegion);
     Beacons.startMonitoringForRegion(liviBeaconRegion);
 };
-const test = () => {
+
+const androidBackgroundJob = () => {
     console.log('Running in background');
     console.log(new Date());
     console.log('AppState.currentState: ', AppState.currentState);
     console.log('rangingStopped: ', rangingStopped);
     console.log('backgroundRuns: ', backgroundRuns);
     /*
-    * This is tries to add region event listeners only when there isn't one already defined
-    * AppState.currentState is background when phone is in use
-    * but this app isn't open (in Android 5.x but not in >= 6.x)
-    * AppState.currentState is uninitialized OR active when phone is waked up from sleep and
-    * that is the case we want to handle(?) (this is not the case in Android >= 6.x)
-    * It seems that Android 6 and 7 is not stopping monitoring at all even if phone is sleeping
+    * This tries to add region event listeners only when there isn't one already defined.
+    * Otherwise just start to detectIBeacons and region monitoring (at least Android 5.x needs this)
+    * It seems that Android 6 and 7 is not stopping ranging at all even if phone is sleeping
+    * so we might want to do something to that because phone battery is dry very quickly if
+    * ranging is on long time.
     */
     if (
         DeviceEventEmitter._subscriber._subscriptionsForType.appStateDidChange[0] && // eslint-disable-line
@@ -102,7 +114,7 @@ const handleAppStateChange = (nextAppState) => {
     console.log('nextAppState: ', nextAppState);
     if (nextAppState === 'background') {
         const backgroundSchedule = {
-            jobKey: 'testBackgroundJob',
+            jobKey: 'androidBackgroundJob',
             timeout: 60000,
             period: 10000, //android sdk version affects how this time is handled
         };
@@ -115,8 +127,8 @@ const handleAppStateChange = (nextAppState) => {
 
 if (Platform.OS === 'android') {
     const backgroundJob = {
-        jobKey: 'testBackgroundJob',
-        job: () => test(),
+        jobKey: 'androidBackgroundJob',
+        job: () => androidBackgroundJob(),
     };
 
     BackgroundJob.register(backgroundJob);
@@ -258,8 +270,8 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
         if (Platform.OS === 'android') {
             Beacons.detectIBeacons();
         }
-        Beacons.startMonitoringForRegion(beaconRegion);
         Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+        Beacons.startMonitoringForRegion(beaconRegion);
         Beacons.startMonitoringForRegion(liviBeaconRegion);
         if (Platform.OS === 'ios') {
             Beacons.startUpdatingLocation();
