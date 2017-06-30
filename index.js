@@ -26,8 +26,6 @@ const beaconRegion = beaconConfig.beaconRegion;
 const vehicleBeaconRegion = beaconConfig.vehicleBeaconRegion;
 const liviBeaconRegion = beaconConfig.liviBeaconRegion;
 let rangingStopped = false;
-// How many times backgroundJob is called during this "session"
-let backgroundRuns = 0;
 
 const regionDidExitHandler = (data) => {
     console.log('MONITORING ACTION - regionDidExit data: ', data);
@@ -71,9 +69,6 @@ const detectAndStartMonitoring = () => {
 const androidBackgroundJob = () => {
     console.log('Running in background');
     console.log(new Date());
-    console.log('AppState.currentState: ', AppState.currentState);
-    console.log('rangingStopped: ', rangingStopped);
-    console.log('backgroundRuns: ', backgroundRuns);
     /*
     * This tries to add region event listeners only when there isn't one already defined.
     * Otherwise just start to detectIBeacons and region monitoring (at least Android 5.x needs this)
@@ -102,11 +97,9 @@ const androidBackgroundJob = () => {
         detectAndStartMonitoring();
         // Just in case run getBeaconData
         store.dispatch(getBeaconData());
-        backgroundRuns += 1;
     } else if (rangingStopped) {
         rangingStopped = false;
         detectAndStartMonitoring();
-        backgroundRuns += 1;
     }
 };
 
