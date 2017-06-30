@@ -164,26 +164,29 @@ const resolveStop = (uuid, major, minor) => {
         let departingTrains = null; //eslint-disable-line
         // try {
         //     fetch(
-        //     'https://rata.digitraffic.fi/api/v1/live-trains?station=' +
-        // matchingStation[0].stationShortCode +
-        // '&minutes_before_departure=180' +
-        // '&minutes_after_departure=0' +
-        // '&minutes_before_arrival=0' +
-        // '&minutes_after_arrival=0'
-        // )
+        //         `https://rata.digitraffic.fi/api/v1/live-trains?station=${
+        //         matchingStation[0].stationShortCode
+        //         }&minutes_before_departure=180` +
+        //         '&minutes_after_departure=0' +
+        //         '&minutes_before_arrival=0' +
+        //         '&minutes_after_arrival=0'
+        //     )
         //     .then(response => response.json()).then((responseJson) => {
         //         responseJson.forEach((x) => {
         //             _.remove(
-            // x.timeTableRows, y => y.stationShortCode !== matchingStation[0].stationShortCode
-        //                 || y.type !== 'DEPARTURE' || y.commercialTrack !== platform.toString()
-    // );
+        //             x.timeTableRows, y =>
+        //             y.stationShortCode !== matchingStation[0].stationShortCode
+        //             || y.type !== 'DEPARTURE' || y.commercialTrack !== platform.toString()
+        //             );
         //         });
-        //         _.remove(responseJson, train => train.timeTableRows.length < 1
-                        // || train.trainCategory !== 'Commuter');
+        //         _.remove(
+        //             responseJson, train => train.timeTableRows.length < 1
+        //             || train.trainCategory !== 'Commuter'
+        //         );
         //         const sorted = _.sortBy(responseJson, t => t.timeTableRows[0].scheduledTime);
-        //         // console.log('====================================');
-        //         // console.log(sorted);
-        //         // console.log('====================================');
+        //         console.log('====================================');
+        //         console.log(sorted);
+        //         console.log('====================================');
         //         departingTrains = _.take(sorted, 5);
         //     });
         // } catch (error) {
@@ -343,6 +346,15 @@ const getData = async function getData(
      * Fires once for every region being listened (during one second)
      */
     DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
+        /**
+         * Adding the 'accuracy' field to detected beacons on Android
+         * to keep it in line with iOS field names
+         */
+        if (Platform.OS === 'android') {
+            data.beacons.forEach((beacon) => {
+                beacon.accuracy = beacon.distance; //eslint-disable-line
+            }, this);
+        }
          /**
          * Handle stop beacons:
          * Simple comparison of the strongest signal
@@ -357,34 +369,20 @@ const getData = async function getData(
                  uuid: ${b.uuid}
                  strength: ${b.rssi}
                  proximity: ${b.proximity}
-                 distance: ${b.distance}
                  accuracy: ${b.accuracy} \n`)}`);
             if (workingBeacons.length > 0) {
-                let closestBeaconIndex = 0;
-                let strongestBeaconRSSI = -101;
+                const beaconData = workingBeacons[0];
 
-                workingBeacons.forEach((beacon, index) => {
-                    if ((beacon.rssi > strongestBeaconRSSI)
-                    && (beacon.uuid === beaconId || beacon.uuid === liviBeaconId)) {
-                        closestBeaconIndex = index;
-                        strongestBeaconRSSI = beacon.rssi;
-                    }
-                });
-
-                const beaconData = workingBeacons[closestBeaconIndex];
-                if (beaconData
-                && (beaconData.uuid === beaconId || beaconData.uuid === liviBeaconId)) {
-                    beaconData.stop = resolveStop(
-                        beaconData.uuid,
-                        beaconData.major,
-                        beaconData.minor
-                    );
-                    // Inserting the timetable link to HSL stop beacons
-                    if (beaconData.uuid === beaconId && beaconData.stop) {
-                        beaconData.link = resolveTimetableLink(beaconData.stop);
-                    }
-                    scannedStopBeacons = _.concat(scannedStopBeacons, beaconData);
+                beaconData.stop = resolveStop(
+                    beaconData.uuid,
+                    beaconData.major,
+                    beaconData.minor
+                );
+                // Inserting the timetable link to HSL stop beacons
+                if (beaconData.uuid === beaconId && beaconData.stop) {
+                    beaconData.link = resolveTimetableLink(beaconData.stop);
                 }
+                scannedStopBeacons = _.concat(scannedStopBeacons, beaconData);
             }
             if (findRegionIndex(data)
                 >= combinedStopBeaconRegions.length - 1) {
@@ -434,7 +432,6 @@ const getData = async function getData(
                 uuid: ${b.uuid}
                 strength: ${b.rssi}
                 proximity: ${b.proximity}
-                distance: ${b.distance}
                 accuracy: ${b.accuracy} \n`)}`);
             if (workingVehicleBeacons.length > 0) {
                 let vehicleBeacons = [];
