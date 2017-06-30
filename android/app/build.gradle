@@ -90,8 +90,8 @@ android {
         applicationId "com.hslfiproto"
         minSdkVersion 21
         targetSdkVersion 22
-        versionCode 21
-        versionName "0.2.0"
+        versionCode 22
+        versionName "0.2.1"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
