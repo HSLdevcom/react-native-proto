@@ -19,17 +19,9 @@ const beaconConfig = require('../../beaconconfig');
 export const REITTIOPAS_MOCK_URL = 'https://reittiopas.fi/?mock';
 export const REITTIOPAS_URL = 'https://reittiopas.fi';
 
-const beaconRegion = (Platform.OS === 'ios') ?
-beaconConfig.beaconRegion.ios :
-beaconConfig.beaconRegion.android;
-
-const vehicleBeaconRegion = (Platform.OS === 'ios') ?
-beaconConfig.vehicleBeaconRegion.ios :
-beaconConfig.vehicleBeaconRegion.android;
-
-const liviBeaconRegion = (Platform.OS === 'ios') ?
-beaconConfig.liviBeaconRegion.ios :
-beaconConfig.liviBeaconRegion.android;
+const beaconRegion = beaconConfig.beaconRegion;
+const vehicleBeaconRegion = beaconConfig.vehicleBeaconRegion;
+const liviBeaconRegion = beaconConfig.liviBeaconRegion;
 
 class Main extends Component { // eslint-disable-line react/prefer-stateless-function
 
@@ -41,9 +33,25 @@ class Main extends Component { // eslint-disable-line react/prefer-stateless-fun
         if (Platform.OS === 'android') {
             Beacons.detectIBeacons();
         }
-        Beacons.startMonitoringForRegion(beaconRegion);
-        Beacons.startMonitoringForRegion(vehicleBeaconRegion);
-        Beacons.startMonitoringForRegion(liviBeaconRegion);
+        if (Platform.OS === 'ios') {
+            try {
+                Beacons.startMonitoringForRegion(beaconRegion);
+                Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+                Beacons.startMonitoringForRegion(liviBeaconRegion);
+            } catch (error) {
+                console.log('Beacons did not start ranging');
+                return;
+            }
+        } else {
+            try {
+                Beacons.startMonitoringForRegion(beaconRegion);
+                Beacons.startMonitoringForRegion(vehicleBeaconRegion);
+                Beacons.startMonitoringForRegion(liviBeaconRegion);
+            } catch (error) {
+                console.log('Beacons did not start ranging');
+                return;
+            }
+        }
         if (Platform.OS === 'ios') {
             Beacons.startUpdatingLocation();
         }

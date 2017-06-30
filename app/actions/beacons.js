@@ -30,6 +30,9 @@ const BACKGROUND_SCAN_PERIOD = 1000;
 const PREVIOUS_VEHICLES_LIMIT = 8;
 const PREVIOUS_STOPS_LIMIT = 8;
 
+let beaconFound = false;
+let vehicleBeaconsFound = false;
+
 if (Platform.OS === 'ios') {
     Beacons.requestAlwaysAuthorization();
 } else {
@@ -54,32 +57,15 @@ if (Platform.OS === 'ios') {
 }
 
 
-const beaconId = (Platform.OS === 'ios') ?
-beaconConfig.beaconId.ios :
-beaconConfig.beaconId.android;
+const beaconId = beaconConfig.beaconId;
 
-const vehicleBeaconId = (Platform.OS === 'ios') ?
-beaconConfig.vehicleBeaconId.ios :
-beaconConfig.vehicleBeaconId.android;
+const vehicleBeaconId = beaconConfig.vehicleBeaconId;
 
-const liviBeaconId = (Platform.OS === 'ios') ?
-beaconConfig.liviBeaconId.ios :
-beaconConfig.liviBeaconId.android;
+const liviBeaconId = beaconConfig.liviBeaconId;
 
-const beaconRegion = (Platform.OS === 'ios') ?
-beaconConfig.beaconRegion.ios :
-beaconConfig.beaconRegion.android;
-
-const vehicleBeaconRegion = (Platform.OS === 'ios') ?
-beaconConfig.vehicleBeaconRegion.ios :
-beaconConfig.vehicleBeaconRegion.android;
-
-const liviBeaconRegion = (Platform.OS === 'ios') ?
-beaconConfig.liviBeaconRegion.ios :
-beaconConfig.liviBeaconRegion.android;
-
-let beaconFound = false;
-let vehicleBeaconsFound = false;
+const beaconRegion = beaconConfig.beaconRegion;
+const vehicleBeaconRegion = beaconConfig.vehicleBeaconRegion;
+const liviBeaconRegion = beaconConfig.liviBeaconRegion;
 
 let tryingToFindBeacons = false;
 
@@ -224,6 +210,13 @@ const resolveTimetableLink = (stop) => {
     return null;
 };
 
+const findRegionIndex = (data) => {
+    if (Platform.OS === 'ios') {
+        return _.findIndex(combinedStopBeaconRegions, o => o.uuid === data.region.uuid);
+    }
+    return _.findIndex(combinedStopBeaconRegions, o => o.uuid === data.uuid);
+};
+
 if (Platform.OS === 'android') {
     Beacons.detectIBeacons();
     // Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
@@ -231,16 +224,23 @@ if (Platform.OS === 'android') {
 }
 const getData = async function getData(dispatch) {
     try {
-        await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
-        console.log(combinedStopBeaconRegions);
-        await combinedStopBeaconRegions.forEach((region) => {
-            Beacons.startRangingBeaconsInRegion(region);
-        }, this);
+        if (Platform.OS === 'ios') {
+            await Beacons.startRangingBeaconsInRegion(vehicleBeaconRegion);
+            await combinedStopBeaconRegions.forEach((region) => {
+                Beacons.startRangingBeaconsInRegion(region);
+            }, this);
+        } else {
+            await Beacons.startRangingBeaconsInRegion(
+                vehicleBeaconRegion.identifier,
+                vehicleBeaconRegion.uuid
+            );
+            await combinedStopBeaconRegions.forEach((region) => {
+                Beacons.startRangingBeaconsInRegion(region.identifier, region.uuid);
+            }, this);
+        }
     } catch (error) {
-        Beacons.stopRangingBeaconsInRegion(beaconRegion);
-        Beacons.stopRangingBeaconsInRegion(vehicleBeaconRegion);
-        if (!beaconFound) dispatch(beaconError("Beacon didn't start ranging"));
-        if (!vehicleBeaconsFound) dispatch(vehicleBeaconError("Beacon didn't start ranging"));
+        dispatch(beaconError("Beacon didn't start ranging"));
+        dispatch(vehicleBeaconError("Beacon didn't start ranging"));
         tryingToFindBeacons = false;
         return;
     }
@@ -254,9 +254,8 @@ const getData = async function getData(dispatch) {
          * Handle stop beacons:
          * Simple comparison of the strongest signal
          */
-        console.log(`REGION: ${data.region.uuid}`);
         if ((Platform.OS === 'ios' && (data.region.uuid === beaconRegion.uuid || data.region.uuid === liviBeaconRegion.uuid))
-        || (Platform.OS === 'android' && (data.identifier === beaconRegion || data.identifier === liviBeaconRegion))) {
+        || (Platform.OS === 'android' && (data.uuid === beaconRegion.uuid || data.uuid === liviBeaconRegion.uuid))) {
             const workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === beaconId || b.uuid === liviBeaconId)));
             console.log(`STOPBEACONS: ${data.beacons
@@ -294,7 +293,7 @@ const getData = async function getData(dispatch) {
                     scannedStopBeacons = _.concat(scannedStopBeacons, beaconData);
                 }
             }
-            if (_.findIndex(combinedStopBeaconRegions, o => o.uuid === data.region.uuid)
+            if (findRegionIndex(data)
                 >= combinedStopBeaconRegions.length - 1) {
                 const found = scannedStopBeacons.length > 0 ?
                     _.sortBy(scannedStopBeacons, b => -b.rssi) :
@@ -324,7 +323,7 @@ const getData = async function getData(dispatch) {
                 }
                 scannedStopBeacons = [];
             }
-            console.log(previousStops.map(stop => stop.stop));
+            // console.log(previousStops.map(stop => stop.stop));
         }
 
 
@@ -334,7 +333,7 @@ const getData = async function getData(dispatch) {
          * Favorst multiple weaker beacons over a single stronger one.
          */
         if ((Platform.OS === 'ios' && data.region.uuid === vehicleBeaconRegion.uuid)
-        || (Platform.OS === 'android' && data.identifier === vehicleBeaconRegion)) {
+        || (Platform.OS === 'android' && data.uuid === vehicleBeaconRegion.uuid)) {
             const workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === vehicleBeaconId)));
             console.log(`VEHICLEBEACONS: ${data.beacons
