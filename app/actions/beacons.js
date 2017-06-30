@@ -195,6 +195,11 @@ if (Platform.OS === 'android') {
     Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
 }
 
+/**
+* Stop ranging in certain region or in all regions
+* @param {bool} onlyVehicleBeacons
+* @param {bool} onlyStopBeacons
+*/
 export const stopRanging = (onlyVehicleBeacons = false, onlyStopBeacons = false) => {
     if (onlyVehicleBeacons) {
         console.log('stopOnlyVehicleBeacons');
@@ -211,8 +216,9 @@ export const stopRanging = (onlyVehicleBeacons = false, onlyStopBeacons = false)
     }
     tryingToFindBeacons = false;
 };
-
+// array of beacos data
 let workingVehicleBeacons;
+// array of beacos data
 let workingBeacons;
 let vehicleBeaconsLastFoundTimestamp = false;
 let firstScanTimestamp = false;
@@ -234,7 +240,7 @@ const getData = async function getData(
     onlyVehicleBeaconRegion = false,
 ) {
     try {
-        firstScanTimestamp = new Date().getTime();
+        firstScanTimestamp = Date.now();
         vehicleBeaconsLastFoundTimestamp = false;
         if (onlyBeaconRegion) {
             console.log('start onlyBeaconRegion');
@@ -347,7 +353,7 @@ const getData = async function getData(
                 });
 
                 if (vehicleBeacons.length > 0) {
-                    vehicleBeaconsLastFoundTimestamp = new Date().getTime();
+                    vehicleBeaconsLastFoundTimestamp = Date.now();
                     /**
                      * The beacon data closest to the user
                      * is sorted to be always first in the array.
@@ -386,8 +392,8 @@ const getData = async function getData(
             } else {
                 previousVehicles.shift();
                 if (!previousVehicles || previousVehicles.length === 0) {
-                    //No beacons found, empty the store
-                    const timestamp = new Date().getTime();
+                    // If we haven't seen vehicle beacons in 20 sec, stop ranging
+                    const timestamp = Date.now();
                     console.log('timestamp - vehicleBeaconsLastFoundTimestamp: ', timestamp - vehicleBeaconsLastFoundTimestamp);
                     console.log('timestamp - firstScanTimestamp: ', timestamp - firstScanTimestamp);
                     if (
@@ -404,6 +410,7 @@ const getData = async function getData(
                         console.log('over 20 sec since we saw last vehicle beacon, just in case stopRanging in vehicleBeaconRegion');
                         stopRanging(true);
                     }
+                    //No beacons found, empty the store
                     dispatch(setBusBeaconData(0, []));
                 }
             }
