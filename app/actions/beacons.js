@@ -363,14 +363,15 @@ const getData = async function getData(
         || (Platform.OS === 'android' && (data.uuid === beaconRegion.uuid || data.uuid === liviBeaconRegion.uuid))) {
             workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === beaconId || b.uuid === liviBeaconId)));
-            console.log(`STOPBEACONS: ${workingBeacons
-                .map(b => `\n
-                ${b.major}-${b.minor} :
-                 uuid: ${b.uuid}
-                 strength: ${b.rssi}
-                 proximity: ${b.proximity}
-                 accuracy: ${b.accuracy} \n`)}`);
+            // console.log(`STOPBEACONS: ${workingBeacons
+            //     .map(b => `\n
+            //     ${b.major}-${b.minor} :
+            //      uuid: ${b.uuid}
+            //      strength: ${b.rssi}
+            //      proximity: ${b.proximity}
+            //      accuracy: ${b.accuracy} \n`)}`);
             if (workingBeacons.length > 0) {
+                workingBeacons = _.sortBy(workingBeacons, b => b.accuracy);
                 const beaconData = workingBeacons[0];
 
                 beaconData.stop = resolveStop(
@@ -387,7 +388,7 @@ const getData = async function getData(
             if (findRegionIndex(data)
                 >= combinedStopBeaconRegions.length - 1) {
                 const found = scannedStopBeacons.length > 0 ?
-                    _.sortBy(scannedStopBeacons, b => -b.rssi) :
+                    _.sortBy(scannedStopBeacons, b => b.accuracy) :
                     [];
                 /**
                  * Saving the beacons that were previously considered the strongest
@@ -427,6 +428,7 @@ const getData = async function getData(
         || (Platform.OS === 'android' && data.uuid === vehicleBeaconRegion.uuid)) {
             workingVehicleBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === vehicleBeaconId)));
+            workingVehicleBeacons = _.sortBy(workingVehicleBeacons, b => b.accuracy);
             console.log(`VEHICLEBEACONS: ${workingVehicleBeacons
                 .map(b => `\n ${b.major}-${b.minor} :
                 uuid: ${b.uuid}
@@ -437,53 +439,52 @@ const getData = async function getData(
                 let vehicleBeacons = [];
 
                 workingVehicleBeacons.forEach((beacon) => {
-                    if (beacon.uuid === vehicleBeaconId) {
-                        if (vehicleBeacons.filter(b => b.major === beacon.major).length > 0) {
-                            vehicleBeacons
-                        .filter(b => b.major === beacon.major)[0].rssi += (200 + beacon.rssi);
-                        } else {
-                            vehicleBeacons.push(beacon);
-                        }
+                    if (vehicleBeacons.filter(b => b[0].major === beacon.major).length > 0) {
+                        const updatingBeacon = vehicleBeacons
+                        .filter(b => b[0].major === beacon.major)[0];
+                        updatingBeacon[1] += 1;
+                        updatingBeacon[0].accuracy = _.min(
+                            [updatingBeacon[0].accuracy, beacon.accuracy]
+                        );
+                    } else {
+                        vehicleBeacons.push([beacon, 1]);
                     }
                 });
 
-                if (vehicleBeacons.length > 0) {
-                    vehicleBeaconsLastFoundTimestamp = Date.now();
-                    /**
-                     * The beacon data closest to the user
-                     * is sorted to be always first in the array.
-                     */
-                    if (vehicleBeacons.length > 1) {
-                        vehicleBeacons = vehicleBeacons.sort((a, b) => {
-                            if (a.rssi > b.rssi) return -1;
-                            return 1;
-                        });
-                    }
-                    vehicleBeacons.forEach(function (vehicleBeaconData)  { //eslint-disable-line
-                        vehicleBeaconData.line = resolveLine(vehicleBeaconData.major); //eslint-disable-line
-                    });
-                    /**
-                     * Saving the beacons that were previously considered the strongest
-                     * in a single scan. PREVIOUS_VEHICLES_LIMIT limits the number of beacons saved.
-                     *
-                     * Confidence of the strongest beacon in this scan actually being closest
-                     * is calculated by checking how many times the same vehicle
-                     * occurs in previous scans.
-                     */
-                    previousVehicles.push(vehicleBeacons[0]);
-                    if (previousVehicles.length > PREVIOUS_VEHICLES_LIMIT) {
-                        previousVehicles.shift();
-                    }
-                    const conf = previousVehicles.length > 0 ?
+                vehicleBeacons = _.map(
+                    _.sortBy(
+                        vehicleBeacons,
+                        [beaconArray => -beaconArray[1], beaconArray => beaconArray.accuracy]
+                    ),
+                    beaconArray => beaconArray[0]
+                );
+
+                vehicleBeaconsLastFoundTimestamp = Date.now();
+
+                vehicleBeacons.forEach(function (vehicleBeaconData)  { //eslint-disable-line
+                    vehicleBeaconData.line = resolveLine(vehicleBeaconData.major); //eslint-disable-line
+                });
+                /**
+                 * Saving the beacons that were previously considered the strongest
+                 * in a single scan. PREVIOUS_VEHICLES_LIMIT limits the number of beacons saved.
+                 *
+                 * Confidence of the strongest beacon in this scan actually being closest
+                 * is calculated by checking how many times the same vehicle
+                 * occurs in previous scans.
+                 */
+                previousVehicles.push(vehicleBeacons[0]);
+                if (previousVehicles.length > PREVIOUS_VEHICLES_LIMIT) {
+                    previousVehicles.shift();
+                }
+                const conf = previousVehicles.length > 0 ?
                     previousVehicles.filter(m => m.major === vehicleBeacons[0].major)
                     .length / previousVehicles.length :
                     0;
-                    dispatch(setBusBeaconData(
+                dispatch(setBusBeaconData(
                     conf,
                     vehicleBeacons,
                     ));
-                    vehicleBeaconsFound = true;
-                }
+                vehicleBeaconsFound = true;
             } else {
                 previousVehicles.shift();
                 if (!previousVehicles || previousVehicles.length === 0) {
