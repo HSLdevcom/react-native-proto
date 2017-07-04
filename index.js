@@ -27,6 +27,10 @@ const vehicleBeaconRegion = beaconConfig.vehicleBeaconRegion;
 const liviBeaconRegion = beaconConfig.liviBeaconRegion;
 let rangingStopped = false;
 
+console.log('Starting');
+console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`__DEV__: ${__DEV__}`);
+
 const regionDidExitHandler = (data) => {
     console.log('MONITORING ACTION - regionDidExit data: ', data);
     const stopBeacons = getWorkingBeacons();
@@ -34,6 +38,7 @@ const regionDidExitHandler = (data) => {
     /*
     * If there isn't any beacons in store, stop all ranging
     * otherwise stop vehicle / stop beacons ranging
+    * stopRanging = (onlyVehicleBeacons = false, onlyStopBeacons = false)
     */
     if ((!vehicleBeacons || !vehicleBeacons.length) && (!stopBeacons || !stopBeacons.length)) {
         rangingStopped = true;
@@ -48,6 +53,14 @@ const regionDidExitHandler = (data) => {
 const regionDidEnterHandler = (data) => {
     console.log('MONITORING ACTION - regionDidEnter data: ', data);
     rangingStopped = false;
+    /*
+    * Start ranging in certain region or in all regions if any spesific uuid isn't present
+    * getBeaconData = (
+        onlyBeaconRegion = false,
+        onlyLiviBeaconRegion = false,
+        onlyVehicleBeaconRegion = false,
+    )
+    */
     if (data.uuid.toLowerCase() === beaconRegion.uuid.toLowerCase()) {
         store.dispatch(getBeaconData(true));
     } else if (data.uuid.toLowerCase() === liviBeaconRegion.uuid.toLowerCase()) {
@@ -59,6 +72,10 @@ const regionDidEnterHandler = (data) => {
     }
 };
 
+/*
+* Android spesific beacons handling in background job
+* There's differences between Android SDK versions...
+*/
 const detectAndStartMonitoring = () => {
     Beacons.detectIBeacons();
     Beacons.startMonitoringForRegion(beaconRegion);
@@ -67,13 +84,11 @@ const detectAndStartMonitoring = () => {
 };
 
 const androidBackgroundJob = () => {
-    console.log('Running in background');
-    console.log(new Date());
     /*
     * This tries to add region event listeners only when there isn't one already defined.
     * Otherwise just start to detectIBeacons and region monitoring (at least Android 5.x needs this)
-    * It seems that Android 6 and 7 is not stopping ranging at all even if phone is sleeping
-    * so we might want to do something to that because phone battery is dry very quickly if
+    * It seems that Android 6 and 7 are not stopping ranging at all even if phone is sleeping
+    * so we might want TODO something to that because phone battery is dry very quickly if
     * ranging is on long time.
     */
     if (
@@ -118,6 +133,9 @@ const handleAppStateChange = (nextAppState) => {
     }
 };
 
+/*
+* Start background job in Android to handle beacons region scan etc.
+*/
 if (Platform.OS === 'android') {
     const backgroundJob = {
         jobKey: 'androidBackgroundJob',
@@ -127,10 +145,6 @@ if (Platform.OS === 'android') {
     BackgroundJob.register(backgroundJob);
     AppState.addEventListener('change', handleAppStateChange);
 }
-
-console.log('Starting');
-console.log(`process.env.NODE_ENV: ${process.env.NODE_ENV}`);
-console.log(`__DEV__: ${__DEV__}`);
 
 const RouterWithRedux = connect()(Router);
 
@@ -253,6 +267,7 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
         rehydrated: false,
     }
     componentWillMount() {
+        // https://github.com/rt2zz/redux-persist
         persistStore(store, {
             storage: AsyncStorage,
             transforms: [immutableTransform()],
@@ -260,6 +275,7 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
             this.setState({rehydrated: true});
         });
 
+        // Start handling beacons
         if (Platform.OS === 'android') {
             Beacons.detectIBeacons();
         }
@@ -297,55 +313,29 @@ class HSLProto extends Component { // eslint-disable-line react/prefer-stateless
                 </View>
             );
         }
-        const scenes = Platform.OS === 'android_THIS_IS_DISABLED_NOW' ?
-            (
-                <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
-                    <Scene HSLIcon iconName="reittiopas" key="homeTab" title="Reittiopas" icon={TabIcon}>
-                        <Scene hideNavBar key="home" component={Main} title="Reittiopas" />
-                    </Scene>
-                    <Scene HSLIcon iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
-                        <Scene hideNavBar key="news" component={News} title="Ajankohtaista" />
-                    </Scene>
-                    <Scene HSLIcon iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
-                        <Scene hideNavBar key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
-                    </Scene>
-                    <Scene HSLIcon iconName="more" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
-                        <Scene hideNavBar key="camera" title="Kamera" />
-                        <Scene hideNavBar key="microphone" title="Äänitys" />
-                        <Scene hideNavBar key="nfc" title="NFC" />
-                        <Scene hideNavBar key="form" title="Pikapalaute" />
-                        <Scene hideNavBar key="cityBike" title="Kaupunkipyörät" />
-                        <Scene hideNavBar key="beacons" title="Beacon" />
-                        <Scene hideNavBar key="login" title="Kirjaudu sisään" />
-                    </Scene>
-                </Scene>
-            ) :
-            (
-                <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
-                    <Scene HSLIcon iconName="reittiopas" key="homeTab" title="Reittiopas" icon={TabIcon}>
-                        <Scene hideNavBar key="home" component={Main} title="Reittiopas" />
-                    </Scene>
-                    <Scene HSLIcon iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
-                        <Scene hideNavBar key="news" component={News} title="Ajankohtaista" />
-                    </Scene>
-                    <Scene HSLIcon iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
-                        <Scene hideNavBar key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
-                    </Scene>
-                    <Scene hideNavBar HSLIcon iconName="more" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
-                        <Scene hideNavBar key="camera" title="Kamera" />
-                        <Scene hideNavBar key="microphone" title="Äänitys" />
-                        <Scene hideNavBar key="form" title="Pikapalaute" />
-                        <Scene hideNavBar key="cityBike" title="Kaupunkipyörät" />
-                        <Scene hideNavBar key="about" title="Tietoa sovelluksesta" />
-                        <Scene hideNavBar key="beacons" title="Beacon" />
-                        <Scene hideNavBar key="login" title="Kirjaudu sisään" />
-                    </Scene>
-                </Scene>
-            );
         return (
             <Provider store={store}>
                 <RouterWithRedux>
-                    {scenes}
+                    <Scene key="tabbar" tabs tabBarStyle={styles.tabBarStyle}>
+                        <Scene HSLIcon iconName="reittiopas" key="homeTab" title="Reittiopas" icon={TabIcon}>
+                            <Scene hideNavBar key="home" component={Main} title="Reittiopas" />
+                        </Scene>
+                        <Scene HSLIcon iconName="news" key="newsTab" title="Ajankohtaista" icon={TabIcon}>
+                            <Scene hideNavBar key="news" component={News} title="Ajankohtaista" />
+                        </Scene>
+                        <Scene HSLIcon iconName="ticket" key="mobileTicketTab" title="Osta lippuja" icon={TabIcon}>
+                            <Scene hideNavBar key="mobileTicket" component={MobileTicket} title="Osta lippuja" />
+                        </Scene>
+                        <Scene hideNavBar HSLIcon iconName="more" key="menuTab" title="Lisää" icon={TabIcon} component={FakeSideMenu}>
+                            <Scene hideNavBar key="camera" title="Kamera" />
+                            <Scene hideNavBar key="microphone" title="Äänitys" />
+                            <Scene hideNavBar key="form" title="Pikapalaute" />
+                            <Scene hideNavBar key="cityBike" title="Kaupunkipyörät" />
+                            <Scene hideNavBar key="about" title="Tietoa sovelluksesta" />
+                            <Scene hideNavBar key="beacons" title="Beacon" />
+                            <Scene hideNavBar key="login" title="Kirjaudu sisään" />
+                        </Scene>
+                    </Scene>
                 </RouterWithRedux>
             </Provider>
         );

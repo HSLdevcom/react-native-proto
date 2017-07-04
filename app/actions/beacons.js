@@ -462,8 +462,6 @@ const getData = async function getData(
                 if (!previousVehicles || previousVehicles.length === 0) {
                     // If we haven't seen vehicle beacons in 20 sec, stop ranging
                     const timestamp = Date.now();
-                    console.log('timestamp - vehicleBeaconsLastFoundTimestamp: ', timestamp - vehicleBeaconsLastFoundTimestamp);
-                    console.log('timestamp - firstScanTimestamp: ', timestamp - firstScanTimestamp);
                     if (
                         (
                             parseInt(vehicleBeaconsLastFoundTimestamp, 10) > 0 &&
