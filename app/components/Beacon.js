@@ -4,9 +4,18 @@
  */
 
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Linking, Button} from 'react-native';
+import {
+    StyleSheet,
+    Text,
+    View,
+    Linking,
+    Button,
+    Alert,
+    Platform,
+} from 'react-native';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
+import Beacons from 'react-native-beacons-manager';
 import {getBeaconData} from '../actions/beacons';
 import colors from '../colors';
 
@@ -46,7 +55,19 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
 
     componentWillMount() {
         this.props.getBeaconData();
+        if (Platform.OS === 'ios') {
+            Beacons.getAuthorizationStatus((result) => {
+                console.log(result);
+                if (result !== 'authorizedAlways' && result !== 'authorizedWhenInUse') {
+                    Alert.alert(
+                    'Sijaintipalvelut',
+                    'Salli sijaintipalveluiden käyttö puhelimen asetuksista'
+                );
+                }
+            });
+        }
     }
+
 
     openLink = (url) => {
         if (url) Linking.openURL(url).catch(err => console.error('An error occurred', err));
