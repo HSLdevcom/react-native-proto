@@ -4,10 +4,7 @@ import {
     Platform,
     PermissionsAndroid,
 } from 'react-native';
-import moment from 'moment';
-
 import * as beaconConfig from '../../beaconconfig';
-
 import stations from '../../stations.json';
 import placement from '../../placement.json';
 import prefixes from '../../municipalityprefixes.json';
@@ -123,6 +120,7 @@ export const vehicleBeaconError = function vehicleBeaconError(error) {
 * .rssi - Signal strength: RSSI value (between -100 and 0)
 * .proximity - Proximity value, can either be "unknown", "far", "near" or "immediate"
 * .accuracy - The accuracy of a beacon
+* (.distance) - The .accuracy field on Android
 **/
 
 /**
@@ -143,8 +141,52 @@ const resolveLine = (major) => {
 };
 
 /**
-* A function for resolving bus stop based on stopbeacon "uuid", "minor" and "major" attributes
-*/
+ * Fetch data about departing trains based on station and platform
+ * information resolved from a suitable stop beacon
+ * @param {Object} station
+ * @param {number} platform
+ */
+async function fetchDepartingTrains(station, platform) {
+    let departingTrains = null; //eslint-disable-line
+    try {
+        const response = await fetch( //eslint-disable-line
+            `https://rata.digitraffic.fi/api/v1/live-trains?station=${
+            station[0].stationShortCode
+            }&minutes_before_departure=180` +
+            '&minutes_after_departure=0' +
+            '&minutes_before_arrival=0' +
+            '&minutes_after_arrival=0'
+        );
+        const responseJson = await response.json();
+        responseJson.forEach((x) => {
+            _.remove(
+            x.timeTableRows, y =>
+            y.stationShortCode !== station[0].stationShortCode
+            || y.type !== 'DEPARTURE' || y.commercialTrack !== platform.toString()
+            );
+        });
+        _.remove(
+            responseJson, train => train.timeTableRows.length < 1
+            || train.trainCategory !== 'Commuter'
+        );
+        const sorted = _.sortBy(responseJson, t => t.timeTableRows[0].scheduledTime);
+        console.log('Departing trains from the platform:');
+        console.log(sorted);
+        console.log('\n');
+        departingTrains = _.take(sorted, 5);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+/**
+ * Resolve bus stop / location name
+ * based on "uuid", "minor" and "major" attributes
+ * sent by stop beacons.
+ * @param {string} uuid
+ * @param {number} major
+ * @param {number} minor
+ */
 const resolveStop = (uuid, major, minor) => {
     if (uuid === beaconId) {
         const matchingStop = prefixes.filter(s => s.code === major);
@@ -160,38 +202,10 @@ const resolveStop = (uuid, major, minor) => {
             returnString += `${matchingStation[0].stationName} - `;
         }
         const platform = minor >>> 11; //eslint-disable-line
-        if (platform > 0 && platform < 32) returnString += `Liikennepaikan ${platform}. laituri - `;
-        let departingTrains = null; //eslint-disable-line
-        // try {
-        //     fetch(
-        //         `https://rata.digitraffic.fi/api/v1/live-trains?station=${
-        //         matchingStation[0].stationShortCode
-        //         }&minutes_before_departure=180` +
-        //         '&minutes_after_departure=0' +
-        //         '&minutes_before_arrival=0' +
-        //         '&minutes_after_arrival=0'
-        //     )
-        //     .then(response => response.json()).then((responseJson) => {
-        //         responseJson.forEach((x) => {
-        //             _.remove(
-        //             x.timeTableRows, y =>
-        //             y.stationShortCode !== matchingStation[0].stationShortCode
-        //             || y.type !== 'DEPARTURE' || y.commercialTrack !== platform.toString()
-        //             );
-        //         });
-        //         _.remove(
-        //             responseJson, train => train.timeTableRows.length < 1
-        //             || train.trainCategory !== 'Commuter'
-        //         );
-        //         const sorted = _.sortBy(responseJson, t => t.timeTableRows[0].scheduledTime);
-        //         console.log('====================================');
-        //         console.log(sorted);
-        //         console.log('====================================');
-        //         departingTrains = _.take(sorted, 5);
-        //     });
-        // } catch (error) {
-        //     console.log(error);
-        // }
+        if (platform > 0 && platform < 32) {
+            returnString += `Liikennepaikan ${platform}. laituri - `;
+            // fetchDepartingTrains(matchingStation, platform);
+        }
         const placementBits = minor & 63 //eslint-disable-line
         const matchingPlacement = placement.filter(p => p.id === placementBits);
         if (matchingPlacement.length > 0) {
@@ -202,6 +216,10 @@ const resolveStop = (uuid, major, minor) => {
     return null;
 };
 
+/**
+ * Returns the full HSL timetable URL for the given HSL stop code
+ * @param {string} stop
+ */
 const resolveTimetableLink = (stop) => {
     const matchingCode = stops.filter(s => s.code === stop);
     if (matchingCode.length > 0) {
@@ -210,6 +228,11 @@ const resolveTimetableLink = (stop) => {
     return null;
 };
 
+/**
+ * Helper for determining the index of current beaconsDidRange event
+ * out of the ones firing every second when ranging beacons.
+ * @param {Object} data
+ */
 const findRegionIndex = (data) => {
     if (Platform.OS === 'ios') {
         return _.findIndex(combinedStopBeaconRegions, o => o.uuid === data.region.uuid);
@@ -217,10 +240,9 @@ const findRegionIndex = (data) => {
     return _.findIndex(combinedStopBeaconRegions, o => o.uuid === data.uuid);
 };
 
+// Android: detect beacons using the iBeacon layout
 if (Platform.OS === 'android') {
     Beacons.detectIBeacons();
-    // Beacons.setForegroundScanPeriod(FOREGROUND_SCAN_PERIOD);
-    // Beacons.setBackgroundScanPeriod(BACKGROUND_SCAN_PERIOD);
 }
 
 /**
@@ -270,9 +292,10 @@ export const stopRanging = (onlyVehicleBeacons = false, onlyStopBeacons = false)
     }
     tryingToFindBeacons = false;
 };
-// array of beacos data
+
+// Array for detected vehicle beacon data
 let workingVehicleBeacons;
-// array of beacos data
+// Array for detected stop beacon data
 let workingBeacons;
 let vehicleBeaconsLastFoundTimestamp = false;
 let firstScanTimestamp = false;
@@ -281,7 +304,9 @@ export const getWorkingBeacons = () => workingBeacons;
 export const getWorkingVehicleBeacons = () => workingVehicleBeacons;
 
 /**
-* Start ranging and add beaconsDidRange event listener
+* Start ranging and add beaconsDidRange event listener.
+* Handles determining the closest vehicle and stop beacons
+* and dispatching them into the Redux store.
 * @param {function} dispatch
 * @param {bool} onlyBeaconRegion
 * @param {bool} onlyLiviBeaconRegion
@@ -357,19 +382,19 @@ const getData = async function getData(
         }
          /**
          * Handle stop beacons:
-         * Simple comparison of the strongest signal
+         * Simple comparison of the strongest signal considering the original transmit power
          */
         if ((Platform.OS === 'ios' && (data.region.uuid === beaconRegion.uuid || data.region.uuid === liviBeaconRegion.uuid))
         || (Platform.OS === 'android' && (data.uuid === beaconRegion.uuid || data.uuid === liviBeaconRegion.uuid))) {
             workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === beaconId || b.uuid === liviBeaconId)));
-            // console.log(`STOPBEACONS: ${workingBeacons
-            //     .map(b => `\n
-            //     ${b.major}-${b.minor} :
-            //      uuid: ${b.uuid}
-            //      strength: ${b.rssi}
-            //      proximity: ${b.proximity}
-            //      accuracy: ${b.accuracy} \n`)}`);
+            console.log(`STOPBEACONS: ${workingBeacons
+                .map(b => `\n
+                ${b.major}-${b.minor} :
+                 uuid: ${b.uuid}
+                 strength: ${b.rssi}
+                 proximity: ${b.proximity}
+                 accuracy: ${b.accuracy} \n`)}`);
             if (workingBeacons.length > 0) {
                 workingBeacons = _.sortBy(workingBeacons, b => b.accuracy);
                 const beaconData = workingBeacons[0];
@@ -415,14 +440,14 @@ const getData = async function getData(
                 }
                 scannedStopBeacons = [];
             }
-            // console.log(previousStops.map(stop => stop.stop));
         }
 
 
         /**
          * Handle vehicle beacons:
-         * Combine the signals of beacons belonging to the same vehicle.
-         * Favorst multiple weaker beacons over a single stronger one.
+         * Favors multiple weaker beacons over a single stronger one.
+         * For multiple beacons belonging to the same vehicle
+         * it uses the best (lowest) accuracy value.
          */
         if ((Platform.OS === 'ios' && data.region.uuid === vehicleBeaconRegion.uuid)
         || (Platform.OS === 'android' && data.uuid === vehicleBeaconRegion.uuid)) {
@@ -437,6 +462,7 @@ const getData = async function getData(
                 accuracy: ${b.accuracy} \n`)}`);
             if (workingVehicleBeacons.length > 0) {
                 let vehicleBeacons = [];
+
 
                 workingVehicleBeacons.forEach((beacon) => {
                     if (vehicleBeacons.filter(b => b[0].major === beacon.major).length > 0) {
