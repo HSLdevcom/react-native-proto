@@ -7,7 +7,6 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
-import Cookie from 'react-native-cookie';
 import Immutable from 'immutable';
 import {
     ActivityIndicator,
@@ -21,19 +20,13 @@ import {
     View,
     WebView,
 } from 'react-native';
-import {
-    removeCookie,
-    setCookie,
-} from '../actions/cookies';
 import {removeCityBikeData} from '../actions/cityBike';
 import {
     setSession,
-    removeSession,
 } from '../actions/session';
 import colors from '../colors';
 import {REITTIOPAS_URL, REITTIOPAS_MOCK_URL} from './Main';
 import {CITYBIKE_URL} from './CityBikes';
-import {HSL_LOGIN_URL, HSL_LOGOUT_URL} from './Login';
 import {SURVEY_URL} from './WebSurvey';
 
 const screenHeight = Dimensions.get('window').height;
@@ -94,10 +87,10 @@ const styles = StyleSheet.create({
     webView: {},
 });
 
-const HSLSAMLSessionID = 'HSLSAMLSessionID';
-const whitelistUrls = ['hsl.fi', 'reittiopas.fi', 'jola.louhin'];
+// We can browse these in WebView (other urls are opened in phone browser)
+export const whitelistUrls = ['hsl.fi', 'reittiopas.fi', 'jola.louhin'];
 
-class CustomWebView extends Component { // eslint-disable-line react/prefer-stateless-function
+class CustomWebView extends Component {
     // Inner state is bad but at this point it's easier
     state = {
         backButtonEnabled: false,
@@ -109,18 +102,19 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     };
 
     componentDidMount() {
+        // Start listening AppState change, see handleAppStateChange-function
         AppState.addEventListener('change', this.handleAppStateChange);
         const {uri} = this.props;
         // TODO: do we want to get the position on every mount or keep it in store with some logic?
         // TODO: remove process.env check when https://github.com/facebook/react-native/pull/13442 is in RN
         if (uri.startsWith('https://reittiopas') && process.env.NODE_ENV !== 'test') {
-            // At the moment WebView inlineJS is used to get the current position
-            // via navigator.geolocation.watchPosition
+            /*
+            * NOTICE: At the moment WebView inlineJS is used to get the current position
+            * via navigator.geolocation.watchPosition
+            */
+
             // Get current position and use it in reittiopas
             // this.getLocation();
-        } else if (uri === HSL_LOGIN_URL) {
-            // If we come to login-view let's just check are we logged in or not
-            this.maybeLoginOrLogout();
         }
     }
 
@@ -130,18 +124,25 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         AppState.removeEventListener('change', this.handleAppStateChange);
     }
 
+    /*
+    * WebView onMessage is very fragile to errors
+    * SEE: https://github.com/HSLdevcom/react-native-proto/issues/23#issuecomment-300134505
+    */
     onMessage = (event) => {
         console.log('message: ', event.nativeEvent.data);
     }
+    /*
+    * WebView load end
+    */
     onLoadEnd = () => this.setState({loading: false});
     onError = e => console.log(e);
 
     onNavigationStateChange = (navState) => {
-        const {session} = this.props;
+        const {session, showBackForwardButtons} = this.props;
         const {url} = navState;
         // console.log(navState);
         // TODO: pass an id to CustomWebView props and add the id and webview url to (redux) store
-        // so we can open the last used page when component is rendered
+        // so we can open the last used page when component is rendered?
         if (
             url !== this.state.currentUrl &&
             url.includes('http')
@@ -161,6 +162,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             this.forceUpdate();
             Linking.openURL(url).catch(err => console.log(err));
         } else if (url.includes('https://www.hsl.fi/saml/drupal_login?returnTo') && !session.get('data').loggedIn) {
+            /*
+            * If user is in citybike-view and going to login -> open login-view
+            */
             const returnUrl = url.split('returnTo=');
             if (returnUrl.length === 2) {
                 Promise.resolve(this.props.setSession({redirect: returnUrl[1]}))
@@ -169,48 +173,18 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             } else {
                 Actions.login();
             }
-        } else if (
-            /* Handle logout flow
-            * 1) Check if we are on a page whose url includes SingleLogoutService / "saml/logout"
-            * 2) Get page cookies
-            * 3) Check if cookies includes SSESS...-cookie
-            * 4) If there's no SSESS-cookie, removeCookie and resetSession
-            * TODO: there really should be better solution for this
-            */
-            url.startsWith('https://www.hsl.fi/saml/logout') ||
-            url === 'https://login.hsl.fi/user/slo' ||
-            url === 'https://login.hsl.fi/user/login?destination=user/slo' ||
-            url.includes('login.hsl.fi/simplesaml/module.php/core/idp/resumelogout.php')
-        ) {
-            if (
-                url.startsWith('https://www.hsl.fi/saml/logout') ||
-                url === 'https://login.hsl.fi/user/login?destination=user/slo' ||
-                url.includes('login.hsl.fi/simplesaml/module.php/core/idp/resumelogout.php')
-            ) {
-                this.maybeLoginOrLogout(false, true);
-            } else {
-                this.maybeLoginOrLogout();
-            }
-        } else if (
-            /* Handle login flow
-            * 1) Check if we are on a page whose url includes (login.)hsl.fi
-            * and navigationType is formsubmit / title 'POST data'
-            * 2) Get page cookies
-            * 3) Check if cookies includes SSESS...- and HSLSAMLSessionID-cookie
-            * 4) If cookies exists, setCookie and setSession
-            * TODO: there really should be better solution for this
-            */
-                url.includes('https://login.hsl.fi/user') &&
-                !session.get('data').loggedIn
-        ) {
-            this.maybeLoginOrLogout(true);
         }
-        this.setState({
-            backButtonEnabled: navState.canGoBack,
-            forwardButtonEnabled: navState.canGoForward,
-        });
+        if (showBackForwardButtons) {
+            this.setState({
+                backButtonEnabled: navState.canGoBack,
+                forwardButtonEnabled: navState.canGoForward,
+            });
+        }
     }
-
+    /*
+    * Get location from navigator.geolocation and set it to state
+    * This is not used now (see inlineJS)
+    */
     getLocation = () => {
         const {uri} = this.props;
         navigator.geolocation.getCurrentPosition((position) => {
@@ -238,11 +212,12 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         );
     }
 
+    /*
+    * If app goes background reload webview to stop possible YouTube-video playback
+    * in case we are in hsl.fi and OS is android
+    * iOS pauses playback automatically
+    */
     handleAppStateChange = (nextAppState) => {
-        /* If app goes background reload webview to stop possible YouTube-video playback
-        * in case we are in hsl.fi and OS is android
-        * iOS pauses playback automatically
-        */
         if (
             nextAppState === 'background' &&
             Platform.OS === 'android' &&
@@ -252,104 +227,6 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
         }
     }
 
-    maybeLoginOrLogout = (probablyLogin = false, forceLogout = false) => {
-        const {cookies, session, uri} = this.props;
-        Cookie.get(uri)
-        .then((cookie) => {
-            if (cookie) {
-                return this.checkSessionCookie(cookie);
-            }
-            return {sessionCookieSet: false};
-        })
-        .then((result) => {
-            if (
-                (!probablyLogin && !result.sessionCookieSet && cookies.get('cookie')) ||
-                (!probablyLogin && forceLogout)
-            ) {
-                Promise.resolve(this.props.removeCookie())
-                .then(() => this.props.resetSession())
-                .then(() => {
-                    if (uri === HSL_LOGOUT_URL || uri === HSL_LOGIN_URL) {
-                        return Cookie.clear();
-                    }
-                    return true;
-                })
-                .then(() => {
-                    if (uri === HSL_LOGOUT_URL) {
-                        // Open menu after logout
-                        Actions.menuTab();
-                    }
-                })
-                .catch(err => console.log(err));
-            } else if (
-                // TODO: if you don't do SSO-login directly via login.hsl.fi (Kirjaudu sisään-view)
-                // there isn't 'HSLSAMLSessionID'-cookie... and this logic doesn't work
-                // use case can be for example hsl.fi/citybike -> login -> redirect
-                // BUT that doesn't happen every time...
-                probablyLogin &&
-                result.sessionCookieSet &&
-                !session.get('data').loggedIn &&
-                result.cookie.HSLSAMLSessionID
-            ) {
-                Promise.resolve(this.props.setCookie(result.cookie))
-                .then(() => {
-                    const newSession = session.get('data') ? Object.assign({}, session.get('data'), {
-                        loggedIn: true,
-                        [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID,
-                    }) : {
-                        loggedIn: true,
-                        [HSLSAMLSessionID]: result.cookie.HSLSAMLSessionID,
-                    };
-                    return this.props.setSession(newSession);
-                })
-                .then((newSession) => {
-                    if (newSession.session.redirect) {
-                        Actions.cityBike();
-                    } else if (uri === HSL_LOGIN_URL) {
-                        // Open menu after login
-                        Actions.menuTab();
-                    }
-                })
-                .catch(err => console.log(err));
-            }
-        })
-        .catch(err => console.log(err));
-    }
-    checkSessionCookie = (cookie) => {
-        let sessionCookieSet = false;
-        Object.keys(cookie).forEach((key) => {
-            // Well this isn't bulletproof but there seems to be a cookie like
-            // SSESS... when user is logged in
-            if (key.startsWith('SSESS')) {
-                sessionCookieSet = true;
-            }
-        });
-        return {cookie, sessionCookieSet};
-    }
-
-    handleCookies = (currentCookie) => {
-        console.log('currentCookie: ', currentCookie);
-        // const {cookies, uri} = this.props;
-        // if (
-        //     (
-        //         cookies.get('cookie')[HSLSAMLSessionID] &&
-        //         !currentCookie.HSLSAMLSessionID
-        //     )
-        //     ||
-        //     (
-        //         cookies.get('cookie')[HSLSAMLSessionID] &&
-        //         cookies.get('cookie')[HSLSAMLSessionID] !== currentCookie.HSLSAMLSessionID
-        //     )
-        // ) {
-        //     console.log('set cookies to webview');
-        //     Object.keys(cookies.get('cookie')).forEach((item) => {
-        //         console.log(item, cookies.get('cookie')[item]);
-        //         Cookie.set(uri, item, cookies.get('cookie')[item])
-        //         .then(() => console.log(`${item} cookie set success`))
-        //         .catch(err => console.log(err));
-        //     });
-        // }
-    }
     goBack = () => {
         this.webview.goBack();
     }
@@ -357,6 +234,7 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
     goForward = () => {
         this.webview.goForward();
     }
+
     render() {
         const {
             autoHeightEnabled,
@@ -371,14 +249,19 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             loading,
             overrideUri,
         } = this.state;
+        // In some cases we want to override props.uri
         let uri = overrideUri || this.props.uri;
 
         let containerHeight = parseInt(screenHeight - 80, 10);
         const containerBackgroundColor = uri === CITYBIKE_URL ?
-            colors.cityBikes :
-            colors.brandColor;
-        // TODO: this is not bulletproof "solution" at all...
-        // WebView inside ScrollView sucks...
+            colors.cityBikes : // yellow
+            colors.brandColor; // blue
+
+        /*
+        * TODO: this is not bulletproof "solution" at all...
+        * WebView inside ScrollView sucks... https://github.com/HSLdevcom/react-native-proto/issues/7#issuecomment-293803825
+        * This tries to set extra height to container View (why not to use ScrollView, see issue ^)
+        */
         if (autoHeightEnabled) {
             containerHeight = (screenWidth > 400) ?
                 (1000 + parseInt(screenHeight - 80, 10)) :
@@ -387,6 +270,11 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
 
         let webViewMarginTop = (Platform.OS === 'ios') ? 20 : 0;
         if (autoHeightEnabled) webViewMarginTop = 0;
+
+        /*
+        * inlineJS depends on current uri but if onMessage is enabled
+        * we need to include this anyways
+        */
         let inlineJS = onMessageEnabled ? `
             // Workaround to https://github.com/facebook/react-native/issues/10865
             var originalPostMessage = window.postMessage;
@@ -409,11 +297,17 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             //     }
             //     postMessage('height;' + height);
             // })();
-        ` : '';
+        ` : `
+        `;
 
+        /*
+        * Use inlineJS to set mock position
+        * TODO: use navigator.geolocation (problem is Android that won't update the WebView)
+        * TODO: check coords.accuracy and update location only if it's > X?
+        */
         if (uri === REITTIOPAS_MOCK_URL) {
-            // Use inlineJS to set mock position
             inlineJS += `
+                window.navigator.standalone = true;
                 setTimeout(() => {
                     if (window.mock) {
                         if (navigator && navigator.geolocation) {
@@ -439,6 +333,9 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             * Try to click the login-button in hsl.fi/citybike to enable "automatic login"
             * Android needs a bit different logic than iOS...
             * https://stackoverflow.com/a/37332447/4047536
+            * There's also '?content-only' replace to currentUrl and all other hsl.fi urls
+            * TODO: make this more bulletproof
+            * TODO: avoid hacks like this...
             */
             inlineJS += Platform.OS === 'android' ? `
                 var ready = function(fn) {
@@ -505,6 +402,10 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 };
             `;
         } else if (uri === CITYBIKE_URL) {
+            /*
+            * If we are on CITYBIKE_URL and not loggedIn we can use '?content-only'
+            * But here we have the same inlineJS hacks as above...
+            */
             uri = `${CITYBIKE_URL}?content-only`;
             inlineJS += Platform.OS === 'android' ? `
                 var ready = function(fn) {
@@ -551,23 +452,11 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
                 }
             };
             `;
-        } else if (uri === CITYBIKE_URL && session.get('data') && session.get('data').loggedIn) {
-            inlineJS += `
-                // Try to click the login-button in hsl.fi/citybike to enable "automatic login"
-                window.onload = function() {
-                    const loginContainer = document.getElementsByClassName('saml-login-link');
-                    if (
-                        loginContainer.length &&
-                        loginContainer[0].children.length &&
-                        loginContainer[0].children[0].href &&
-                        loginContainer[0].children[0].href.includes('login')
-                    ) {
-                        document.getElementsByClassName('saml-login-link')[0].children[0].click();
-                    }
-                }
-            `;
         }
 
+        /*
+        * Add back/forward buttons inside the WebView if showBackForwardButtons is set
+        */
         const backButton = showBackForwardButtons ?
             (
                 <TouchableOpacity
@@ -593,9 +482,13 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
             ) :
             null;
 
-        // we need to use this until this PR is merged https://github.com/facebook/react-native/pull/12807
-        // to enable input type file in Webview
-        // TODO: AndroidWebView isn't working with RN 0.44...
+        /*
+        * We need to use this until this PR is merged https://github.com/facebook/react-native/pull/12807
+        * to enable input type file in Webview
+        * TODO: AndroidWebView isn't working with RN 0.44...
+        * There was AndroidWebView "react-native-webview-file-upload-android" to enable
+        * file upload input in SURVEY_URL WebView but it's not working anymore...
+        */
         const webView = (uri === SURVEY_URL && Platform.OS === 'android') ?
         (<WebView
             ref={(c) => { this.webview = c; }}
@@ -652,20 +545,13 @@ class CustomWebView extends Component { // eslint-disable-line react/prefer-stat
 
 CustomWebView.propTypes = {
     autoHeightEnabled: PropTypes.bool,
-    resetSession: PropTypes.func.isRequired,
-    cookies: PropTypes.oneOfType([
-        PropTypes.instanceOf(Object),
-        PropTypes.instanceOf(Immutable.Map)],
-    ).isRequired,
     onMessageEnabled: PropTypes.bool,
     // removeCityBikeData: PropTypes.func.isRequired,
-    removeCookie: PropTypes.func.isRequired,
     scrollEnabled: PropTypes.bool,
     session: PropTypes.oneOfType([
         PropTypes.instanceOf(Object),
         PropTypes.instanceOf(Immutable.Map)],
     ).isRequired,
-    setCookie: PropTypes.func.isRequired,
     setSession: PropTypes.func.isRequired,
     showBackForwardButtons: PropTypes.bool,
     uri: PropTypes.string.isRequired,
@@ -680,17 +566,13 @@ CustomWebView.defaultProps = {
 
 function mapStateToProps(state) {
     return {
-        cookies: state.cookies,
         session: state.session,
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        removeCookie: () => dispatch(removeCookie()),
         removeCityBikeData: () => dispatch(removeCityBikeData()),
-        resetSession: () => dispatch(removeSession()),
-        setCookie: cookie => dispatch(setCookie(cookie)),
         setSession: session => dispatch(setSession(session)),
     };
 }

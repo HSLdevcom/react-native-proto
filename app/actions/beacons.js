@@ -388,13 +388,13 @@ const getData = async function getData(
         || (Platform.OS === 'android' && (data.uuid === beaconRegion.uuid || data.uuid === liviBeaconRegion.uuid))) {
             workingBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === beaconId || b.uuid === liviBeaconId)));
-            console.log(`STOPBEACONS: ${workingBeacons
-                .map(b => `\n
-                ${b.major}-${b.minor} :
-                 uuid: ${b.uuid}
-                 strength: ${b.rssi}
-                 proximity: ${b.proximity}
-                 accuracy: ${b.accuracy} \n`)}`);
+            // console.log(`STOPBEACONS: ${workingBeacons
+            //     .map(b => `\n
+            //     ${b.major}-${b.minor} :
+            //      uuid: ${b.uuid}
+            //      strength: ${b.rssi}
+            //      proximity: ${b.proximity}
+            //      accuracy: ${b.accuracy} \n`)}`);
             if (workingBeacons.length > 0) {
                 workingBeacons = _.sortBy(workingBeacons, b => b.accuracy);
                 const beaconData = workingBeacons[0];
@@ -453,13 +453,12 @@ const getData = async function getData(
         || (Platform.OS === 'android' && data.uuid === vehicleBeaconRegion.uuid)) {
             workingVehicleBeacons = data.beacons.filter(b =>
             (b.rssi < 0 && (b.uuid === vehicleBeaconId)));
-            workingVehicleBeacons = _.sortBy(workingVehicleBeacons, b => b.accuracy);
-            console.log(`VEHICLEBEACONS: ${workingVehicleBeacons
-                .map(b => `\n ${b.major}-${b.minor} :
-                uuid: ${b.uuid}
-                strength: ${b.rssi}
-                proximity: ${b.proximity}
-                accuracy: ${b.accuracy} \n`)}`);
+            // console.log(`VEHICLEBEACONS: ${workingVehicleBeacons
+            //     .map(b => `\n ${b.major}-${b.minor} :
+            //     uuid: ${b.uuid}
+            //     strength: ${b.rssi}
+            //     proximity: ${b.proximity}
+            //     accuracy: ${b.accuracy} \n`)}`);
             if (workingVehicleBeacons.length > 0) {
                 let vehicleBeacons = [];
 
@@ -516,8 +515,6 @@ const getData = async function getData(
                 if (!previousVehicles || previousVehicles.length === 0) {
                     // If we haven't seen vehicle beacons in 20 sec, stop ranging
                     const timestamp = Date.now();
-                    console.log('timestamp - vehicleBeaconsLastFoundTimestamp: ', timestamp - vehicleBeaconsLastFoundTimestamp);
-                    console.log('timestamp - firstScanTimestamp: ', timestamp - firstScanTimestamp);
                     if (
                         (
                             parseInt(vehicleBeaconsLastFoundTimestamp, 10) > 0 &&
@@ -538,7 +535,7 @@ const getData = async function getData(
             }
             // console.log(previousVehicles.map(v => v.major));
         }
-        console.log('--------------');
+        // console.log('--------------');
     });
 };
 
