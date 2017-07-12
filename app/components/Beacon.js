@@ -140,6 +140,12 @@ class Beacon extends Component { // eslint-disable-line react/prefer-stateless-f
                         accessibilityLabel="Avaa pysäkin aikataulu"
                         disabled={!(displayedStopBeacon && displayedStopBeacon.link)}
                     />
+                    <Text>
+                        Muut sijainnit lähelläsi:
+                    </Text>
+                    <Text>
+                        {otherStops ? otherStops[0] : 'Ei muita'}
+                    </Text>
                 </View>
             </View>
         );
